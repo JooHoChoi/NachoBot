@@ -12,6 +12,17 @@ function start() {
    let room = [];
    const maxParticipants = 12;  
    
+   //'/cmd' 라는 명령어가 오면, 명령어 리스트를 전달한다.
+   bot.onText(/\/cmd/, (msg, match) => {
+    const chatId = msg.chat.id;  
+    const response =
+    `/참가: 게임에 참가합니다.
+    /나가기: 참여한 게임에서 나갑니다.
+    /현황: 참가신청 현황을 확인합니다`;
+  
+    bot.sendMessage(chatId, response);
+  });
+
    // '/참가' 라는 명령어가 오면, 게임 참가를 받는다
    bot.onText(/\/참가/, (msg, match) => {
       // 'msg' : 텔레그램으로 부터 수신한 메세지
@@ -35,6 +46,19 @@ function start() {
     
       bot.sendMessage(chatId, response);
     });
+
+    bot.onText(/\/나가기/, (msg) => {
+      const chatId = msg.chat.id;
+    
+      if (!isUserAlreadyInRoom(chatId)) {
+        bot.sendMessage(chatId, '참여한 사용자가 아닙니다.');
+        return;
+      }
+    
+      removeUserFromRoom(chatId); // 사용자를 room 배열에서 제거하는 함수 호출
+    
+      bot.sendMessage(chatId, '게임에서 나갔습니다.');
+    });
     
     function isRoomFull() {
       return room.length >= maxParticipants;
@@ -47,6 +71,11 @@ function start() {
     function addUserInfoToRoom(chatId, name) {
       const user = { id: chatId, name: name };
       room.push(user);
+    }
+
+    function removeUserFromRoom(chatId) {
+      const userIndex = room.findIndex(user => user.id === chatId);
+      room.splice(userIndex, 1);
     }
 
     //참여중인 사람 확인
