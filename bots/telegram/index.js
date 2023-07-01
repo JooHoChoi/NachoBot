@@ -6,19 +6,83 @@ const TelegramBot = require('node-telegram-bot-api');
 // 텔레그램 봇을 생성하고, polling 방식으로 메세지를 가져옴
 const bot = new TelegramBot(token, { polling: true });
 
+const masterId = 5771249800;
 function start() {
-   // '/echo' 라는 명령어가 오면, 로직 수행 후 => 따라 말한다.
-   bot.onText(/\/start/, (msg, match) => {
-      // 'msg' : 텔레그램으로 부터 수신한 메세지
-      // 'match' : 정규식을 실행한 결과 
-     
-       const chatId = msg.chat.id;
-       const resp = '게임을 시작합니다...당신의 ID는' + chatId +'입니다.';
-       //const resp = '따라하기 : ' + match[1];
-       console.log(chatId);
-       bot.sendMessage(chatId, resp);
-   });
 
+   let room = [];
+   const maxParticipants = 12;  
+   
+   // '/참가' 라는 명령어가 오면, 게임 참가를 받는다
+   bot.onText(/\/참가/, (msg, match) => {
+      // 'msg' : 텔레그램으로 부터 수신한 메세지
+      // 'match' : 정규식을 실행한 결과
+      const chatId = msg.chat.id;
+      const name = msg.from.first_name;
+    
+      if (isRoomFull()) {
+        bot.sendMessage(chatId, '이미 최대 참여자 수에 도달했습니다.');
+        return;
+      }
+    
+      if (isUserAlreadyInRoom(chatId)) {
+        bot.sendMessage(chatId, '이미 참여하셨습니다.');
+        return;
+      }
+    
+      addUserInfoToRoom(chatId, name); // 사용자 정보를 room 배열에 추가하는 함수 호출
+    
+      const response = `안녕하세요, ${name}님! \n당신의 ID는 ${chatId}입니다.`;
+    
+      bot.sendMessage(chatId, response);
+    });
+    
+    function isRoomFull() {
+      return room.length >= maxParticipants;
+    }
+    
+    function isUserAlreadyInRoom(chatId) {
+      return room.some(user => user.id === chatId);
+    }
+    
+    function addUserInfoToRoom(chatId, name) {
+      const user = { id: chatId, name: name };
+      room.push(user);
+    }
+
+    //참여중인 사람 확인
+    bot.onText(/\/현황/, (msg) => {
+      const chatId = msg.chat.id;
+    
+      if (room.length === 0) {
+        bot.sendMessage(chatId, '참여한 사용자가 없습니다.');
+        return;
+      }
+    
+      const participantNames = room.map(user => user.name).join(', ');
+      const participantCount = room.length;
+      const response = `현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
+
+      bot.sendMessage(chatId, response);
+    });
+    
+    //관리자용 명령어
+    //참가인원 초기화
+    bot.onText(/\/초기화/, (msg, match) => {
+      // 'msg' : 텔레그램으로 부터 수신한 메세지
+      // 'match' : 정규식을 실행한 결과
+       const chatId = msg.chat.id; 
+       if(chatId === masterId){
+         room = [];
+         const resp = `참가자 명단을 초기화 합니다`;
+         console.log(room);
+         bot.sendMessage(chatId, resp);
+       }else{
+         const resp = `관리자만 사용할 수 있는 기능입니다`;
+         bot.sendMessage(chatId, resp)
+       }
+       
+
+   });
    // .on('message')을 통해 bot이 어떤 메세지든 수신하도록 해줌
 //    bot.on('message', (msg, ) => {
 //       const chatId = msg.chat.id;
@@ -27,6 +91,8 @@ function start() {
 //       bot.sendMessage(chatId, '메세지 수신 완료!');
 //    });
 }
+
+
 
 module.exports = { 
    start: start,
