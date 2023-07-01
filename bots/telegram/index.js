@@ -10,13 +10,15 @@ const masterId = 5771249800;
 function start() {
 
    let room = [];
-   const maxParticipants = 12;  
+   const maxParticipants = 12; // 최대 참여자 수
+   
+   let gameStarted = false; // 게임 시작 여부를 저장하는 변수   
    
    //'/cmd' 라는 명령어가 오면, 명령어 리스트를 전달한다.
    bot.onText(/\/cmd/, (msg, match) => {
     const chatId = msg.chat.id;  
-    const response =
-    `/참가: 게임에 참가합니다.
+    const response =`
+    /참가: 게임에 참가합니다.
     /나가기: 참여한 게임에서 나갑니다.
     /현황: 참가신청 현황을 확인합니다`;
   
@@ -59,6 +61,16 @@ function start() {
     
       bot.sendMessage(chatId, '게임에서 나갔습니다.');
     });
+
+    bot.onText(/\/시작/, (msg) => {
+      const chatId = msg.chat.id;
+    
+      if (room.length >= 2 && !gameStarted && chatId === room[0].id) {
+        startGame(); // 게임 시작 함수 호출
+      } else {
+        bot.sendMessage(chatId, '게임을 시작할 수 있는 조건이 충족되지 않았습니다.');
+      }
+    });
     
     function isRoomFull() {
       return room.length >= maxParticipants;
@@ -78,6 +90,16 @@ function start() {
       room.splice(userIndex, 1);
     }
 
+    function startGame() {
+      gameStarted = true;
+    
+      const message = '게임을 시작합니다!';
+    
+      room.forEach(user => {
+        bot.sendMessage(user.id, message);
+      });
+    }
+    
     //참여중인 사람 확인
     bot.onText(/\/현황/, (msg) => {
       const chatId = msg.chat.id;
@@ -102,6 +124,7 @@ function start() {
        const chatId = msg.chat.id; 
        if(chatId === masterId){
          room = [];
+         gameStarted = false;
          const resp = `참가자 명단을 초기화 합니다`;
          console.log(room);
          bot.sendMessage(chatId, resp);
