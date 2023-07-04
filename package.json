@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "supervisor ./bin/www",
     "build": "pkg ."
   },
   "bin": {
     "app": "./bin/www"
   },
-  "pkg":{
+  "pkg": {
     "assets": [
       "views/**/*",
       "public/**/*"
@@ -19,6 +19,7 @@
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
+    "fs": "^0.0.1-security",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
     "node-telegram-bot-api": "^0.61.0",

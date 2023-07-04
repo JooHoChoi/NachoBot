@@ -1,0 +1,92 @@
+{
+    "L": {
+        "name": "", 
+        "skill1": true,
+        "skill2": true,
+        "alive": true,
+        "id": "",
+        "role": "L"
+    },
+
+    "N": {
+        "name": "",
+        "skill1": false,
+        "skill2": false,
+        "skill3": true,
+        "skill4": true,
+        "alive": true,
+        "id": "",
+        "role": "N"
+    },
+
+    "M": {
+        "name": "",
+        "skill1": true,
+        "skill2": false,
+        "alive": true,
+        "id": "",
+        "role": "M"
+    },
+
+    "W": {
+        "name": "",
+        "skill1": true,
+        "skill2": false,
+        "alive": true,
+        "id": "",
+        "role": "W"
+    },
+
+    "Hal": {
+        "name": "",
+        "skill1": true,
+        "skill2": true,
+        "alive": true,
+        "id": "",
+        "role": "Hal"
+    },
+    
+    "Mogi": {
+        "name": "",
+        "skill1": true,
+        "skill2": true,
+        "alive": true,
+        "id": "",
+        "role": "Mogi"
+    },
+
+    "Mathuda": {
+        "name": "",
+        "skill1": true,
+        "alive": true,
+        "id": "",
+        "role": "Mathuda"
+    },
+
+    "Kira": {
+        "name": "",
+        "skill1": true,
+        "skill2": true,
+        "alive": true,
+        "id": "",
+        "role": "kira"
+    },
+
+    "Misa": {
+        "name": "",
+        "skill1": true,
+        "skill2": true,
+        "alive": true,
+        "id": "",
+        "role": "Misa"
+    },
+
+    "Kiyomi": {
+        "name": "",
+        "skill1": true,
+        "skill2": 2,
+        "alive": true,
+        "id": "",
+        "role": "Kiyomi"
+    }
+}

@@ -5,13 +5,17 @@ const TelegramBot = require('node-telegram-bot-api');
 
 //외부 JS
 const room = require('./room');
-const game = require('./game');
 
 // 텔레그램 봇을 생성하고, polling 방식으로 메세지를 가져옴
 const bot = new TelegramBot(token, { polling: true });
 
 const masterId = 5771249800;
-function start() {  
+function start() {
+
+   let room = [];
+   const maxParticipants = 12; // 최대 참여자 수
+   
+   let gameStarted = false; // 게임 시작 여부를 저장하는 변수   
    
    //'/cmd' 라는 명령어가 오면, 명령어 리스트를 전달한다.
    bot.onText(/\/cmd/, (msg, match) => {
@@ -23,12 +27,8 @@ function start() {
     /현황: 참가신청 현황을 확인합니다
   
 <게임 명령어>
-    /스킬: 사용가능한 스킬을 확인합니다(개발중)
-    
-<기타 명령어>
-    /자추 A B: A가 B에게 자추를 시전합니다`;
-
-    
+    /스킬: 사용가능한 스킬을 확인합니다`;
+  
     bot.sendMessage(chatId, response);
   });
 
@@ -39,17 +39,17 @@ function start() {
       const chatId = msg.chat.id;
       const name = msg.from.first_name;
     
-      if (room.isRoomFull()) {
+      if (isRoomFull()) {
         bot.sendMessage(chatId, '이미 최대 참여자 수에 도달했습니다.');
         return;
       }
     
-      if (room.isUserAlreadyInRoom(chatId)) {
+      if (isUserAlreadyInRoom(chatId)) {
         bot.sendMessage(chatId, '이미 참여하셨습니다.');
         return;
       }
     
-      room.addUserInfoToRoom(chatId, name); // 사용자 정보를 room 배열에 추가하는 함수 호출
+      addUserInfoToRoom(chatId, name); // 사용자 정보를 room 배열에 추가하는 함수 호출
     
       const response = `안녕하세요, ${name}님! \n당신의 ID는 ${chatId}입니다.`;
     
@@ -59,29 +59,67 @@ function start() {
     bot.onText(/\/나가기/, (msg) => {
       const chatId = msg.chat.id;
     
-      if (!room.isUserAlreadyInRoom(chatId)) {
+      if (!isUserAlreadyInRoom(chatId)) {
         bot.sendMessage(chatId, '참여한 사용자가 아닙니다.');
         return;
       }
     
-      room.removeUserFromRoom(chatId); // 사용자를 room 배열에서 제거하는 함수 호출
+      removeUserFromRoom(chatId); // 사용자를 room 배열에서 제거하는 함수 호출
     
       bot.sendMessage(chatId, '게임에서 나갔습니다.');
     });
 
     bot.onText(/\/시작/, (msg) => {
-      const chatId = msg.chat.id
-      if (room.getRoom().length >= 9 && chatId === room.getRoom()[0].id) {
-        room.startGame(bot); // 게임 시작 함수 호출
+      const chatId = msg.chat.id;
+    
+      if (room.length >= 2 && !gameStarted && chatId === room[0].id) {
+        startGame(); // 게임 시작 함수 호출
       } else {
         bot.sendMessage(chatId, '게임을 시작할 수 있는 조건이 충족되지 않았습니다.');
       }
     });
     
+    function isRoomFull() {
+      return room.length >= maxParticipants;
+    }
+    
+    function isUserAlreadyInRoom(chatId) {
+      return room.some(user => user.id === chatId);
+    }
+    
+    function addUserInfoToRoom(chatId, name) {
+      const user = { id: chatId, name: name };
+      room.push(user);
+    }
+
+    function removeUserFromRoom(chatId) {
+      const userIndex = room.findIndex(user => user.id === chatId);
+      room.splice(userIndex, 1);
+    }
+
+    function startGame() {
+      gameStarted = true;
+    
+      const message = '게임을 시작합니다!';
+    
+      room.forEach(user => {
+        bot.sendMessage(user.id, message);
+      });
+    }
+    
     //참여중인 사람 확인
     bot.onText(/\/현황/, (msg) => {
       const chatId = msg.chat.id;
-      const response = room.getRoomStatus();
+    
+      if (room.length === 0) {
+        bot.sendMessage(chatId, '참여한 사용자가 없습니다.');
+        return;
+      }
+    
+      const participantNames = room.map(user => user.name).join(', ');
+      const participantCount = room.length;
+      const response = `현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
+
       bot.sendMessage(chatId, response);
     });
     
@@ -92,48 +130,18 @@ function start() {
       // 'match' : 정규식을 실행한 결과
        const chatId = msg.chat.id; 
        if(chatId === masterId){
-         room.resetRoom();
+         room = [];
+         gameStarted = false;
          const resp = `참가자 명단을 초기화 합니다`;
+         console.log(room);
          bot.sendMessage(chatId, resp);
        }else{
          const resp = `관리자만 사용할 수 있는 기능입니다`;
          bot.sendMessage(chatId, resp)
        }
-    });
+       
 
-    bot.onText(/\/데스노트 (.+)/, (msg, match) => {
-      console.log(match);   
-      const chatId = msg.chat.id;
-      const input = match[1];
-      const values = input.split(' ');
-      
-      if (values.length >= 2) {
-        const value1 = values[0];
-        const value2 = values[1];
-    
-        bot.sendMessage(chatId, `입력된 값1: ${value1}\n입력된 값2: ${value2}`);
-      } else {
-        bot.sendMessage(chatId, '2개의 값을 띄어쓰기로 구분하여 입력해주세요.');
-      }
-    });
-
-    bot.onText(/\/자추 (.+)/, (msg, match) => {
-      console.log(match);   
-      const chatId = msg.chat.id;
-      const input = match[1];
-      const values = input.split(' ');
-      
-      if (values.length >= 2) {
-        const value1 = values[0];
-        const value2 = values[1];
-    
-        bot.sendMessage(chatId, `**어죽자죽 자추 시스템**
-        \n${value1}(이)가 ${value2}에게 자추를 시전합니다`);
-      } else {
-        bot.sendMessage(chatId, '추천인과 자추인을 잘 구분해주세요');
-      }
-    });
-
+   });
    // .on('message')을 통해 bot이 어떤 메세지든 수신하도록 해줌
 //    bot.on('message', (msg, ) => {
 //       const chatId = msg.chat.id;
@@ -142,6 +150,8 @@ function start() {
 //       bot.sendMessage(chatId, '메세지 수신 완료!');
 //    });
 }
+
+
 
 module.exports = { 
    start: start
