@@ -5,7 +5,7 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "L"
+        "role": "엘"
     },
 
     "N": {
@@ -16,7 +16,7 @@
         "skill4": true,
         "alive": true,
         "id": "",
-        "role": "N"
+        "role": "니아"
     },
 
     "M": {
@@ -25,7 +25,7 @@
         "skill2": false,
         "alive": true,
         "id": "",
-        "role": "M"
+        "role": "멜로"
     },
 
     "W": {
@@ -34,7 +34,7 @@
         "skill2": false,
         "alive": true,
         "id": "",
-        "role": "W"
+        "role": "와타리"
     },
 
     "Hal": {
@@ -43,7 +43,7 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "Hal"
+        "role": "할 리드너"
     },
 
     "Jebanni": {
@@ -52,7 +52,7 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "Jebanni"
+        "role": "제반니"
     },
     
     "Mogi": {
@@ -61,7 +61,7 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "Mogi"
+        "role": "모기"
     },
 
     "Mathuda": {
@@ -69,7 +69,7 @@
         "skill1": true,
         "alive": true,
         "id": "",
-        "role": "Mathuda"
+        "role": "마츠다"
     },
 
     "Kira": {
@@ -78,7 +78,7 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "Kira"
+        "role": "키라"
     },
 
     "Misa": {
@@ -87,7 +87,7 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "Misa"
+        "role": "미사"
     },
 
     "Kiyomi": {
@@ -96,7 +96,7 @@
         "skill2": 2,
         "alive": true,
         "id": "",
-        "role": "Kiyomi"
+        "role": "키요미"
     },
 
     "Mikami": {
@@ -105,7 +105,7 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "Mikami"
+        "role": "미카미"
     }
 }
 

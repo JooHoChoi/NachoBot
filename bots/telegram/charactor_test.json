@@ -1,0 +1,35 @@
+{
+    "L": {
+        "name": "", 
+        "skill1": true,
+        "skill2": true,
+        "alive": true,
+        "id": "",
+        "role": "엘"
+    },
+
+    "N": {
+        "name": "",
+        "skill1": false,
+        "skill2": false,
+        "skill3": true,
+        "skill4": true,
+        "alive": true,
+        "id": "",
+        "role": "니아"
+    },
+
+    "Kira": {
+        "name": "",
+        "skill1": true,
+        "skill2": false,
+        "alive": true,
+        "id": "",
+        "role": "키라"
+    }
+}
+
+
+
+
+
