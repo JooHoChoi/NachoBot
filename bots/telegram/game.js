@@ -5,8 +5,11 @@ const charactor10 = require('./charactor10.json');
 const charactor11 = require('./charactor11.json');
 const charactor12 = require('./charactor12.json');
 
+const index = require('./index');
+
 let room = [];
 let mapped_role;
+
 
 function startGame(roomData, callback_mapping) {
   room = roomData;
@@ -61,7 +64,7 @@ function mapNameToJSON(roomData, charactor, callback){
 
 //키라 체포, 캐릭터: 엘, 니아
 function arrest_Kira(chatId, capturedPerson, arrest){
-  if(mapped_role.L.id === chatId && mapped_role.L.alive === true){
+  if(mapped_role.L.id === chatId && mapped_role.L.alive === true && mapped_role.L.skill1 === true){
     if(mapped_role.Kira.name === capturedPerson){
       console.log('L추리성공')
       const result = 'success'
@@ -69,11 +72,12 @@ function arrest_Kira(chatId, capturedPerson, arrest){
     }
     else{
       console.log('L추리실패')
+      mapped_role.L.skill1 = false;
       const result = 'fail-L'
       arrest(result)
     }
   }
-  else if(mapped_role.N.id === chatId && mapped_role.L.alive === false){
+  else if(mapped_role.N.id === chatId && mapped_role.L.alive === false && mapped_role.N.skill1 === true){
     if(mapped_role.Kira.name === capturedPerson){
       console.log('N추리성공')
       const result = 'success'
@@ -81,6 +85,7 @@ function arrest_Kira(chatId, capturedPerson, arrest){
     }
     else{
       console.log('N추리실패')
+      mapped_role.N.skill1 = false;
       const result = 'fail-N'
       arrest(result)
     }
@@ -94,25 +99,33 @@ function arrest_Kira(chatId, capturedPerson, arrest){
 
 //방송, 캐릭터: 엘, 니아(엘 사망 이후), 키요미(2회)
 function broadcast(chatId, broad){
-  if(mapped_role.L.id === chatId && mapped_role.L.alive === true){
-    const result = true
-    broad(result)    
+  console.log('방송 실행')
+  if(mapped_role.L.id === chatId && mapped_role.L.alive === true && mapped_role.L.skill2 === true){
+    mapped_role.L.skill2 = false;
+    setTimeout(()=>{
+      mapped_role.L.skill2 = true;
+    }, 60000)
+    broad(true)    
   }
-  else if(mapped_role.N.id === chatId && mapped_role.L.alive === false){
-    const result = true
-    broad(result)
+  else if(mapped_role.N.id === chatId && mapped_role.L.alive === false && mapped_role.N.skill2 === true){
+    mapped_role.N.skill2 = false;
+    setTimeout(()=>{
+      mapped_role.N.skill2 = true;
+    }, 60000)
+    broad(true) 
   }
-  else if(mapped_role.Kiyomi.id === chatId && mapped_role.kiyomi.skill2<=2){
-    mapped_role.kiyomi.skill2 = mapped_role.kiyomi.skill2-1;
-    const result = true
-    broad(result)
-  }
+  // else if(mapped_role.Kiyomi.id === chatId && parseInt(mapped_role.Kiyomi.skill2)>0 && mapped_role.Kiyomi.alive === true){
+  //   console.log("키요미 방송")
+  //   const skill_temp = parseInt(mapped_role.Kiyomi.skill2) - 1;
+  //   mapped_role.Kiyomi.skill2 = skill_temp;
+  //   broad(true)
+  // }
   else{
-   // console.log('대상아님')
-   const result = false
-    broad(result)
+    console.log('대상아님')
+    broad(false)
   }
 }
+
 
 //키요미 감시, 캐릭터: 니아
 function watching_Kiyomi(){
@@ -175,13 +188,86 @@ function babo(){
 }
 
 //데스노트, 캐릭터: 키라, 미카미(3회)
-function deathNote(){
+function deathNote(chatId, role, capturedPerson, bot, deathNotes){
+  if(mapped_role.Kira.id === chatId && mapped_role.Kira.skill1 === true){
+    mapped_role.Kira.skill1 = false;
+    setTimeout(()=>{
+      mapped_role.Kira.skill1 = true;
+    }, 900)
 
+    let foundMatch = false; //일치하는 플레이어를 찾는 변수
+    for(const key in mapped_role){
+      console.log('데스노트 일치여부 checking...')
+      if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson) {
+        console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
+        setTimeout(()=>{
+          deathMsg(chatId, mapped_role[key], bot, function(callback){
+            if(callback===true){
+              deathNotes(true);
+            }
+          });
+
+        }, 4000);
+        foundMatch = true;
+        break;
+      }
+    }
+    if(!foundMatch){
+      bot.sendMessage(chatId, '아무 일도 일어나지 않았습니다.');
+    }
+  }
+  else{
+    bot.sendMessage(chatId, `조건이 맞지않거나 스킬쿨타임으로 사용이 불가합니다`);
+  }
 }
 
 //시계노트, 캐릭터: 키라
 function watchNote(){
 
+}
+
+function deathMsg(chatId, dead, bot, callback){
+  dead.alive = false;
+  bot.sendMessage(chatId, `데스노트로 인해 ` + dead.role + `(이)가 사망했습니다.`)
+  bot.sendMessage(dead.id, '당신은 데스노트에 의해 사망했습니다');
+  
+  if(dead.role === '엘'){
+    mapped_role.N.skill1 = true;
+    mapped_role.N.skill2 = true;
+    if(!mapped_role.N.alive){ //니아가 죽어있는 상태면 게임 종료
+      for(const key in mapped_role){
+        const participant = mapped_role[key];
+        const message = `
+        **L과N 전원 사망했습니다. 키라의 승리입니다 -게임 종료-**`;
+        //bot.sendMessage(participant.id, message)
+        //roomReset.resetRoom();
+        bot.sendMessage(participant.id, message)
+      }
+    callback(true);
+    }
+  }
+  if(dead.role === '니아' && mapped_role.L.alive === false){
+    for(const key in mapped_role){
+      const participant = mapped_role[key];
+      const message = `
+      **L과N 전원 사망했습니다. 키라의 승리입니다 -게임 종료-**`;
+      //bot.sendMessage(participant.id, message)
+      bot.sendMessage(participant.id, message)
+    }
+    callback(true);
+  }
+
+  if(dead.role === '키라'){
+    for(const key in mapped_role){
+      const participant = mapped_role[key];
+      const message = `
+      **키라가 사망했습니다. L측의 승리입니다 -게임 종료-**`;
+      //bot.sendMessage(participant.id, message)
+      //roomReset.resetRoom();
+      bot.sendMessage(participant.id, message)
+    }
+    callback(true);
+  }
 }
 
 //2대 키라, 캐릭터: 미사
@@ -231,5 +317,5 @@ module.exports = {
   envoyEyes,
   gatheringInfo,
   worship_Kira,
-  notice
+  notice,
 };

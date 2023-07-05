@@ -25,8 +25,13 @@ function start() {
     /시작: 방장(/현황 맨 앞 플레이어)이 게임을 시작합니다(9~12인)
   
 <게임 명령어>
-    /스킬: 사용가능한 스킬을 확인합니다(개발중)
-    
+    /키라 체포: 입력 후, 키라로 의심되는 플레이어 이름을 입력
+      (성공 시, L측 승리 / 실패 시, L의 정체가 전 플레이어에게 공개됨)
+    /방송: L의 이름으로 모든 플레이어에게 메세지를 보냅니다
+      (쿨타임 1분 / 니아는 L이 사망상태일 경우에만 사용가능)
+    /데스노트 [역할]: 죽이고 싶은 역할을 입력한 뒤, 해당 역할로 의심되는 플레이어 이름을 입력(쿨다운 1분30초)
+      (성공 시, 해당 플레이어는 40초뒤 사망)
+
 <기타 명령어>
     /자추 A B: A가 B에게 자추를 시전합니다`;
 
@@ -111,15 +116,11 @@ function start() {
 
     //게임 명령어
     
-    //게임중에만 사용할 수 있는지 체크
-    // if(room.getGameStatus() === false){
-    //   bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
-    // }
-    // else{
-    //   //게임중이므로 사용할 함수 작성
-       
-    // }
-      
+    
+    function NotTarget(chatId){
+      bot.sendMessage(chatId, `조건이 맞지않거나 스킬쿨타임으로 사용이 불가합니다`);
+    }
+
     //키라 체포
     bot.onText(/\/키라 체포/, (msg) => {
       const chatId = msg.chat.id;
@@ -134,7 +135,6 @@ function start() {
             // 사용자 입력을 받기 위해 대기
             bot.once('message', (capturedMsg) => {
               const capturedPerson = capturedMsg.text; // 사용자 입력 저장
-              //const captureSuccess = game.arrest_Kira(chatId, capturedPerson);
 
               game.arrest_Kira(chatId, capturedPerson, function(arrest){             
                 if(arrest === 'success'){
@@ -147,7 +147,6 @@ function start() {
                       //bot.sendMessage(participant.id, message)
                       room.resetRoom();
                       bot.sendMessage(participant.id, message)
-                      
                     }
                   });
                 }
@@ -224,23 +223,35 @@ function start() {
       
     });
 
-    function NotTarget(chatId){
-      bot.sendMessage(chatId, `조건에 맞지않아 사용할 수 없습니다.`);
-    }
-
+    //데스노트 역할
     bot.onText(/\/데스노트 (.+)/, (msg, match) => {
-      console.log(match);   
       const chatId = msg.chat.id;
-      const input = match[1];
-      const values = input.split(' ');
-      
-      if (values.length >= 2) {
-        const value1 = values[0];
-        const value2 = values[1];
-    
-        bot.sendMessage(chatId, `입력된 값1: ${value1}\n입력된 값2: ${value2}`);
-      } else {
-        bot.sendMessage(chatId, '2개의 값을 띄어쓰기로 구분하여 입력해주세요.');
+      const role = match[1];
+
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        //game.js 데스노트 함수에서 스킬사용 가능자인지 체크
+        const question = '플레이어 ' + role + `의 이름은?`;
+        bot.sendMessage(chatId, question)
+          .then(() => {
+            // 사용자 입력을 받기 위해 대기
+            bot.once('message', (capturedMsg) => {
+              const capturedPerson = capturedMsg.text; // 사용자 입력 저장
+
+              //game.deathNote(chatId, role, capturedPerson, bot)
+              
+              game.deathNote(chatId, role, capturedPerson, bot, function(deathNotes){
+                if(deathNotes === true){
+                  room.resetRoom();
+                }
+              });
+            });
+          })
+          .catch((error) => {
+            console.error('Error sending message:', error);
+          });  
       }
     });
 
@@ -287,3 +298,7 @@ function start() {
 module.exports = { 
    start: start
 };
+
+function reset(){
+  room.resetRoom();
+}

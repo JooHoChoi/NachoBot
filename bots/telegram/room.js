@@ -53,14 +53,18 @@ function startGame(bot) {
     gameStarted = true;
     game.startGame(room, function(callback_mapping){
       //console.log(callback_mapping)
-      for(const key in callback_mapping){
-        const participant = callback_mapping[key];
-        const message = `
-        **데스노트 게임을 시작합니다!!**
-        당신의 역할은 ${participant.role} 입니다.`;
-        //bot.sendMessage(participant.id, message)
-        bot.sendMessage(participant.id, message)
-      }
+      const participantNames = Object.values(callback_mapping).map(callback_mapping => callback_mapping.name);
+      const startMsg = `
+      **데스노트 게임을 시작합니다!!**
+참여 플레이어의 이름: ${participantNames}`;   
+        for(const key in callback_mapping){
+          const participant = callback_mapping[key];
+          const roleMsg = `당신의 역할은 ${participant.role} 입니다.`;
+          bot.sendMessage(participant.id, startMsg)
+          setTimeout(()=>{ 
+            bot.sendMessage(participant.id, roleMsg)
+          }, 2000)
+        }
     });  
   }
   else{
