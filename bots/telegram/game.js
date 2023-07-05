@@ -193,7 +193,7 @@ function deathNote(chatId, role, capturedPerson, bot, deathNotes){
     mapped_role.Kira.skill1 = false;
     setTimeout(()=>{
       mapped_role.Kira.skill1 = true;
-    }, 900)
+    }, 90000)
 
     let foundMatch = false; //일치하는 플레이어를 찾는 변수
     for(const key in mapped_role){
@@ -207,7 +207,7 @@ function deathNote(chatId, role, capturedPerson, bot, deathNotes){
             }
           });
 
-        }, 4000);
+        }, 40000);
         foundMatch = true;
         break;
       }
