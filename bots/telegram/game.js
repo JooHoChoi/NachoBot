@@ -1,6 +1,6 @@
 // game.js
 const charactor_test = require('./charactor_test.json')
-const characotr_test4 = require('./charactor_test4.json')
+const charactor_test4 = require('./charactor_test4.json')
 const charactor_test5 = require('./charactor_test5.json')
 const charactor9 = require('./charactor9.json');
 const charactor10 = require('./charactor10.json');
