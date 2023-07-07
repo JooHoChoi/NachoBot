@@ -1,5 +1,6 @@
 // game.js
 const charactor_test = require('./charactor_test.json')
+const characotr_test4 = require('./charactor_test4.json')
 const charactor_test5 = require('./charactor_test5.json')
 const charactor9 = require('./charactor9.json');
 const charactor10 = require('./charactor10.json');
@@ -56,6 +57,12 @@ function startGame(roomData, callback_mapping) {
   //3인 테스트용 조건문
   else if(roomData.length === 3){
     mapNameToJSON(roomData, charactor_test, function(callback){
+      callback_mapping(callback);
+    });
+  }
+  //4인 테스트용 조건문
+  else if(roomData.length === 4){
+    mapNameToJSON(roomData, charactor_test4, function(callback){
       callback_mapping(callback);
     });
   }
@@ -138,53 +145,73 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
 //방송, 캐릭터: 엘, 니아(엘 사망 이후), 키요미(2회)
 function broadcast(chatId, broadMsg, bot){
   console.log('방송 실행')
-  const broadMsgFull = `[L방송] : ` + broadMsg
-  if(mapped_role.L.id === chatId && mapped_role.L.alive === true && mapped_role.L.skill2 === true){
-    mapped_role.L.skill2 = false;
-    broadCool_start = Date.now();
-    setTimeout(()=>{
-      mapped_role.L.skill2 = true;
-    }, broadCool)
-    for(const key in mapped_role){
-      const participant = mapped_role[key];
-      bot.sendMessage(participant.id, broadMsgFull)
-    }    
-  }
-  else if(mapped_role.L.id === chatId && mapped_role.L.alive === true && mapped_role.L.skill2 === false){
-    const currentTime = Date.now();
-    const elapsedTime = currentTime - broadCool_start
-    const remainingTime = Math.ceil((broadCool - elapsedTime) / 1000);
-    bot.sendMessage(chatId, `스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
-  }
-  else if(mapped_role.N.id === chatId && mapped_role.L.alive === false && mapped_role.N.skill2 === true){
-    mapped_role.N.skill2 = false;
-    broadCool_start = Date.now();
-    setTimeout(()=>{
-      mapped_role.N.skill2 = true;
-    }, broadCool)
-    for(const key2 in mapped_role){
-      const participant2 = mapped_role[key2];
-      bot.sendMessage(participant2.id, broadMsgFull)
-    } 
-  }
-  else if(mapped_role.N.id === chatId && mapped_role.L.alive === false && mapped_role.N.skill2 === false){
-    const currentTime2 = Date.now();
-    const elapsedTime2 = currentTime2 - broadCool_start
-    const remainingTime2 = Math.ceil((broadCool - elapsedTime2) / 1000);
-    bot.sendMessage(chatId, `스킬쿨타임이 ` + remainingTime2 + `초 남았습니다`);
-  }
-  else if(mapped_role.Kiyomi.id === chatId && parseInt(mapped_role.Kiyomi.skill2)>0 && mapped_role.Kiyomi.alive === true){
-    console.log("키요미 방송")
-    const skill_temp = parseInt(mapped_role.Kiyomi.skill2) - 1;
-    mapped_role.Kiyomi.skill2 = skill_temp;
-    for(const key3 in mapped_role){
-      const participant3 = mapped_role[key3];
-      bot.sendMessage(participant3.id, broadMsgFull)
+
+  if(mapped_role.L.id === chatId){
+    if(mapped_role.L.skill2 === true && mapped_role.L.alive === true){
+      mapped_role.L.skill2 = false;
+      broadCool_start = Date.now();
+      setTimeout(()=>{
+        mapped_role.L.skill2 = true;
+      }, broadCool)
+      for(const key in mapped_role){
+        const participant = mapped_role[key];
+        bot.sendMessage(participant.id, broadMsg)
+      } 
+    }else if(mapped_role.L.alive === true && mapped_role.L.skill2 === false){
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - broadCool_start
+      const remainingTime = Math.ceil((broadCool - elapsedTime) / 1000);
+      bot.sendMessage(chatId, `스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+    }
+    else{
+      bot.sendMessage(chatId, `스킬사용이 가능한 상태가 아닙니다`)
     }
   }
-  else{
-    bot.sendMessage(chatId, `스킬사용이 가능한 역할 또는 상태가 아닙니다`)
+  if(mapped_role.N.id === chatId){
+    if(mapped_role.L.alive === false){
+      if(mapped_role.N.skill2 === true && mapped_role.N.alive === true){
+        mapped_role.N.skill2 = false;
+        broadCool_start = Date.now();
+        setTimeout(()=>{
+          mapped_role.N.skill2 = true;
+        }, broadCool)
+        for(const key2 in mapped_role){
+          const participant2 = mapped_role[key2];
+          bot.sendMessage(participant2.id, broadMsg)
+        }
+      }
+      else if(mapped_role.N.alive === true && mapped_role.N.skill2 === false){
+        const currentTime2 = Date.now();
+        const elapsedTime2 = currentTime2 - broadCool_start
+        const remainingTime2 = Math.ceil((broadCool - elapsedTime2) / 1000);
+        bot.sendMessage(chatId, `스킬쿨타임이 ` + remainingTime2 + `초 남았습니다`);
+      }
+      else{
+        bot.sendMessage(chatId, `스킬사용이 가능한 상태가 아닙니다.`);
+      }
+    }else{
+      bot.sendMessage(chatId, `L이 살아 있습니다.`);
+    }
   }
+  if(mapped_role.Kiyomi.id === chatId){
+    if(mapped_role.Kiyomi.alive == true){
+      console.log("키요미 방송")
+      //const skill_temp = parseInt(mapped_role.Kiyomi.skill2) - 1;
+      mapped_role.Kiyomi.skill2 = parseInt(mapped_role.Kiyomi.skill2) - 1
+      for(const key3 in mapped_role){
+        const participant3 = mapped_role[key3];
+        bot.sendMessage(participant3.id, broadMsg)
+      }
+    }
+    else{
+      bot.sendMessage(chatId, `스킬사용이 가능한 상태가 아닙니다`); 
+    }    
+  }
+  
+  if(!(mapped_role.L.id === chatId || mapped_role.N.id === chatId || mapped_role.Kiyomi.id === chatId)){
+    bot.sendMessage(chatId, `스킬사용이 가능한 역할이 아닙니다`)  
+  }
+
 }
 
 //키요미 감시, 캐릭터: 니아
@@ -373,11 +400,12 @@ function watchNote(){
 
 function deathMsg(chatId, dead, bot, callback){
   dead.alive = false;
+  console.log(`노트적힘:` + dead);
   bot.sendMessage(chatId, `데스노트로 인해 ` + dead.role + `(이)가 사망했습니다.`)
   bot.sendMessage(dead.id, '당신은 데스노트에 의해 사망했습니다');
   
   if(dead.role === '엘'){
-    if(!mapped_role.N.alive){ //니아가 죽어있는 상태면 게임 종료
+    if(mapped_role.N.alive === false){ //니아가 죽어있는 상태면 게임 종료
       for(const key in mapped_role){
         const participant = mapped_role[key];
         const message = `

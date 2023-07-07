@@ -19,6 +19,15 @@
         "role": "니아"
     },
 
+    "Kira": {
+        "name": "",
+        "skill1": true,
+        "skill2": true,
+        "alive": true,
+        "id": "",
+        "role": "키라"
+    },
+
     "Kiyomi": {
         "name": "",
         "skill1": true,

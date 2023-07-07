@@ -137,7 +137,7 @@ function start() {
         bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
       }
       else{
-        game.arrest_Kira2(chatId, capturedPerson, bot, function(arrest){
+        game.arrest_Kira(chatId, capturedPerson, bot, function(arrest){
           if(arrest === true){
             room.resetRoom();
           }
@@ -148,7 +148,7 @@ function start() {
     //방송
     bot.onText(/\/방송 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
-      const broadMsg = match[1];
+      const broadMsg = `[L방송] : ` + match[1];
       if(room.getGameStatus() === false){
         bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
       }
