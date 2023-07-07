@@ -86,6 +86,7 @@
         "skill1": true,
         "skill2": 2,
         "alive": true,
+        "seal": true,
         "id": "",
         "role": "키요미"
     }

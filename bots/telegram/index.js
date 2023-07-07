@@ -24,13 +24,26 @@ function start() {
     /현황: 참가신청 현황을 확인합니다.
     /시작: 방장(/현황 맨 앞 플레이어)이 게임을 시작합니다(9~12인)
   
-<게임 명령어>
-    /키라 체포: 입력 후, 키라로 의심되는 플레이어 이름을 입력
+<게임 명령어 - 대괄호는 생략>
+    <엘/니아 스킬>
+    /체포 [역할]: 키라로 의심되는 플레이어 이름을 입력
       (성공 시, L측 승리 / 실패 시, L의 정체가 전 플레이어에게 공개됨)
     /방송: L의 이름으로 모든 플레이어에게 메세지를 보냅니다
-      (쿨타임 1분 / 니아는 L이 사망상태일 경우에만 사용가능)
-    /데스노트 [역할]: 죽이고 싶은 역할을 입력한 뒤, 해당 역할로 의심되는 플레이어 이름을 입력(쿨다운 1분30초)
-      (성공 시, 해당 플레이어는 40초뒤 사망)
+      (쿨타임 1분(테스트 10초) / 니아는 L이 사망상태일 경우에만 사용가능)
+    
+    <니아 스킬>
+    /감시 [이름]: 입력한 이름이 키요미일 경우, 정보 수집 스킬을 사용불가상태로 만든다.(쿨타임 1분(테스트 10초)) 
+    
+    <멜로 스킬>
+    /납치 [이름]: 입력한 이름이 키요미일 경우, 키요미를 납치(=살인) / 틀릴경우, 멜로의 정체가 모두에게 공개된다
+    
+    <키라 스킬>
+    /데스노트 [역할] [이름]: 죽이고 싶은 역할을 입력한 뒤, 해당 역할로 의심되는 플레이어 이름을 입력(쿨타임 60초(테스트 30초))
+      (성공 시, 해당 플레이어는 40초뒤 사망(테스트 5초))
+    
+    <키요미 스킬> 
+    /정보수집 [역할] [이름]:  역할과 이름을 유추하여 맞으면 알 수 있다. (단, 엘,니아,멜로의 정보는 알 수 없다) - 쿨타임 1분(테스트 10초))
+    /방송: L의 이름으로 방송을 할 수 있다.(2회 한정, 쿨타임 없음)
 
 <기타 명령어>
     /자추 A B: A가 B에게 자추를 시전합니다`;
@@ -74,7 +87,7 @@ function start() {
         return;
       }
     
-      room.addUserInfoToRoom(chatId, name); // 사용자 정보를 room 배열에 추가하는 함수 호출
+      room.addUserInfoToRoom(chatId, name, bot); // 사용자 정보를 room 배열에 추가하는 함수 호출
     
       const response = `안녕하세요, ${name}님! \n당신의 ID는 ${chatId}입니다.`;
     
@@ -115,146 +128,108 @@ function start() {
 
 
     //게임 명령어
-    
-    
-    function NotTarget(chatId){
-      bot.sendMessage(chatId, `조건이 맞지않거나 스킬쿨타임으로 사용이 불가합니다`);
-    }
 
     //키라 체포
-    bot.onText(/\/키라 체포/, (msg) => {
+    bot.onText(/\/체포 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
+      const capturedPerson = match[1];
       if(room.getGameStatus() === false){
         bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
       }
       else{
-        //game.js 키라체포 함수에서 스킬사용 가능자인지 체크
-        const question = '체포할 플레이어 이름은?';
-        bot.sendMessage(chatId, question)
-          .then(() => {
-            // 사용자 입력을 받기 위해 대기
-            bot.once('message', (capturedMsg) => {
-              const capturedPerson = capturedMsg.text; // 사용자 입력 저장
-
-              game.arrest_Kira(chatId, capturedPerson, function(arrest){             
-                if(arrest === 'success'){
-                  game.notice(function(info){
-                    console.log(info);
-                    for(const key in info){
-                      const participant = info[key];
-                      const message = `
-                      **키라가 체포되었습니다 -게임 종료-**`;
-                      //bot.sendMessage(participant.id, message)
-                      room.resetRoom();
-                      bot.sendMessage(participant.id, message)
-                    }
-                  });
-                }
-                else if(arrest === 'fail-L'){
-                  game.notice(function(info){
-                    console.log(info);
-                    for(const key in info){
-                      const participant = info[key];
-                      const message = `
-                      **[속보] 엘의 정체는 ${info.L.name} 입니다.**`;
-                      //bot.sendMessage(participant.id, message)
-                      bot.sendMessage(participant.id, message)
-                    }
-                  });
-                }
-                else if(arrest === 'fail-N'){
-                  game.notice(function(info){
-                    console.log(info);
-                    for(const key in info){
-                      const participant = info[key];
-                      const message = `
-                      **[속보] 니아의 정체는 ${info.N.name} 입니다.**`;
-                      //bot.sendMessage(participant.id, message)
-                      bot.sendMessage(participant.id, message)
-                    }
-                  });
-                }
-                else if(arrest === 'NotTarget'){
-                  NotTarget(chatId);
-                }
-              });              
-            });
-          })
-          .catch((error) => {
-            console.error('Error sending message:', error);
-          });  
+        game.arrest_Kira2(chatId, capturedPerson, bot, function(arrest){
+          if(arrest === true){
+            room.resetRoom();
+          }
+        })  
       }
-      
     });
 
     //방송
-    bot.onText(/\/방송/, (msg) => {
+    bot.onText(/\/방송 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
-      const chatName = msg.chat.name;
+      const broadMsg = match[1];
       if(room.getGameStatus() === false){
         bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
       }
       else{
-        //game.js 키라체포 함수에서 스킬사용 가능자인지 체크
-        const question = '방송할 내용을 작성하세요';
-        bot.sendMessage(chatId, question)
-          .then(() => {
-            // 사용자 입력을 받기 위해 대기
-            bot.once('message', (capturedMsg) => {
-              const broadMsg = `[L방송] : `+ capturedMsg.text; // 사용자 입력 저장
-              game.broadcast(chatId, function(broad){
-                if(broad === true){
-                  game.notice(function(info){
-                    for(const key in info){
-                      const participant = info[key];
-                      bot.sendMessage(participant.id, broadMsg)
-                    }  
-                  });
-                }else{
-                  NotTarget(chatId);
-                }
-              });             
-            });
-          })
-          .catch((error) => {
-            console.error('Error sending message:', error);
-          });  
+        game.broadcast(chatId, broadMsg, bot)  
       }
-      
     });
 
-    //데스노트 역할
-    bot.onText(/\/데스노트 (.+)/, (msg, match) => {
+
+    //키요미 감시
+    bot.onText(/\/감시 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
-      const role = match[1];
+      const role = '키요미'
+      const watchingPerson = match[1];
+
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        game.watching_Kiyomi(chatId, role, watchingPerson, bot);  
+      }
+    });
+    
+    //키요미 납치
+    bot.onText(/\/납치 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const role = '키요미'
+      const kidnapPerson = match[1];
 
       if(room.getGameStatus() === false){
         bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
       }
       else{
         //game.js 데스노트 함수에서 스킬사용 가능자인지 체크
-        const question = '플레이어 ' + role + `의 이름은?`;
-        bot.sendMessage(chatId, question)
-          .then(() => {
-            // 사용자 입력을 받기 위해 대기
-            bot.once('message', (capturedMsg) => {
-              const capturedPerson = capturedMsg.text; // 사용자 입력 저장
-
-              //game.deathNote(chatId, role, capturedPerson, bot)
-              
-              game.deathNote(chatId, role, capturedPerson, bot, function(deathNotes){
-                if(deathNotes === true){
-                  room.resetRoom();
-                }
-              });
-            });
-          })
-          .catch((error) => {
-            console.error('Error sending message:', error);
-          });  
+        game.kidnap_Kiyomi(chatId, role, kidnapPerson, bot);  
       }
     });
 
+    //데스노트 + 역할
+    bot.onText(/\/데스노트 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const input = match[1];
+      const values = input.split(' ');
+      
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        if (values.length >= 2) {
+          const role = values[0];
+          const capturedPerson = values[1];
+          game.deathNote(chatId, role, capturedPerson, bot, function(deathNotes){
+            if(deathNotes === true){
+              room.resetRoom();
+            }
+          });
+        } else {
+          bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
+        }
+      }
+    });
+
+    //정보수집
+    bot.onText(/\/정보수집 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const input = match[1];
+      const values = input.split(' ');
+      
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        if (values.length >= 2) {
+          const role = values[0];
+          const infoPerson = values[1];
+          game.gatheringInfo(chatId, role, infoPerson, bot)
+        } else {
+          bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
+        }
+      }
+    });
 
     //기타 명령어
     bot.onText(/\/자추 (.+)/, (msg, match) => {

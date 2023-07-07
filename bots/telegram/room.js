@@ -2,7 +2,7 @@
 const game = require('./game')
 
 let room = [];
-const maxParticipants = 3; // 최대 참여자 수
+const maxParticipants = 5; // 최대 참여자 수
 let gameStarted = false; // 게임 시작 여부를 저장하는 변수
 
 //테스트용 변수
@@ -36,11 +36,14 @@ function isUserAlreadyInRoom(chatId) {
   return room.some(user => user.id === chatId);
 }
 
-function addUserInfoToRoom(chatId, name) {
+function addUserInfoToRoom(chatId, name, bot) {
   const user = { id: chatId, name: name };
   room.push(user);
   console.log(user.name + "님이 참가했습니다.");
   console.log(room);
+  if(room.length === maxParticipants){
+    bot.sendMessage(room[0].id, `풀방이 되었습니다. 게임을 시작해주세요`);
+  }
 }
 
 function removeUserFromRoom(chatId) {

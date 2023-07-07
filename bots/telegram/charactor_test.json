@@ -24,6 +24,7 @@
         "skill1": true,
         "skill2": true,
         "alive": true,
+        "seal": true,
         "id": "",
         "role": "키라"
     }
