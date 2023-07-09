@@ -5,7 +5,8 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "엘"
+        "role": "엘",
+        "img": "/img/L.jpg"
     },
 
     "N": {
@@ -16,7 +17,8 @@
         "skill4": true,
         "alive": true,
         "id": "",
-        "role": "니아"
+        "role": "니아",
+        "img": "/img/N.jpg"
     },
 
     "M": {
@@ -25,7 +27,8 @@
         "skill2": false,
         "alive": true,
         "id": "",
-        "role": "멜로"
+        "role": "멜로",
+        "img": "/img/M.jpg"
     },
 
     "W": {
@@ -34,7 +37,8 @@
         "skill2": false,
         "alive": true,
         "id": "",
-        "role": "와타리"
+        "role": "와타리",
+        "img": "/img/W.jpg"
     },
 
     "Hal": {
@@ -43,7 +47,8 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "할 리드너"
+        "role": "할 리드너",
+        "img": "/img/Hal.jpg"    
     },
 
     "Jebanni": {
@@ -52,7 +57,8 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "제반니"
+        "role": "제반니",
+        "img": "/img/Jebanni.jpg"
     },
     
     "Mogi": {
@@ -61,7 +67,8 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "모기"
+        "role": "모기",
+        "img": "/img/Mogi.jpg"
     },
 
     "Kira": {
@@ -70,7 +77,8 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "키라"
+        "role": "키라",
+        "img": "/img/Kira.jpg"
     },
 
     "Misa": {
@@ -79,7 +87,8 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "미사"
+        "role": "미사",
+        "img": "/img/Misa.jpg"
     },
 
     "Kiyomi": {
@@ -89,7 +98,8 @@
         "alive": true,
         "seal": true,
         "id": "",
-        "role": "키요미"
+        "role": "키요미",
+        "img": "/img/Kiyomi.jpg"
     },
 
     "Mikami": {
@@ -98,7 +108,8 @@
         "skill2": true,
         "alive": true,
         "id": "",
-        "role": "미카미"
+        "role": "미카미",
+        "img": "/img/Mikami.jpg"
     }
 }
 

@@ -52,6 +52,7 @@ function removeUserFromRoom(chatId) {
 }
 
 function startGame(bot) {
+  const startPhoto = __dirname + '/img/start.jpg'
   if(gameStarted===false){
     gameStarted = true;
     game.startGame(room, function(callback_mapping){
@@ -62,10 +63,27 @@ function startGame(bot) {
 참여 플레이어의 이름: ${participantNames}`;   
         for(const key in callback_mapping){
           const participant = callback_mapping[key];
-          const roleMsg = `당신의 역할은 ${participant.role} 입니다.`;
-          bot.sendMessage(participant.id, startMsg)
-          setTimeout(()=>{ 
-            bot.sendMessage(participant.id, roleMsg)
+          const roleImg = __dirname + participant.img
+          const roleMsg = `당신의 역할은 ${participant.role} 입니다.\n
+[**보유 스킬**]
+${participant.explain}`;
+          bot.sendPhoto(participant.id, startPhoto, { caption: startMsg })
+          .then(() => {
+            //console.log('사진 전송 완료');
+          })
+          .catch((error) => {
+            console.error('사진 전송 실패:', error);
+            bot.sendMessage(participant.id, startMsg)
+          });
+          setTimeout(()=>{
+            bot.sendPhoto(participant.id, roleImg, { caption: roleMsg })
+            .then(() => {
+              //console.log('사진 전송 완료');
+            })
+            .catch((error) => {
+              console.error('사진 전송 실패:', error);
+              bot.sendMessage(participant.id, roleMsg)
+            });
           }, 2000)
         }
     });  

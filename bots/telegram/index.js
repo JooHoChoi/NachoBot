@@ -211,6 +211,30 @@ function start() {
       }
     });
 
+    //데스노트 + 역할
+    bot.onText(/\/시계노트 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const input = match[1];
+      const values = input.split(' ');
+      
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        if (values.length >= 2) {
+          const role = values[0];
+          const capturedPerson = values[1];
+          game.watchNote(chatId, role, capturedPerson, bot, function(watchNote){
+            if(watchNote === true){
+              room.resetRoom();
+            }
+          });
+        } else {
+          bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
+        }
+      }
+    });
+
     //정보수집
     bot.onText(/\/정보수집 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
@@ -225,6 +249,30 @@ function start() {
           const role = values[0];
           const infoPerson = values[1];
           game.gatheringInfo(chatId, role, infoPerson, bot)
+        } else {
+          bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
+        }
+      }
+    });
+
+    //노트조각 + 역할
+    bot.onText(/\/노트조각 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const input = match[1];
+      const values = input.split(' ');
+      
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        if (values.length >= 2) {
+          const role = values[0];
+          const capturedPerson = values[1];
+          game.pieceNote(chatId, role, capturedPerson, bot, function(pieceNote){
+            if(deathNotes === true){
+              room.resetRoom();
+            }
+          });
         } else {
           bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
         }
@@ -267,6 +315,19 @@ function start() {
          const resp = `관리자만 사용할 수 있는 기능입니다`;
          bot.sendMessage(chatId, resp)
        }
+    });
+
+    bot.onText(/\/사진/, (msg, match) => {
+      const chatId = msg.chat.id;
+      console.log(__dirname)
+      const photoPath = __dirname + '/img/start.jpg'; // 이미지 파일 경로
+      bot.sendPhoto(chatId, photoPath, { caption: '사진입니다.' })
+      .then(() => {
+        console.log('사진 전송 완료');
+      })
+      .catch((error) => {
+        console.error('사진 전송 실패:', error);
+      });
     });
 }
 
