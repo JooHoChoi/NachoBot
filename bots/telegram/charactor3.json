@@ -1,0 +1,48 @@
+{
+    "Kira": {
+        "name": "",
+        "skill1": true,
+        "skill2": true,
+        "alive": true,
+        "whisper": 3,
+        "note": 2,
+        "id": "",
+        "role": "키라",
+        "img": "/img/Kira.jpg",
+        "team": "Kira",
+        "explain": "/데스노트 [역할] [이름]: 역할과 이름이 일치하면 40초뒤 살인(쿨타임 90초)\n\n/시계노트 [역할][이름] 역할과 이름이 일치하면 즉시 살인(1회 한정)"
+    },
+    
+    "Mogi": {
+        "name": "",
+        "skill1": true,
+        "skill2": true,
+        "alive": true,
+        "whisper": 3,
+        "note": 2,
+        "id": "",
+        "role": "모기",
+        "img": "/img/Mogi.jpg",
+        "team": "L",
+        "explain": "/미행 [이름]: 1분뒤, 50% 확률로 해당 플레이어의 정체를 알 수 있다. 해당 플레이어가 키라측일 경우, 70% 확률로 상대에게 정체가 전달된다(쿨타임 2분)\n\n /엘확인 - 3분뒤, L의 정체를 알 수 있다.(엘이 사망상태라면, 니아를 엘로써 알 수 있다.)"
+    },
+
+    "L": {
+        "name": "", 
+        "skill1": true,
+        "skill2": true,
+        "alive": true,
+        "whisper": 3,
+        "note": 2,
+        "id": "",
+        "role": "엘",
+        "img": "/img/L.jpg",
+        "team": "L",
+        "explain": "/체포 [역할]: 키라로 의심되는 플레이어 이름을 입력(1회 사용가능)\n\n/방송 [메세지]: L의 이름으로 모든 플레이어에게 메세지를 보냅니다.(쿨타임 1분)"
+    }
+}
+
+
+
+
+

@@ -2,27 +2,8 @@
 const game = require('./game')
 
 let room = [];
-const maxParticipants = 5; // 최대 참여자 수
+const maxParticipants = 9; // 최대 참여자 수
 let gameStarted = false; // 게임 시작 여부를 저장하는 변수
-
-//테스트용 변수
-// const roomTest = [
-//   { id: 5771249800, name: '주호1' },
-//   { id: 5771249800, name: '주호2' },
-//   { id: 5771249800, name: '주호3' },
-//   { id: 5771249800, name: '주호4' },
-//   { id: 5771249800, name: '주호5' },
-//   { id: 5771249800, name: '주호6' },
-//   { id: 5771249800, name: '주호7' },
-//   { id: 5771249800, name: '주호8' },
-//   { id: 5771249800, name: '주호9' },
-//   { id: 5771249800, name: '주호10' },
-//   { id: 5771249800, name: '주호11' },
-//   { id: 5771249800, name: '주호12' }, 
-// ]
-
-// const usertest = [{ id: 5771249800, name: '주호' }, {id: 6100250744, name: '자추'}, {id: 6330829908, name: '신남'}]
-// const usertest2 = {id: 5771249800, name: '주호'}
 
 function getRoom(){
   return room;
@@ -53,14 +34,19 @@ function removeUserFromRoom(chatId) {
 
 function startGame(bot) {
   const startPhoto = __dirname + '/img/start.jpg'
+  const roomPart = room.map((participant) => participant.name);
   if(gameStarted===false){
     gameStarted = true;
     game.startGame(room, function(callback_mapping){
       //console.log(callback_mapping)
-      const participantNames = Object.values(callback_mapping).map(callback_mapping => callback_mapping.name);
+      const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
       const startMsg = `
       **데스노트 게임을 시작합니다!!**
-참여 플레이어의 이름: ${participantNames}`;   
+[참여 플레이어의 이름]
+${roomPart}
+
+[게임 역할${roomPart.length}인]
+${participantRole}`;
         for(const key in callback_mapping){
           const participant = callback_mapping[key];
           const roleImg = __dirname + participant.img
@@ -116,7 +102,7 @@ function resetRoom() {
   room = [];
   gameStarted = false;
 }
-
+    
 module.exports = {
   getRoom,
   isRoomFull,
