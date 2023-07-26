@@ -140,7 +140,7 @@ function start() {
       else{
         if (values.length >= 2) {
           const receiver = values[0];
-          const whisper_msg = values[1];
+          const whisper_msg = values.slice(1).join(' ');
           game.whisper(chatId, receiver, whisper_msg, bot);
         } else {
           bot.sendMessage(chatId, '이름과 메세지를 잘 구분해주세요');
@@ -160,7 +160,7 @@ function start() {
       else{
         if (values.length >= 2) {
           const receiver = values[0];
-          const note_msg = values[1];
+          const note_msg = values.slice(1).join(' ');
           game.note(chatId, receiver, note_msg, bot);
         } else {
           bot.sendMessage(chatId, '이름과 메세지를 잘 구분해주세요');

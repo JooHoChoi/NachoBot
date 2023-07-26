@@ -370,6 +370,7 @@ function watching_Kiyomi(chatId, role, capturedPerson, bot){
         if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson) {
           mapped_role.Kiyomi.seal = false;
           bot.sendMessage(chatId, `[System] `+ capturedPerson + `의 정체는 키요미가 맞습니다. 그녀의 정보수집 스킬을 봉인합니다.`)
+          bot.sendMessage(mapped_role.Kiyomi.id, `[System] 니아의 감시로 정보수집 스킬이 봉인되었습니다.`)
           foundMatch = true;
           break;
         }
@@ -412,23 +413,21 @@ function kidnap_Kiyomi(chatId, role, capturedPerson, bot){
       for(const key in mapped_role){
         console.log('키요미 납치여부 checking...')
         if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson) {
-          mapped_role.M.skill2 = true; //데스노트 조각 활성화
-          mapped_role.Kiyomi.alive = false; // 키요미 사망처리
+          if(mapped_role.Kiyomi.alive === true){
+            mapped_role.M.skill2 = true; //데스노트 조각 활성화
+            mapped_role.Kiyomi.alive = false; // 키요미 사망처리
   
-          bot.sendMessage(chatId, `[System] `+ capturedPerson + `의 정체는 키요미가 맞습니다. 그녀를 체포합니다.`)
-          bot.sendMessage(mapped_role.Kiyomi.id, `[System] 당신은 멜로에 의해 납치되었습니다.`)
-          // setTimeout(()=>{
-          //   for(const key2 in mapped_role){
-          //     const participant = mapped_role[key2];
-          //     const message = `
-          //     ****[속보] 키요미가 멜로에 의해 납치되었습니다.****`;
-          //     //bot.sendMessage(participant.id, message)
-          //     //roomReset.resetRoom();
-          //     bot.sendMessage(participant.id, message)
-          //   }
-          // }, 2000)
-          foundMatch = true;
-          break;
+            bot.sendMessage(chatId, `[System] `+ capturedPerson + `의 정체는 키요미가 맞습니다. 그녀를 체포합니다.`)
+            bot.sendMessage(mapped_role.Kiyomi.id, `[System] 당신은 멜로에 의해 납치되었습니다.`)
+  
+            foundMatch = true;
+            break;
+          }
+          else{
+            bot.sendMessage(chatId, `[System] `+ capturedPerson + `는 이미 납치or사망 상태입니다`);
+            foundMatch = true;
+            break;
+          }
         }
       }
       if(!foundMatch){
@@ -601,27 +600,21 @@ function check_detective(chatId, detectivePerson, bot){
       mapped_role.Hal.skill2 = false;
       detective_Cool_start = Date.now();
       setTimeout(()=>{
-        mapped_role.Hal.skill1 = true;
+        mapped_role.Hal.skill2 = true;
       }, detective_Cool)
 
-      let foundMatch = false; //일치하는 플레이어를 찾는 변수
       for(const key in mapped_role){
         console.log('수사관 checking...')
         if (mapped_role[key].team === 'L' && mapped_role[key].name === detectivePerson) {
           bot.sendMessage(chatId, `[System] `+ detectivePerson + `는 수사관(L측)입니다.`)
-          foundMatch = true;
+          break;
+        }
+        else if(mapped_role[key].team === 'Kira' && mapped_role[key].name === detectivePerson){
+          bot.sendMessage(chatId, `[System] `+ detectivePerson + `(은)는 키라측입니다. 당신의 정체가 해당 플레이어에게 전달됩니다.`);
+          bot.sendMessage(mapped_role[key].id, `[System] 당신을 수사한 `+ mapped_role.Hal.name + `의 정체는 할리드너입니다.`)
           break;
         }
       }
-      if(!foundMatch){
-        bot.sendMessage(chatId, `[System] `+ detectivePerson + `(은)는 키라측입니다. 당신의 정체가 해당 플레이어에게 전달됩니다.`);
-        for(const key2 in mapped_role){
-          if(mapped_role[key2].name === detectivePerson){
-            bot.sendMessage(mapped_role[key2].id, `[System] 당신을 수사한 `+ mapped_role.Hal.name + `의 정체는 할리드너입니다.`)
-          }
-        }
-      }
-
     }
     else if(mapped_role.Hal.alive === true && mapped_role.Hal.skill2 === false){
       const currentTime = Date.now();
@@ -985,7 +978,7 @@ function notice(info){
 function whisper(chatId, receiver, whisper_msg, bot){
   let foundMatch = false;
   for(const key in mapped_role){
-    if(mapped_role[key].id === chatId){
+    if(mapped_role[key].id === chatId && mapped_role[key].alive === true){
       if(mapped_role[key].whisper > 0 && !foundMatch){
         const sender = mapped_role[key]        
         whisper_result(sender, receiver, whisper_msg, bot, function(callback){
@@ -1000,6 +993,9 @@ function whisper(chatId, receiver, whisper_msg, bot){
         bot.sendMessage(chatId, `귓속말 남은 횟수가 없습니다.`)
         foundMatch = true;
       }
+    }
+    else if(mapped_role[key].id === chatId && mapped_role[key].alive === false){
+      bot.sendMessage(chatId, `당신은 사망상태입니다.`);
     }
   }
 }
@@ -1027,7 +1023,7 @@ function whisper_result(sender, receiver, whisper_msg, bot, callback){
 function note(chatId, receiver, note_msg, bot){
   let foundMatch = false;
   for(const key in mapped_role){
-    if(mapped_role[key].id === chatId){
+    if(mapped_role[key].id === chatId && mapped_role[key].alive === true){
       if(mapped_role[key].note> 0 && !foundMatch){
         const sender = mapped_role[key]        
         note_result(sender, receiver, note_msg, bot, function(callback){
@@ -1042,6 +1038,8 @@ function note(chatId, receiver, note_msg, bot){
         bot.sendMessage(chatId, `쪽지 남은 횟수가 없습니다.`)
         foundMatch = true;
       }
+    }else if(mapped_role[key].id === chatId && mapped_role[key].alive === false){
+      bot.sendMessage(chatId, `당신은 사망상태입니다.`);
     }
   }
 }
