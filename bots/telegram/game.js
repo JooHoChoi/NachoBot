@@ -27,37 +27,40 @@ let originalCharactor12;
 
 //스킬 쿨다운 기준값
 //스킬 쿨다운 체크값
-const broadCool = 10000; //방송 스킬 쿨타임: 테스트: 10초, 본게임 30초
+const broadCool = 30000; //방송 스킬 쿨타임: 테스트: 10초, 본게임 30초
 let broadCool_start;
 
-const deathNoteCool = 60000; //데스노트 스킬 쿨타임: 테스트 60초, 본게임 90초
+const deathNoteCool = 90000; //데스노트 스킬 쿨타임: 테스트 60초, 본게임 90초
 let deathNoteCool_start;
-const deathCool = 10000; // 데스노트 스킬로 죽는데 걸리는 시간: 테스트 10초, 본게임 40초
+const deathCool = 40000; // 데스노트 스킬로 죽는데 걸리는 시간: 테스트 10초, 본게임 40초
 
-const watching_Kiyomi_Cool = 10000; //키요미 감시 스킬 쿨타임: 테스트 10초, 본게임 60초
+const watching_Kiyomi_Cool = 60000; //키요미 감시 스킬 쿨타임: 테스트 10초, 본게임 60초
 let watching_Kiyomi_Cool_start;
 
-const kidnap_Kiyomi_Cool = 10000; //키요미 납치 스킬 쿨타임: 테스트 10초, 본게임 60초
+const kidnap_Kiyomi_Cool = 60000; //키요미 납치 스킬 쿨타임: 테스트 10초, 본게임 60초
 let kidnap_Kiyomi_Cool_start;
 
-const gatheringInfo_Cool = 10000; //정보수집 스킬 쿨타입: 테스트 10초, 본게임 30초
+const gatheringInfo_Cool = 30000; //정보수집 스킬 쿨타입: 테스트 10초, 본게임 30초
 let gatheringInfo_Cool_start;
 
-const arrest_Misa_Cool = 10000; //연금 스킬: 테스트 10초, 본게임 60초
+const arrest_Misa_Cool = 60000; //연금 스킬: 테스트 10초, 본게임 60초
 let arrest_Misa_Cool_start;
 
-const detective_Cool = 10000; //수사관 스킬: 테스트 10초, 본게임 60초
+const detective_Cool = 60000; //수사관 스킬: 테스트 10초, 본게임 60초
 let detective_Cool_start;
 
-const love_Kira_Cool = 15000; //연모 스킬: 테스트 15초, 본게임 120초(키라정체가 1분뒤 공개되기 때문)
+const love_Kira_Cool = 120000; //연모 스킬: 테스트 15초, 본게임 120초(키라정체가 1분뒤 공개되기 때문)
 let love_Kira_Cool_start;
-const loveCool = 10000; // 연모스킬로 키라를 찾는데 걸리는 시간: 테스트 10초, 본게임 60초
+const loveCool = 60000; // 연모스킬로 키라를 찾는데 걸리는 시간: 테스트 10초, 본게임 60초
 
-const follow_Mogi_Cool = 15000; //미행 스킬: 테스트 15초, 본게임 120초
+const envoyEyes_Cool = 60000; //사신의눈 스킬: 테스트 10초, 본게임 60초
+let envoyEyes_Cool_start;
+
+const follow_Mogi_Cool = 120000; //미행 스킬: 테스트 15초, 본게임 120초
 let follow_Mogi_Cool_start;
-const followMogiCool = 10000; //미행스킬로 플레이어를 확인하는데 걸리는 시간: 테스트 10초, 본게임 60초
+const followMogiCool = 60000; //미행스킬로 플레이어를 확인하는데 걸리는 시간: 테스트 10초, 본게임 60초
 
-const check_L_Cool = 30000; // 엘확인 스킬: 테스트 30초, 본게임 180초
+const check_L_Cool = 180000; // 엘확인 스킬: 테스트 30초, 본게임 180초
 
 
 function startGame(roomData, callback_mapping) {
@@ -747,7 +750,9 @@ function deathNote(chatId, role, capturedPerson, bot, deathNotes){
         }
       }
       if(!foundMatch){
-        bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
+        setTimeout(()=>{
+          bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
+        }, deathCool);
       }
     }
     else if(mapped_role.Kira.skill1 === false){
@@ -824,7 +829,15 @@ function deathMsg(chatId, dead, bot, callback){
     else{ //니아가 살아있는 상태라면
       mapped_role.N.skill1 = true;
       mapped_role.N.skill2 = true;
-      bot.sendMessage(mapped_role.N.id, `[System] 엘이 사망했습니다...L의 뒤를 이어 키라를 체포하세요`)
+      //bot.sendMessage(mapped_role.N.id, `[System] 엘이 사망했습니다...L의 유지를 이어 키라를 체포하세요`)
+
+      for(const key in mapped_role){
+        const deadLmsg = mapped_role[key];
+        const message = `[System] 엘이 사망했습니다...L의 유지를 이어 키라를 체포하세요`;
+        if(deadLmsg.team === 'L'){
+          bot.sendMessage(mapped_role[key].id, message);
+        }
+      }
       callback(false);
     }
   }
@@ -905,24 +918,94 @@ function love_Kira(chatId, bot){
   }
 }
 
-//사신의 눈, 캐릭터: 미사
+//사신의 눈, 캐릭터: 미사 1회 10%, 2회 20%, 3회 40%, 4회 80% 확률로 실패(4회 사용가능)
 function envoyEyes(chatId, envoyEyePerson, bot){
   if(mapped_role.Misa.id === chatId){
+    const chance_Misa = Math.random();
     if(mapped_role.Misa.alive === true && mapped_role.Misa.skill2 === true){
       mapped_role.Misa.skill2 = false;
-      for(const key in mapped_role){
-        console.log('사신의눈 checking...')
-        if (mapped_role[key].name === envoyEyePerson) {
-          bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.`)
+      envoyEyes_Cool_start = Date.now();
+      setTimeout(()=>{
+        mapped_role.Misa.skill2 = true;
+      }, envoyEyes_Cool)
+
+      if(parseInt(mapped_role.Misa.chance) === 4){
+        if(chance_Misa > 0.9){
+          bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은횟수: 3회`);
+          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+        }
+        else{
+          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+          for(const key in mapped_role){
+            //console.log('사신의눈 checking...')
+            if (mapped_role[key].name === envoyEyePerson) {
+              bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.\n 남은횟수: 3회`)
+            }
+          }
         }
       }
+      else if(parseInt(mapped_role.Misa.chance) === 3){
+        if(chance_Misa > 0.8){
+          bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은횟수: 2회`);
+          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+        }
+        else{
+          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+          for(const key in mapped_role){
+            //console.log('사신의눈 checking...')
+            if (mapped_role[key].name === envoyEyePerson) {
+              bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.\n 남은횟수: 2회`)
+            }
+          }
+        }
+      }
+      else if(parseInt(mapped_role.Misa.chance) === 2){
+        if(chance_Misa > 0.6){
+          bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은횟수: 1회`);
+          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+        }
+        else{
+          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+          for(const key in mapped_role){
+            //console.log('사신의눈 checking...')
+            if (mapped_role[key].name === envoyEyePerson) {
+              bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.\n 남은횟수: 1회`)
+            }
+          }
+        }
+      }
+      else if(parseInt(mapped_role.Misa.chance) === 1){
+        if(chance_Misa > 0.8){
+          bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은횟수: 0회`);
+          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+        }
+        else{
+          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+          for(const key in mapped_role){
+            //console.log('사신의눈 checking...')
+            if (mapped_role[key].name === envoyEyePerson) {
+              bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.\n 남은횟수: 0회`)
+            }
+          }
+        }
+      }
+      else if(parseInt(mapped_role.Misa.chance) === 0){
+        bot.sendMessage(chatId, `[System] 더이상 사신의눈을 사용할 수 없습니다.`);
+      }
+    }
+    else if(mapped_role.Misa.alive === true && mapped_role.Misa.skill2 === false){
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - envoyEyes_Cool_start
+      const remainingTime = Math.ceil((envoyEyes_Cool - elapsedTime) / 1000);
+      bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+
     }
     else{
       bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`);
     }
   }
   else{
-    bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
+    bot.sendMessage(chatId, `스킬사용이 가능한 역할이 아닙니다`);
   }
 }
 
