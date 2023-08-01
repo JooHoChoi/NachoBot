@@ -153,7 +153,7 @@ function startGame(roomData, callback_mapping) {
     }
   }
   //9인 테스트용 조건문
-  if(roomData.length === 9){
+  else if(roomData.length === 9){
     if (!originalCharactor9) {
       originalCharactor9 = JSON.parse(JSON.stringify(charactor9));
       mapNameToJSON(roomData, charactor9, function(callback) {
@@ -166,7 +166,7 @@ function startGame(roomData, callback_mapping) {
       });
     }
   }
-  else if(roomData.length === 10){
+  if(roomData.length === 10){
     mapNameToJSON(roomData, charactor10, function(callback){
       callback_mapping(callback);
     });
@@ -735,18 +735,26 @@ function deathNote(chatId, role, capturedPerson, bot, deathNotes){
       let foundMatch = false; //일치하는 플레이어를 찾는 변수
       for(const key in mapped_role){
         console.log('데스노트 일치여부 checking...')
-        if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true) {
-          console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
-          setTimeout(()=>{
-            deathMsg(chatId, mapped_role[key], bot, function(callback){
-              if(callback===true){
-                deathNotes(true);
-              }
+        if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true){
+          if(mapped_role[key].role === '니아' && mapped_role.L.alive === true){
+            setTimeout(()=>{
+              bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
+            }, deathCool);
+            foundMatch = true;
+            break;
+          }
+          else{
+            console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
+            setTimeout(()=>{
+              deathMsg(chatId, mapped_role[key], bot, function(callback){
+                if(callback===true){
+                 deathNotes(true);
+                }
             });
-  
           }, deathCool);
           foundMatch = true;
           break;
+          }  
         }
       }
       if(!foundMatch){
@@ -777,14 +785,21 @@ function watchNote(chatId, role, capturedPerson, bot, watchNote){
       for(const key in mapped_role){
         console.log('데스노트 일치여부 checking...')
         if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true) {
-          console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
+          if(mapped_role[key].role === '니아' && mapped_role.L.alive === true){
+            bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
+            foundMatch = true;
+            break;
+          }
+          else{
+            console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
             deathMsg(chatId, mapped_role[key], bot, function(callback){
               if(callback===true){
                 watchNote(true);
               }
             });
-          foundMatch = true;
-          break;
+            foundMatch = true;
+            break;
+          }
         }
       }
       if(!foundMatch){
