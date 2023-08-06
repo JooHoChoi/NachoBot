@@ -330,7 +330,47 @@ function start() {
       }
     });
 
-    //데스노트 + 역할 - 라이토
+    //바보 - 마츠다
+    bot.onText(/\/바보 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const checkPerson = match[1];
+
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        game.babo(chatId, checkPerson, bot);  
+      }
+    });    
+
+    //바꿔치기 + 이름 - 제반니
+    bot.onText(/\/바꿔치기 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const role = '미카미'
+      const changeNote = match[1];
+
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        game.arrest_Mikami(chatId, role, changeNote, bot);  
+      }
+    });
+
+    //추적 + 이름 - 제반니
+    bot.onText(/\/추적 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const chasePerson = match[1];
+
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        game.chase(chatId, chasePerson, bot);  
+      }
+    });
+    
+    //데스노트 + 역할 + 이름 - 라이토
     bot.onText(/\/데스노트 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const input = match[1];
@@ -354,7 +394,7 @@ function start() {
       }
     });
 
-    //데스노트 + 역할 - 라이토
+    //시계노트 + 역할 + 이름 - 라이토
     bot.onText(/\/시계노트 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const input = match[1];
@@ -422,6 +462,42 @@ function start() {
         } else {
           bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
         }
+      }
+    });
+
+    //대신노트 + 역할 + 이름 - 미카미
+    bot.onText(/\/대신노트 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const input = match[1];
+      const values = input.split(' ');
+      
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        if (values.length >= 2) {
+          const role = values[0];
+          const capturedPerson = values[1];
+          game.desinNote(chatId, role, capturedPerson, bot, function(desinNotes){
+            if(desinNotes === true){
+              room.resetRoom();
+            }
+          });
+        } else {
+          bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
+        }
+      }
+    });    
+
+    //키라숭배 - 미카미
+    bot.onText(/\/키라숭배/, (msg) => {
+      const chatId = msg.chat.id;
+
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        game.worship_Kira(chatId, bot);  
       }
     });
 

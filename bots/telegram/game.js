@@ -34,6 +34,9 @@ const deathNoteCool = 90000; //데스노트 스킬 쿨타임: 테스트 60초, �
 let deathNoteCool_start;
 const deathCool = 40000; // 데스노트 스킬로 죽는데 걸리는 시간: 테스트 10초, 본게임 40초
 
+const desinNoteCool = 90000; // 대신노트 스킬 쿨타임: 테스트 60초, 본게임 90초
+let desinNoteCool_start;
+
 const watching_Kiyomi_Cool = 60000; //키요미 감시 스킬 쿨타임: 테스트 10초, 본게임 60초
 let watching_Kiyomi_Cool_start;
 
@@ -61,6 +64,20 @@ let follow_Mogi_Cool_start;
 const followMogiCool = 60000; //미행스킬로 플레이어를 확인하는데 걸리는 시간: 테스트 10초, 본게임 60초
 
 const check_L_Cool = 180000; // 엘확인 스킬: 테스트 30초, 본게임 180초
+let check_L_Cool_start;
+
+const babo_Mathuda_Cool = 60000; //바보 스킬: 테스트 10초, 본게임 60초
+let babo_Mathuda_Cool_start;
+
+const arrest_Mikami_Cool = 60000; //바꿔치기 스킬: 테스트 10초, 본게임 60초
+let arrest_Mikami_Cool_start;
+
+const chase_Jebanni_Cool = 120000; //추적 스킬: 테스트 15초, 본게임 120초
+let chase_Jebanni_Cool_start;
+const chaseJebanniCool = 60000; //추적스킬로 플레이어를 확인하는데 걸리는 시간: 테스트 10초, 본게임 60초
+
+const worship_kira_Cool = 120000; // 엘확인 스킬: 테스트 30초, 본게임 120초
+let worship_kira_Cool_start;
 
 
 function startGame(roomData, callback_mapping) {
@@ -81,7 +98,7 @@ function startGame(roomData, callback_mapping) {
       });
     }
   }
-  //4인 테스트용 조건문
+  //4인 조건문
   else if(roomData.length === 4){
     if (!originalCharactor4) {
       originalCharactor4 = JSON.parse(JSON.stringify(charactor4));
@@ -96,7 +113,7 @@ function startGame(roomData, callback_mapping) {
       });
     }
   }
-  //5인 테스트용 조건문
+  //5인 조건문
   else if(roomData.length === 5){
     if (!originalCharactor5) {
       originalCharactor5 = JSON.parse(JSON.stringify(charactor5));
@@ -110,7 +127,7 @@ function startGame(roomData, callback_mapping) {
       });
     }
   }
-  //6인 테스트용 조건문
+  //6인  조건문
   else if(roomData.length === 6){
     if (!originalCharactor6) {
       originalCharactor6 = JSON.parse(JSON.stringify(charactor6));
@@ -124,7 +141,7 @@ function startGame(roomData, callback_mapping) {
       });
     }
   }
-  //7인 테스트용 조건문
+  //7인 조건문
   else if(roomData.length === 7){
     if (!originalCharactor7) {
       originalCharactor7 = JSON.parse(JSON.stringify(charactor7));
@@ -138,7 +155,7 @@ function startGame(roomData, callback_mapping) {
       });
     }
   }
-  //8인 테스트용 조건문
+  //8인 조건문
   else if(roomData.length === 8){
     if (!originalCharactor8) {
       originalCharactor8 = JSON.parse(JSON.stringify(charactor8));
@@ -152,7 +169,7 @@ function startGame(roomData, callback_mapping) {
       });
     }
   }
-  //9인 테스트용 조건문
+  //9인 조건문
   else if(roomData.length === 9){
     if (!originalCharactor9) {
       originalCharactor9 = JSON.parse(JSON.stringify(charactor9));
@@ -166,24 +183,51 @@ function startGame(roomData, callback_mapping) {
       });
     }
   }
-  if(roomData.length === 10){
-    mapNameToJSON(roomData, charactor10, function(callback){
-      callback_mapping(callback);
-    });
+  //10인 조건문
+  else if(roomData.length === 10){
+    if (!originalCharactor10) {
+      originalCharactor10 = JSON.parse(JSON.stringify(charactor10));
+      mapNameToJSON(roomData, charactor10, function(callback) {
+        callback_mapping(callback);
+      });
+    } else {
+      const charactor_origin = JSON.parse(JSON.stringify(originalCharactor10));
+      mapNameToJSON(roomData, charactor_origin, function(callback) {
+        callback_mapping(callback);
+      });
+    }
   }
+  //11인 조건문
   else if(roomData.length === 11){
-    mapNameToJSON(roomData, charactor11, function(callback){
-      callback_mapping(callback);
-    });
+    if (!originalCharactor11) {
+      originalCharactor11 = JSON.parse(JSON.stringify(charactor11));
+      mapNameToJSON(roomData, charactor11, function(callback) {
+        callback_mapping(callback);
+      });
+    } else {
+      const charactor_origin = JSON.parse(JSON.stringify(originalCharactor11));
+      mapNameToJSON(roomData, charactor_origin, function(callback) {
+        callback_mapping(callback);
+      });
+    }
   }
+  //12인 조건문
   else if(roomData.length === 12){
-    mapNameToJSON(roomData, charactor12, function(callback){
-      callback_mapping(callback);
-    });
+    if (!originalCharactor12) {
+      originalCharactor12 = JSON.parse(JSON.stringify(charactor12));
+      mapNameToJSON(roomData, charactor12, function(callback) {
+        callback_mapping(callback);
+      });
+    } else {
+      const charactor_origin = JSON.parse(JSON.stringify(originalCharactor12));
+      mapNameToJSON(roomData, charactor_origin, function(callback) {
+        callback_mapping(callback);
+      });
+    }
   }
 }
 
-
+//캐릭 배정 알고리즘
 function mapNameToJSON(roomData, charactor, callback){
   const jsonKeys = Object.keys(charactor); // JSON 키 배열 추출
 
@@ -634,12 +678,101 @@ function check_detective(chatId, detectivePerson, bot){
   }
 }
 
-//미카미 체포, 캐릭터: 제반니
-function arrest_Mikami(){
+//바꿔치기(미카미 체포), 캐릭터: 제반니
+function arrest_Mikami(chatId, role, arrestPerson, bot){
+  if(mapped_role.Jebanni.id === chatId){
+    if(mapped_role.Jebanni.alive === true && mapped_role.Jebanni.skill1 === true){
+      mapped_role.Jebanni.skill1 = false;
+      arrest_Mikami_Cool_start = Date.now();
+      setTimeout(()=>{
+        mapped_role.Jebanni.skill1 = true;
+      }, arrest_Mikami_Cool)
 
+      let foundMatch = false; //일치하는 플레이어를 찾는 변수
+      for(const key in mapped_role){
+        console.log('미카미 일치여부 checking...')
+        if (mapped_role[key].role === role && mapped_role[key].name === arrestPerson) {
+          mapped_role.Mikami.seal = false;
+          bot.sendMessage(chatId, `[System] `+ arrestPerson + `의 정체는 미카미가 맞습니다. 그의 대신노트 스킬을 봉인합니다.`)
+          bot.sendMessage(mapped_role.Mikami.id, `[System] 제반니의 바꿔치기로 대신노트 스킬이 봉인되었습니다.`)
+          foundMatch = true;
+          break;
+        }
+      }
+      if(!foundMatch){
+        bot.sendMessage(chatId, '[System] 해당 플레이어는 미카미가 아닙니다');
+        for(const key2 in mapped_role){
+          const participant = mapped_role[key2];
+          const message = `
+          ****[속보] 제반니의 정체는 ${mapped_role.Jebanni.name} 입니다.****`;
+          bot.sendMessage(participant.id, message)
+        }
+      }
+    }
+    else if(mapped_role.Jebanni.alive === true && mapped_role.Jebanni.skill1 === false){
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - arrest_Mikami_Cool_start
+      const remainingTime = Math.ceil((arrest_Mikami_Cool - elapsedTime) / 1000);
+      bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+    }
+    else{
+      bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`);
+    }
+  }
+  else{
+    bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
+  }
 }
 
-//미행, 캐릭터: 제반니, 모기 - 둘이 조건이 살짝 다름
+//추적, 캐릭터: 제반니
+function chase(chatId, chasePerson, bot){
+  if(mapped_role.Jebanni.id === chatId){
+    const chance_Jebanni = Math.random();
+    const chance2_Jebanni = Math.random();
+    if(mapped_role.Jebanni.alive === true && mapped_role.Jebanni.skill2 === true){
+      mapped_role.Jebanni.skill2 = false;
+      chase_Jebanni_Cool_start = Date.now();
+      setTimeout(()=>{
+        mapped_role.Jebanni.skill2 = true;
+      }, chase_Jebanni_Cool)
+
+       //50% 확률로 플레이어 확인
+       if(chance_Jebanni > 0.5){
+        for(const key in mapped_role){
+          if (mapped_role[key].name === chasePerson) {
+            setTimeout(()=>{
+              bot.sendMessage(chatId, `[System] 추적한 플레이어의 정체는 ` + mapped_role[key].role + ` 입니다.`);
+              if(mapped_role[key].team === 'L' && chance2_Jebanni > 0.5){
+                bot.sendMessage(chatId, `[System] ` + mapped_role[key].name+`에게 당신의 정체가 전달됩니다`)
+                bot.sendMessage(mapped_role[key].id, `[System] 당신을 추적한 `+ mapped_role.Jebanni.name + `의 정체는 제반니입니다.`)
+              }
+            }, chaseJebanniCool)
+          }
+        } 
+      }
+      else{
+        setTimeout(()=>{
+          bot.sendMessage(chatId, `[System] 플레이어 추적에 실패했습니다`);
+        }, chaseJebanniCool)
+      }
+
+    }
+    else if(mapped_role.Jebanni.alive === true && mapped_role.Jebanni.skill2 === false){
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - chase_Jebanni_Cool_start
+      const remainingTime = Math.ceil((chase_Jebanni_Cool - elapsedTime) / 1000);
+      bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+    }
+    else{
+      bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`);
+    }
+  }
+  else{
+    bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
+  }
+}
+
+//미행, 캐릭터: 모기
 function follow(chatId, followPerson, bot){
   if(mapped_role.Mogi.id === chatId){
     const chance_Mogi = Math.random()
@@ -696,7 +829,14 @@ function check_L(chatId, bot){
       mapped_role.Mogi.skill2 = false;
       setTimeout(()=>{
         check_L_MSG(chatId, bot);
+        mapped_role.Mogi.skill2 = true;
       }, check_L_Cool)
+    }
+    else if(mapped_role.Mogi.alive === true && mapped_role.Mogi.skill2 === false){
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - check_L_Cool_start
+      const remainingTime = Math.ceil((check_L_Cool - elapsedTime) / 1000);
+      bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
     }
     else{
       bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`);
@@ -718,8 +858,62 @@ function check_L_MSG(chatId, bot){
 }
 
 //바보, 캐릭터: 마츠다
-function babo(){
+function babo(chatId, checkPerson, bot){
+  if(mapped_role.Mathuda.id === chatId){
+    const chance_Mathuda = Math.random();
+    if(mapped_role.Mathuda.alive === true && mapped_role.Mathuda.skill1 === true){
+      mapped_role.Mathuda.skill1 = false;
+      babo_Mathuda_Cool_start = Date.now();
+      setTimeout(()=>{
+        mapped_role.Mathuda.skill1 = true;
+      }, babo_Mathuda_Cool)
 
+      //자신의 정체를 노출 후, 50% 확률로 플레이어 확인
+       
+      if(chance_Mathuda > 0.5){
+        for(const key in mapped_role){
+          if (mapped_role[key].name === checkPerson) {
+            bot.sendMessage(mapped_role[key].id, `[System] 바보 마츠다의 정체는 ` + mapped_role.Mathuda.name + ` 입니다.`);
+            bot.sendMessage(chatId, `[System] 당신이 지목한 플레이어의 정체는 ` + mapped_role[key].role + ` 입니다.`);
+            if(mapped_role[key].role === '키라'){
+              for(const key2 in mapped_role){
+                if(mapped_role[key2].team === 'Kira'){
+                  bot.sendMessage(mapped_role[key2].id, `[System] 키라에게 접근한 마츠다의 정체는 ` + mapped_role.Mathuda.name + ` 입니다.`);
+                }
+              }
+            }
+            if(mapped_role[key].role === '엘'){
+              for(const key3 in mapped_role){
+                if(mapped_role[key3].team === 'L'){
+                  bot.sendMessage(mapped_role[key3].id, `[System] 엘에게 접근한 마츠다의 정체는 ` + mapped_role.Mathuda.name + ` 입니다.`);
+                }
+              }
+            }
+          }
+        } 
+      }
+      else{
+        for(const key in mapped_role){
+          if (mapped_role[key].name === checkPerson) {
+            bot.sendMessage(mapped_role[key].id, `[System] 바보 마츠다의 정체는 ` + mapped_role.Mathuda.name + ` 입니다.`);
+            bot.sendMessage(chatId, `[System] 바보짓으로 상대에게 정체만 노출되었습니다.`);
+          }
+        }
+      }
+    }
+    else if(mapped_role.Mathuda.alive === true && mapped_role.Mathuda.skill1 === false){
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - babo_Mathuda_Cool_start
+      const remainingTime = Math.ceil((babo_Mathuda_Cool - elapsedTime) / 1000);
+      bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+    }
+    else{
+      bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`);
+    }
+  }
+  else{
+    bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
+  }
 }
 
 //데스노트, 캐릭터: 키라, 미카미(3회)
@@ -1062,9 +1256,87 @@ function gatheringInfo(chatId, role, capturedPerson, bot){
   }
 }
 
-//키라 숭배, 캐릭터: 미카미
-function worship_Kira(){
+//대신노트 - 캐릭터: 미카미
+function desinNote(chatId, role, capturedPerson, bot, deathNotes){
+  if(mapped_role.Mikami.id === chatId){
+    if(mapped_role.Mikami.skill1_num > 0){
+      if(mapped_role.Mikami.alive === true && mapped_role.Mikami.seal === true && mapped_role.Mikami.skill1 === true){
+        mapped_role.Mikami.skill1 = false;
+        desinNoteCool_start = Date.now();
+        setTimeout(()=>{
+          mapped_role.Mikami.skill1 = true;
+        }, deathNoteCool)
+  
+        let foundMatch = false; //일치하는 플레이어를 찾는 변수
+        for(const key in mapped_role){
+          console.log('데스노트 일치여부 checking...')
+          if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true){
+            console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
+            setTimeout(()=>{
+              deathMsg(chatId, mapped_role[key], bot, function(callback){
+                if(callback===true){
+                  mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
+                  bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
+                  deathNotes(true);
+                }
+              });
+            }, deathCool);
+            foundMatch = true;
+            break;
+          }
+        }
+        if(!foundMatch){
+          setTimeout(()=>{
+            mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
+            bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
+            bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
+          }, deathCool);
+        }
+      }
+      else if(mapped_role.Mikami.alive === true && mapped_role.Mikami.skill1 === false){
+        const currentTime = Date.now();
+        const elapsedTime = currentTime - desinNoteCool_start
+        const remainingTime = Math.ceil((desinNoteCool - elapsedTime) / 1000);
+        bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+      }
+      else{
+        bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`);
+      }
+    }
+    else{
+      bot.sendMessage(chatId, `[System] 남아있는 노트사용 가능횟수가 없습니다`);
+    }
+    
+  }
+  else{
+    bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
+  }
+}
 
+//키라 숭배, 캐릭터: 미카미
+function worship_Kira(chatId, bot){
+  if(mapped_role.Mikami.id === chatId){
+    if(mapped_role.Mikami.alive === true && mapped_role.Mikami.skill2 === true){
+      mapped_role.Mikami.skill2 = false;
+      worship_kira_Cool_start = Date.now();
+      setTimeout(()=>{
+        bot.sendMessage(chatId, `[System] 키요미의 정체는 ` + mapped_role.Kiyomi.name + '입니다.');
+        mapped_role.Mikami.skill2 = true;
+      }, worship_kira_Cool)
+    }
+    else if(mapped_role.Mikami.alive === true && mapped_role.Mikami.skill2 === false){
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - worship_kira_Cool_start
+      const remainingTime = Math.ceil((worship_kira_Cool - elapsedTime) / 1000);
+      bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+    }
+    else{
+      bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`);
+    }
+  }
+  else{
+    bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
+  }
 }
 
 //(공용) 역할 전달
@@ -1173,6 +1445,7 @@ module.exports = {
   arrest_Misa,
   check_detective,
   arrest_Mikami,
+  chase,
   follow,
   check_L,
   babo,
@@ -1181,6 +1454,7 @@ module.exports = {
   love_Kira,
   envoyEyes,
   gatheringInfo,
+  desinNote,
   worship_Kira,
   notice,
   whisper,

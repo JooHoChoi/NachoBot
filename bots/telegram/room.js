@@ -2,7 +2,7 @@
 const game = require('./game')
 
 let room = [];
-const maxParticipants = 9; // 최대 참여자 수
+const maxParticipants = 12; // 최대 참여자 수
 let gameStarted = false; // 게임 시작 여부를 저장하는 변수
 
 function getRoom(){

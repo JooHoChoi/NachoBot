@@ -4,9 +4,13 @@
         "skill1": true,
         "skill2": true,
         "alive": true,
+        "whisper": 10,
+        "note": 2,
         "id": "",
         "role": "엘",
-        "img": "/img/L.jpg"
+        "img": "/img/L.jpg",
+        "team": "L",
+        "explain": "/체포 [이름]: 키라로 의심되는 플레이어 이름을 입력(1회 사용가능)\n\n/방송 [메세지]: L의 이름으로 모든 플레이어에게 메세지를 보냅니다.(쿨타임 1분)"
     },
 
     "N": {
@@ -16,29 +20,41 @@
         "skill3": true,
         "skill4": true,
         "alive": true,
+        "whisper": 10,
+        "note": 2,
         "id": "",
         "role": "니아",
-        "img": "/img/N.jpg"
+        "img": "/img/N.jpg",
+        "team": "L",
+        "explain": "/체포 [이름]: 키라로 의심되는 플레이어 이름을 입력(L사망 이후, 1회 사용가능)\n\n/방송 [메세지]: L의 이름으로 모든 플레이어에게 메세지를 보냅니다.(L사망 이후 사용가능, 쿨타임 1분)\n\n/감시 [이름]: 입력한 이름이 키요미일 경우, 정보 수집 스킬을 사용불가상태로 만든다.(쿨타임 1분)"
     },
-
+    
     "M": {
         "name": "",
         "skill1": true,
         "skill2": false,
         "alive": true,
+        "whisper": 10,
+        "note": 2,
         "id": "",
         "role": "멜로",
-        "img": "/img/M.jpg"
+        "img": "/img/M.jpg",
+        "team": "L",
+        "explain": "/납치 [이름]: 입력한 이름이 키요미일 경우, 납치(=살인) / 틀릴경우, 정체가 모두에게 공개(쿨타임 1분)\n\n/노트조각 [역할] [이름]: 역할과 이름이 일치하면 40초뒤 살인(키요미 납치 성공 시, 1회 사용가능)"
     },
 
     "W": {
         "name": "",
         "skill1": true,
-        "skill2": false,
+        "skill2": true,
         "alive": true,
+        "whisper": 100,
+        "note": 100,
         "id": "",
         "role": "와타리",
-        "img": "/img/W.jpg"
+        "img": "/img/W.jpg",
+        "team": "L",
+        "explain": "/집사: L의 정체를 알 수 있다.(1회 사용가능)\n\n/와미즈하우스 [니아 or 멜로]: 니아 또는 멜로의 정체를 알 수 있다.(엘 사망후, 1회 사용가능)"
     },
 
     "Hal": {
@@ -46,9 +62,27 @@
         "skill1": true,
         "skill2": true,
         "alive": true,
+        "whisper": 10,
+        "note": 2,
         "id": "",
         "role": "할리드너",
-        "img": "/img/Hal.jpg"    
+        "img": "/img/Hal.jpg",
+        "team": "L",
+        "explain": "/연금 [이름]: 입력한 이름이 미사일 경우, 연금(=살인) / 틀릴경우, 정체가 모두에게 공개(쿨타임 1분)\n\n/수사관 [이름] - 해당 플레이어가 수사관(L측)임을 확인한다. 대상이 키라측일 경우, 해당 플레이어는 할리드너의 정체를 알 수 있다.(쿨타임 1분)"    
+    },
+
+    "Mogi": {
+        "name": "",
+        "skill1": true,
+        "skill2": true,
+        "alive": true,
+        "whisper": 10,
+        "note": 2,
+        "id": "",
+        "role": "모기",
+        "img": "/img/Mogi.jpg",
+        "team": "L",
+        "explain": "/미행 [이름]: 1분뒤, 50% 확률로 해당 플레이어의 정체를 알 수 있다. 해당 플레이어가 키라측일 경우, 70% 확률로 상대에게 정체가 전달된다(쿨타임 2분)\n\n /엘확인 - 3분뒤, L의 정체를 알 수 있다.(엘이 사망상태라면, 니아를 엘로써 알 수 있다.)"
     },
 
     "Jebanni": {
@@ -56,29 +90,29 @@
         "skill1": true,
         "skill2": true,
         "alive": true,
+        "whisper": 10,
+        "note": 2,
         "id": "",
         "role": "제반니",
-        "img": "/img/Jebanni.jpg"
+        "img": "/img/Jebanni.jpg",
+        "team": "L",
+        "explain": "/바꿔치기 [이름] - 입력한 이름이 미카미일 경우, 대신노트 스킬을 사용불가상태로 만든다. / 틀릴경우, 정체가 모두에게 공개(쿨타임 1분)\n\n/추적 [이름]: 1분뒤, 50% 확률로 해당 플레이어의 정체를 알 수 있다. 해당 플레이어가 엘측일 경우, 50% 확률로 상대에게 정체가 전달된다(쿨타임 2분)"
     },
-    
-    "Mogi": {
-        "name": "",
-        "skill1": true,
-        "skill2": true,
-        "alive": true,
-        "id": "",
-        "role": "모기",
-        "img": "/img/Mogi.jpg"
-    },
+
 
     "Kira": {
         "name": "",
         "skill1": true,
         "skill2": true,
         "alive": true,
+        "whisper": 10,
+        "note": 2,
         "id": "",
         "role": "키라",
-        "img": "/img/Kira.jpg"
+        "img": "/img/Kira.jpg",
+        "team": "Kira",
+        "explain": "/데스노트 [역할] [이름]: 역할과 이름이 일치하면 40초뒤 살인(쿨타임 90초)\n\n/시계노트 [역할][이름] 역할과 이름이 일치하면 즉시 살인(1회 한정)\n\n ※단, 엘이 살아있는 경우 니아는 노트로 사망하지 않습니다."
+    
     },
 
     "Misa": {
@@ -86,9 +120,14 @@
         "skill1": true,
         "skill2": true,
         "alive": true,
+        "whisper": 10,
+        "note": 2,
+        "chance": 4,
         "id": "",
         "role": "미사",
-        "img": "/img/Misa.jpg"
+        "img": "/img/Misa.jpg",
+        "team": "Kira",
+        "explain": "/연모 - 1분 뒤, 50% 확률로 키라의 정체를 알 수 있다.(쿨타임 2분)\n\n/사신의눈 [이름] - 해당 플레이어의 정체를 알 수 있다.\n(성공확률: 1회차 90%, 2회차 80%, 3회차 60%, 4회차 20% (총 4회 사용가능))"
     },
 
     "Kiyomi": {
@@ -96,24 +135,29 @@
         "skill1": true,
         "skill2": 2,
         "alive": true,
+        "whisper": 10,
+        "note": 2,
         "seal": true,
         "id": "",
         "role": "키요미",
-        "img": "/img/Kiyomi.jpg"
+        "img": "/img/Kiyomi.jpg",
+        "team": "Kira",
+        "explain": "/정보수집 [역할] [이름]: 역할과 이름의 일치여부를 알 수 있다. (단, 엘,니아,멜로의 정보는 알 수 없다) - 쿨타임 1분\n\n/방송 [메세지]: L의 이름으로 방송을 할 수 있다.(2회 한정, 쿨타임 없음)"
     },
 
     "Mikami": {
         "name": "",
-        "skill1": 3,
+        "skill1": true,
         "skill2": true,
+        "skill1_num": 3,
         "alive": true,
+        "whisper": 10,
+        "note": 2,
+        "seal": true,
         "id": "",
         "role": "미카미",
-        "img": "/img/Mikami.jpg"
-    }
+        "img": "/img/Mikami.jpg",
+        "team": "Kira",
+        "explain": "/대신노트 [역할] [이름] - 역할과 이름이 일치하면 40초뒤 살인(쿨타임 90초 , 3회 한정사용가능으로 틀리더라도 횟수는 차감된다)\n\n키라숭배 - 2분 뒤, 키요미의 정체를 알 수 있다."
+    }    
 }
-
-
-
-
-
