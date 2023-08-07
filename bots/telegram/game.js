@@ -76,7 +76,7 @@ const chase_Jebanni_Cool = 120000; //추적 스킬: 테스트 15초, 본게임 1
 let chase_Jebanni_Cool_start;
 const chaseJebanniCool = 60000; //추적스킬로 플레이어를 확인하는데 걸리는 시간: 테스트 10초, 본게임 60초
 
-const worship_kira_Cool = 120000; // 엘확인 스킬: 테스트 30초, 본게임 120초
+const worship_kira_Cool = 120000; // 키라숭배 스킬: 테스트 30초, 본게임 120초
 let worship_kira_Cool_start;
 
 
@@ -563,10 +563,10 @@ function wamizuHouse(chatId, NiaMelo, bot){
           mapped_role.W.skill2 = false;
           bot.sendMessage(chatId, `[System] ${mapped_role.N.role}의 정체는 ${mapped_role.N.name} 입니다.`)
         }
-         else if(NiaMelo === mapped_role.M.random){
+        else if(NiaMelo === mapped_role.M.role){
           mapped_role.W.skill2 = false;
-           bot.sendMessage(chatId, `${mapped_role.M.role}의 정체는 ${mapped_role.M.name} 입니다.`)
-         }
+          bot.sendMessage(chatId, `${mapped_role.M.role}의 정체는 ${mapped_role.M.name} 입니다.`)
+        }
         else{
           bot.sendMessage(chatId, `[System] 니아 or 멜로만 확인할 수 있습니다.`)
         }
