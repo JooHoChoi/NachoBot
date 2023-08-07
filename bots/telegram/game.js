@@ -563,10 +563,10 @@ function wamizuHouse(chatId, NiaMelo, bot){
           mapped_role.W.skill2 = false;
           bot.sendMessage(chatId, `[System] ${mapped_role.N.role}의 정체는 ${mapped_role.N.name} 입니다.`)
         }
-        // else if(NiaMelo === mapped_role.M.random){
-        //  mapped_role.W.skill2 = false;
-        //   bot.sendMessage(chatId, `${mapped_role.M.role}의 정체는 ${mapped_role.M.name} 입니다.`)
-        // }
+         else if(NiaMelo === mapped_role.M.random){
+          mapped_role.W.skill2 = false;
+           bot.sendMessage(chatId, `${mapped_role.M.role}의 정체는 ${mapped_role.M.name} 입니다.`)
+         }
         else{
           bot.sendMessage(chatId, `[System] 니아 or 멜로만 확인할 수 있습니다.`)
         }
