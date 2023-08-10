@@ -269,6 +269,16 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
             bot.sendMessage(participant.id, arrestMsg)
           });
         }
+
+        const combinedMessage = Object.values(mapped_role)
+        .map(person => `${person.role}: ${person.name}`)
+        .join('\n');
+
+        // 모든 플레이어에게 통합된 메시지 전송
+        for (const key_vf in mapped_role) {
+          const person = mapped_role[key_vf];
+          bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+        }
         arrest(true)
       }
       else{
@@ -301,6 +311,15 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
               //console.error('사진 전송 실패:', error);
               bot.sendMessage(participant3.id, arrestMsg3)
             });              
+          }
+          const combinedMessage = Object.values(mapped_role)
+          .map(person => `${person.role}: ${person.name}`)
+          .join('\n');
+
+          // 모든 플레이어에게 통합된 메시지 전송
+          for (const key_vf in mapped_role) {
+            const person = mapped_role[key_vf];
+            bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
           }
           arrest(true)
         }
@@ -516,6 +535,15 @@ function pieceNote(chatId, role, capturedPerson, bot, pieceNote){
           setTimeout(()=>{
             deathMsg(chatId, mapped_role[key], bot, function(callback){
               if(callback===true){
+                const combinedMessage = Object.values(mapped_role)
+                .map(person => `${person.role}: ${person.name}`)
+                .join('\n');
+
+                // 모든 플레이어에게 통합된 메시지 전송
+                for (const key_vf in mapped_role) {
+                  const person = mapped_role[key_vf];
+                  bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+                }
                 pieceNote(true);
               }
             });
@@ -693,8 +721,8 @@ function arrest_Mikami(chatId, role, arrestPerson, bot){
         console.log('미카미 일치여부 checking...')
         if (mapped_role[key].role === role && mapped_role[key].name === arrestPerson) {
           mapped_role.Mikami.seal = false;
-          bot.sendMessage(chatId, `[System] `+ arrestPerson + `의 정체는 미카미가 맞습니다. 그의 대신노트 스킬을 봉인합니다.`)
-          bot.sendMessage(mapped_role.Mikami.id, `[System] 제반니의 바꿔치기로 대신노트 스킬이 봉인되었습니다.`)
+          bot.sendMessage(chatId, `[System] `+ arrestPerson + `의 정체는 미카미가 맞습니다. 그의 대신노트 스킬을 무력화합니다.`)
+          //bot.sendMessage(mapped_role.Mikami.id, `[System] 제반니의 바꿔치기로 대신노트 스킬이 봉인되었습니다.`)
           foundMatch = true;
           break;
         }
@@ -916,7 +944,7 @@ function babo(chatId, checkPerson, bot){
   }
 }
 
-//데스노트, 캐릭터: 키라, 미카미(3회)
+//데스노트, 캐릭터: 키라
 function deathNote(chatId, role, capturedPerson, bot, deathNotes){
   if(mapped_role.Kira.id === chatId){
     if(mapped_role.Kira.skill1 === true){
@@ -942,7 +970,16 @@ function deathNote(chatId, role, capturedPerson, bot, deathNotes){
             setTimeout(()=>{
               deathMsg(chatId, mapped_role[key], bot, function(callback){
                 if(callback===true){
-                 deathNotes(true);
+                  const combinedMessage = Object.values(mapped_role)
+                  .map(person => `${person.role}: ${person.name}`)
+                  .join('\n');
+          
+                  // 모든 플레이어에게 통합된 메시지 전송
+                  for (const key_vf in mapped_role) {
+                    const person = mapped_role[key_vf];
+                    bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+                  } 
+                  deathNotes(true);
                 }
             });
           }, deathCool);
@@ -988,6 +1025,15 @@ function watchNote(chatId, role, capturedPerson, bot, watchNote){
             console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
             deathMsg(chatId, mapped_role[key], bot, function(callback){
               if(callback===true){
+                const combinedMessage = Object.values(mapped_role)
+                .map(person => `${person.role}: ${person.name}`)
+                .join('\n');
+
+                // 모든 플레이어에게 통합된 메시지 전송
+                for (const key_vf in mapped_role) {
+                  const person = mapped_role[key_vf];
+                  bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+                }
                 watchNote(true);
               }
             });
@@ -1274,9 +1320,18 @@ function desinNote(chatId, role, capturedPerson, bot, deathNotes){
             console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
             setTimeout(()=>{
               deathMsg(chatId, mapped_role[key], bot, function(callback){
+                mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
+                bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
                 if(callback===true){
-                  mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
-                  bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
+                  const combinedMessage = Object.values(mapped_role)
+                  .map(person => `${person.role}: ${person.name}`)
+                  .join('\n');
+
+                  // 모든 플레이어에게 통합된 메시지 전송
+                  for (const key_vf in mapped_role) {
+                    const person = mapped_role[key_vf];
+                    bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+                  }
                   deathNotes(true);
                 }
               });
@@ -1298,6 +1353,13 @@ function desinNote(chatId, role, capturedPerson, bot, deathNotes){
         const elapsedTime = currentTime - desinNoteCool_start
         const remainingTime = Math.ceil((desinNoteCool - elapsedTime) / 1000);
         bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+      }
+      else if(mapped_role.Mikami.alive === true && mapped_role.Mikami.seal === false && mapped_role.Mikami.skill1 === true){
+        setTimeout(()=>{
+          mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
+          bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
+          bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
+        }, deathCool);
       }
       else{
         bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`);

@@ -384,7 +384,7 @@ function start() {
           const role = values[0];
           const capturedPerson = values[1];
           game.deathNote(chatId, role, capturedPerson, bot, function(deathNotes){
-            if(deathNotes === true){
+            if(deathNotes === true){ 
               room.resetRoom();
             }
           });
@@ -407,8 +407,8 @@ function start() {
         if (values.length >= 2) {
           const role = values[0];
           const capturedPerson = values[1];
-          game.watchNote(chatId, role, capturedPerson, bot, function(watchNote){
-            if(watchNote === true){
+          game.watchNote(chatId, role, capturedPerson, bot, function(watchNote, mapped_role){
+            if(watchNote === true){ 
               room.resetRoom();
             }
           });
@@ -479,7 +479,7 @@ function start() {
           const role = values[0];
           const capturedPerson = values[1];
           game.desinNote(chatId, role, capturedPerson, bot, function(desinNotes){
-            if(desinNotes === true){
+            if(desinNotes === true){ 
               room.resetRoom();
             }
           });
