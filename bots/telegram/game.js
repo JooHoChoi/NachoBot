@@ -404,6 +404,7 @@ function broadcast(chatId, broadMsg, bot){
       console.log("키요미 방송")
       //const skill_temp = parseInt(mapped_role.Kiyomi.skill2) - 1;
       mapped_role.Kiyomi.skill2 = parseInt(mapped_role.Kiyomi.skill2) - 1
+      bot.sendMessage(chatId, `[System] 남은 방송횟수: ` + mapped_role.Kiyomi.skill2 + `회`);
       for(const key3 in mapped_role){
         const participant3 = mapped_role[key3];
         bot.sendMessage(participant3.id, broadMsg)
@@ -435,8 +436,8 @@ function watching_Kiyomi(chatId, role, capturedPerson, bot){
         console.log('키요미 감시여부 checking...')
         if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson) {
           mapped_role.Kiyomi.seal = false;
-          bot.sendMessage(chatId, `[System] `+ capturedPerson + `의 정체는 키요미가 맞습니다. 그녀의 정보수집 스킬을 봉인합니다.`)
-          bot.sendMessage(mapped_role.Kiyomi.id, `[System] 니아의 감시로 정보수집 스킬이 봉인되었습니다.`)
+          bot.sendMessage(chatId, `[System] `+ capturedPerson + `의 정체는 키요미가 맞습니다. 그녀의 정보수집을 방해합니다.`)
+          bot.sendMessage(mapped_role.Kiyomi.id, `[System] 니아의 감시로 정보수집 스킬이 제한되었습니다.(엘/니아/멜로 정보수집 불가)`)
           foundMatch = true;
           break;
         }
@@ -855,6 +856,7 @@ function check_L(chatId, bot){
   if(mapped_role.Mogi.id === chatId){
     if(mapped_role.Mogi.alive === true && mapped_role.Mogi.skill2 === true){
       mapped_role.Mogi.skill2 = false;
+      check_L_Cool_start = Date.now();
       setTimeout(()=>{
         check_L_MSG(chatId, bot);
         mapped_role.Mogi.skill2 = true;
@@ -1266,7 +1268,50 @@ function envoyEyes(chatId, envoyEyePerson, bot){
 
 //정보수집. 캐릭터: 키요미
 function gatheringInfo(chatId, role, capturedPerson, bot){
-  if(mapped_role.Kiyomi.id === chatId && mapped_role.Kiyomi.alive === true && mapped_role.Kiyomi.skill1 === true && mapped_role.Kiyomi.seal === true){
+  if(mapped_role.Kiyomi.id === chatId){
+    if(mapped_role.Kiyomi.alive === true && mapped_role.Kiyomi.skill1 === true){
+      mapped_role.Kiyomi.skill1 = false;
+      gatheringInfo_Cool_start = Date.now();
+      setTimeout(()=>{
+        mapped_role.Kiyomi.skill1 = true;
+      }, gatheringInfo_Cool)
+
+      if(mapped_role.Kiyomi.seal === false){
+        bot.sendMessage(chatId, `[System] 감시로 인해 엘 / 니아 / 멜로에 대한 정보수집은 불가능합니다`)
+      }
+      else{
+        let foundMatch = false; //일치하는 플레이어를 찾는 변수
+        for(const key in mapped_role){
+          console.log('정보수집결과 checking...')
+          if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson) {
+            mapped_role.Kiyomi.skill2 = parseInt(mapped_role.Kiyomi.skill2) + 1;
+            bot.sendMessage(chatId, `[System] `+ capturedPerson + `의 정체는 ` + role + `(이)가 맞습니다.`)
+            foundMatch = true;
+            break;
+          }
+        }
+        if(!foundMatch){
+          bot.sendMessage(chatId, '[System] 해당 플레이어는 ' + role + ` (이)가 아닙니다`);
+        }
+      }
+
+    }
+    else if(mapped_role.Kiyomi.alive === true && mapped_role.Kiyomi.skill1 === false){
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - gatheringInfo_Cool_start
+      const remainingTime = Math.ceil((gatheringInfo_Cool - elapsedTime) / 1000);
+      bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+    }
+    else{
+      bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`); 
+    }
+  }
+  else{
+    bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
+  }
+  
+  
+  /*f(mapped_role.Kiyomi.id === chatId && mapped_role.Kiyomi.alive === true && mapped_role.Kiyomi.skill1 === true && mapped_role.Kiyomi.seal === true){
     mapped_role.Kiyomi.skill1 = false;
     gatheringInfo_Cool_start = Date.now();
     setTimeout(()=>{
@@ -1299,7 +1344,7 @@ function gatheringInfo(chatId, role, capturedPerson, bot){
   }
   else{
     bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할 또는 상태가 아닙니다`);
-  }
+  }*/
 }
 
 //대신노트 - 캐릭터: 미카미
@@ -1319,9 +1364,9 @@ function desinNote(chatId, role, capturedPerson, bot, deathNotes){
           if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true){
             console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
             setTimeout(()=>{
+              mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
+              bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
               deathMsg(chatId, mapped_role[key], bot, function(callback){
-                mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
-                bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
                 if(callback===true){
                   const combinedMessage = Object.values(mapped_role)
                   .map(person => `${person.role}: ${person.name}`)
