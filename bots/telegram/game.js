@@ -43,7 +43,7 @@ let watching_Kiyomi_Cool_start;
 const kidnap_Kiyomi_Cool = 60000; //키요미 납치 스킬 쿨타임: 테스트 10초, 본게임 60초
 let kidnap_Kiyomi_Cool_start;
 
-const gatheringInfo_Cool = 30000; //정보수집 스킬 쿨타입: 테스트 10초, 본게임 30초
+const gatheringInfo_Cool = 60000; //정보수집 스킬 쿨타임: 테스트 10초, 본게임 60초
 let gatheringInfo_Cool_start;
 
 const arrest_Misa_Cool = 60000; //연금 스킬: 테스트 10초, 본게임 60초
