@@ -33,7 +33,7 @@
     "Kiyomi": {
         "name": "",
         "skill1": true,
-        "skill2": 2,
+        "skill2": 5,
         "alive": true,
         "whisper": 10,
         "note": 2,

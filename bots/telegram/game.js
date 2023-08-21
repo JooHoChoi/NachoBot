@@ -1277,13 +1277,30 @@ function gatheringInfo(chatId, role, capturedPerson, bot){
       }, gatheringInfo_Cool)
 
       if(mapped_role.Kiyomi.seal === false){
-        bot.sendMessage(chatId, `[System] 감시로 인해 엘 / 니아 / 멜로에 대한 정보수집은 불가능합니다`)
+        if(role === '엘' || role === '니아' || role === '멜로'){
+          bot.sendMessage(chatId, `[System] 감시로 인해 엘 / 니아 / 멜로에 대한 정보수집은 불가능합니다`)
+        }
+        else{
+          let foundMatch = false; //일치하는 플레이어를 찾는 변수
+          for(const key in mapped_role){
+            console.log('정보수집결과 checking...')
+            if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson) {
+              mapped_role.Kiyomi.skill2 = parseInt(mapped_role.Kiyomi.skill2) + 1;
+              bot.sendMessage(chatId, `[System] `+ capturedPerson + `의 정체는 ` + role + `(이)가 맞습니다.`)
+              foundMatch = true;
+              break;
+            }
+          }
+          if(!foundMatch){
+            bot.sendMessage(chatId, '[System] 해당 플레이어는 ' + role + ` (이)가 아닙니다`);
+          }
+        }
       }
       else{
         let foundMatch = false; //일치하는 플레이어를 찾는 변수
-        for(const key in mapped_role){
+        for(const key2 in mapped_role){
           console.log('정보수집결과 checking...')
-          if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson) {
+          if (mapped_role[key2].role === role && mapped_role[key2].name === capturedPerson) {
             mapped_role.Kiyomi.skill2 = parseInt(mapped_role.Kiyomi.skill2) + 1;
             bot.sendMessage(chatId, `[System] `+ capturedPerson + `의 정체는 ` + role + `(이)가 맞습니다.`)
             foundMatch = true;
@@ -1294,7 +1311,6 @@ function gatheringInfo(chatId, role, capturedPerson, bot){
           bot.sendMessage(chatId, '[System] 해당 플레이어는 ' + role + ` (이)가 아닙니다`);
         }
       }
-
     }
     else if(mapped_role.Kiyomi.alive === true && mapped_role.Kiyomi.skill1 === false){
       const currentTime = Date.now();
@@ -1309,42 +1325,6 @@ function gatheringInfo(chatId, role, capturedPerson, bot){
   else{
     bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
   }
-  
-  
-  /*f(mapped_role.Kiyomi.id === chatId && mapped_role.Kiyomi.alive === true && mapped_role.Kiyomi.skill1 === true && mapped_role.Kiyomi.seal === true){
-    mapped_role.Kiyomi.skill1 = false;
-    gatheringInfo_Cool_start = Date.now();
-    setTimeout(()=>{
-      mapped_role.Kiyomi.skill1 = true;
-    }, gatheringInfo_Cool)
-
-    if(role === '엘' || role === '니아' || role === '멜로'){
-      bot.sendMessage(chatId, `[System] 엘 / 니아 / 멜로에 대한 정보수집은 불가능합니다`)
-    }
-    else{
-      let foundMatch = false; //일치하는 플레이어를 찾는 변수
-      for(const key in mapped_role){
-        console.log('정보수집결과 checking...')
-        if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson) {
-          bot.sendMessage(chatId, `[System] `+ capturedPerson + `의 정체는 ` + role + `(이)가 맞습니다.`)
-          foundMatch = true;
-          break;
-        }
-      }
-      if(!foundMatch){
-        bot.sendMessage(chatId, '[System] 해당 플레이어는 ' + role + ` (이)가 아닙니다`);
-      }
-    }    
-  }
-  else if(mapped_role.Kiyomi.alive === true && mapped_role.Kiyomi.skill1 === false){
-    const currentTime = Date.now();
-    const elapsedTime = currentTime - gatheringInfo_Cool_start
-    const remainingTime = Math.ceil((gatheringInfo_Cool - elapsedTime) / 1000);
-    bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
-  }
-  else{
-    bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할 또는 상태가 아닙니다`);
-  }*/
 }
 
 //대신노트 - 캐릭터: 미카미
