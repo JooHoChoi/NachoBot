@@ -9,11 +9,13 @@ const charactor9 = require('./charactor9.json');
 const charactor10 = require('./charactor10.json');
 const charactor11 = require('./charactor11.json');
 const charactor12 = require('./charactor12.json');
+const characters = require('./charactor12.json');
 
 const index = require('./index');
 
 let room;
 let mapped_role;
+let originalCharactor;
 let originalCharactor3;
 let originalCharactor4;
 let originalCharactor5;
@@ -27,6 +29,12 @@ let originalCharactor12;
 
 //스킬 쿨다운 기준값
 //스킬 쿨다운 체크값
+const arrestCool_L = 180000; //체포 스킬 쿨타임: 테스트 10초, 본게임 180초
+let arrestCool_L_start;
+
+const arrestCool_N = 180000; //체포 스킬 쿨타임: 테스트 10초, 본게임 180초
+let arrestCool_N_start;
+
 const broadCool = 30000; //방송 스킬 쿨타임: 테스트: 10초, 본게임 30초
 let broadCool_start;
 
@@ -63,7 +71,7 @@ const follow_Mogi_Cool = 120000; //미행 스킬: 테스트 15초, 본게임 120
 let follow_Mogi_Cool_start;
 const followMogiCool = 60000; //미행스킬로 플레이어를 확인하는데 걸리는 시간: 테스트 10초, 본게임 60초
 
-const check_L_Cool = 180000; // 엘확인 스킬: 테스트 30초, 본게임 180초
+const check_L_Cool = 150000; // 엘확인 스킬: 테스트 30초, 본게임 150초
 let check_L_Cool_start;
 
 const babo_Mathuda_Cool = 60000; //바보 스킬: 테스트 10초, 본게임 60초
@@ -82,6 +90,7 @@ let worship_kira_Cool_start;
 
 function startGame(roomData, callback_mapping) {
   room = roomData;
+
   //3인 테스트용 조건문
   if(roomData.length === 3){
     if (!originalCharactor3) {
@@ -99,7 +108,7 @@ function startGame(roomData, callback_mapping) {
     }
   }
   //4인 조건문
-  else if(roomData.length === 4){
+  else if(roomData.length === 4){  
     if (!originalCharactor4) {
       originalCharactor4 = JSON.parse(JSON.stringify(charactor4));
       mapNameToJSON(roomData, charactor4, function(callback) {
@@ -129,87 +138,320 @@ function startGame(roomData, callback_mapping) {
   }
   //6인  조건문
   else if(roomData.length === 6){
-    if (!originalCharactor6) {
-      originalCharactor6 = JSON.parse(JSON.stringify(charactor6));
-      mapNameToJSON(roomData, charactor6, function(callback) {
+    
+    // 필수로 들어가야 하는 5명의 캐릭터
+    const requiredCharacters = ["L", "N", "M", "Kira", "Kiyomi"];
+
+    // const group1 = ["Hal", "Misa"];
+    // const group2 = ["Jebanni", "Mikami"];
+    
+    // // 그룹 중 하나를 무작위로 선택
+    // const selectedGroup = Math.random() < 0.5 ? group1 : group2;
+    
+    // // 선택된 그룹에 있는 캐릭터를 필수 캐릭터에 추가
+    // requiredCharacters.push(...selectedGroup);
+      
+    // 남은 1명의 캐릭터를 무작위로 선택
+    const remainingCharacters = Object.keys(characters).filter(character => !requiredCharacters.includes(character));
+    for (let i = 0; i < 1; i++) {
+      const randomIndex = Math.floor(Math.random() * remainingCharacters.length);
+      requiredCharacters.push(remainingCharacters[randomIndex]);
+      remainingCharacters.splice(randomIndex, 1);
+    }
+
+    const selectedCharacters = {};
+    requiredCharacters.forEach((character) => {
+      selectedCharacters[character] = characters[character];
+    });
+
+
+    if (!originalCharactor) {
+      originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
+      mapNameToJSON(roomData, originalCharactor, function(callback) {
         callback_mapping(callback);
       });
-    } else {
-      const charactor_origin = JSON.parse(JSON.stringify(originalCharactor6));
-      mapNameToJSON(roomData, charactor_origin, function(callback) {
+    }else{
+      originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
+      mapNameToJSON(roomData, originalCharactor, function(callback) {
         callback_mapping(callback);
       });
     }
+
+    // if (!originalCharactor6) {
+    //   originalCharactor6 = JSON.parse(JSON.stringify(charactor6));
+    //   mapNameToJSON(roomData, charactor6, function(callback) {
+    //     callback_mapping(callback);
+    //   });
+    // } else {
+    //   const charactor_origin = JSON.parse(JSON.stringify(originalCharactor6));
+    //   mapNameToJSON(roomData, charactor_origin, function(callback) {
+    //     callback_mapping(callback);
+    //   });
+    // }
   }
   //7인 조건문
   else if(roomData.length === 7){
-    if (!originalCharactor7) {
-      originalCharactor7 = JSON.parse(JSON.stringify(charactor7));
-      mapNameToJSON(roomData, charactor7, function(callback) {
+    // 필수로 들어가야 하는 5명의 캐릭터
+    const requiredCharacters = ["L", "N", "M", "Kira", "Kiyomi"];
+
+    const group1 = ["Hal", "Misa"];
+    const group2 = ["Jebanni", "Mikami"];
+    
+    // 그룹 중 하나를 무작위로 선택
+    const selectedGroup = Math.random() < 0.5 ? group1 : group2;
+    
+    // 선택된 그룹에 있는 캐릭터를 필수 캐릭터에 추가
+    requiredCharacters.push(...selectedGroup);
+      
+    // 남은 1명의 캐릭터를 무작위로 선택
+    // const remainingCharacters = Object.keys(characters).filter(character => !requiredCharacters.includes(character));
+    // for (let i = 0; i < 1; i++) {
+    //   const randomIndex = Math.floor(Math.random() * remainingCharacters.length);
+    //   requiredCharacters.push(remainingCharacters[randomIndex]);
+    //   remainingCharacters.splice(randomIndex, 1);
+    // }
+
+    const selectedCharacters = {};
+    requiredCharacters.forEach((character) => {
+      selectedCharacters[character] = characters[character];
+    });
+
+
+    if (!originalCharactor) {
+      originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
+      mapNameToJSON(roomData, originalCharactor, function(callback) {
         callback_mapping(callback);
       });
-    } else {
-      const charactor_origin = JSON.parse(JSON.stringify(originalCharactor7));
-      mapNameToJSON(roomData, charactor_origin, function(callback) {
+    }else{
+      originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
+      mapNameToJSON(roomData, originalCharactor, function(callback) {
         callback_mapping(callback);
       });
     }
+    
+    
+    
+    
+    // if (!originalCharactor7) {
+    //   originalCharactor7 = JSON.parse(JSON.stringify(charactor7));
+    //   mapNameToJSON(roomData, charactor7, function(callback) {
+    //     callback_mapping(callback);
+    //   });
+    // } else {
+    //   const charactor_origin = JSON.parse(JSON.stringify(originalCharactor7));
+    //   mapNameToJSON(roomData, charactor_origin, function(callback) {
+    //     callback_mapping(callback);
+    //   });
+    // }
   }
   //8인 조건문
   else if(roomData.length === 8){
-    if (!originalCharactor8) {
-      originalCharactor8 = JSON.parse(JSON.stringify(charactor8));
-      mapNameToJSON(roomData, charactor8, function(callback) {
+    // 필수로 들어가야 하는 5명의 캐릭터
+    const requiredCharacters = ["L", "N", "M", "Kira", "Kiyomi"];
+
+    const group1 = ["Hal", "Misa"];
+    const group2 = ["Jebanni", "Mikami"];
+    
+    // 그룹 중 하나를 무작위로 선택
+    const selectedGroup = Math.random() < 0.5 ? group1 : group2;
+
+    // 선택된 그룹에 있는 캐릭터를 필수 캐릭터에 추가
+    requiredCharacters.push(...selectedGroup);
+    
+    // 선택된 그룹에 있는 멤버를 제외한 그룹의 멤버들을 저장
+    const unselectedGroupMembers = selectedGroup === group1 ? group2 : group1;
+    
+    // 남은 1명의 캐릭터를 무작위로 선택
+    const remainingCharacters = Object.keys(characters).filter(character =>
+      !requiredCharacters.includes(character) && !unselectedGroupMembers.includes(character)
+    );
+    for (let i = 0; i < 1; i++) {
+      const randomIndex = Math.floor(Math.random() * remainingCharacters.length);
+      requiredCharacters.push(remainingCharacters[randomIndex]);
+      remainingCharacters.splice(randomIndex, 1);
+    }
+    
+    const selectedCharacters = {};
+    requiredCharacters.forEach((character) => {
+      selectedCharacters[character] = characters[character];
+    });
+    
+    if (!originalCharactor) {
+      originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
+      mapNameToJSON(roomData, originalCharactor, function(callback) {
         callback_mapping(callback);
       });
-    } else {
-      const charactor_origin = JSON.parse(JSON.stringify(originalCharactor8));
-      mapNameToJSON(roomData, charactor_origin, function(callback) {
+    }else{
+      originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
+      mapNameToJSON(roomData, originalCharactor, function(callback) {
         callback_mapping(callback);
       });
     }
+    
+    // if (!originalCharactor8) {
+    //   originalCharactor8 = JSON.parse(JSON.stringify(charactor8));
+    //   mapNameToJSON(roomData, charactor8, function(callback) {
+    //     callback_mapping(callback);
+    //   });
+    // } else {
+    //   const charactor_origin = JSON.parse(JSON.stringify(originalCharactor8));
+    //   mapNameToJSON(roomData, charactor_origin, function(callback) {
+    //     callback_mapping(callback);
+    //   });
+    // }
   }
   //9인 조건문
-  else if(roomData.length === 9){
-    if (!originalCharactor9) {
-      originalCharactor9 = JSON.parse(JSON.stringify(charactor9));
-      mapNameToJSON(roomData, charactor9, function(callback) {
-        callback_mapping(callback);
-      });
-    } else {
-      const charactor_origin = JSON.parse(JSON.stringify(originalCharactor9));
-      mapNameToJSON(roomData, charactor_origin, function(callback) {
-        callback_mapping(callback);
-      });
+  else if(roomData.length === 9){   
+
+  // 필수로 들어가야 하는 7명의 캐릭터
+  const requiredCharacters = ["L", "N", "M", "Kira", "Kiyomi", "Hal", "Misa"];
+
+  // Jebanni와 Mikami 그룹
+  const jebanniAndMikamiGroup = ["Jebanni", "Mikami"];
+
+  // Jebanni와 Mikami 중 하나를 선택
+  const shouldIncludeJebanniAndMikami = Math.random() < 0.5;
+
+  // 선택할 나머지 캐릭터 수 (2명)
+  const remainingCharacterCount = 2;
+
+  // 남은 캐릭터 목록
+  const remainingCharacters = Object.keys(characters).filter(character =>
+    !requiredCharacters.includes(character) && !jebanniAndMikamiGroup.includes(character)
+  );
+
+  // 선택할 캐릭터 그룹 초기화
+  const selectedCharacters = [...requiredCharacters];
+
+  if (shouldIncludeJebanniAndMikami) {
+    // Jebanni와 Mikami 둘 다 선택하는 경우
+    selectedCharacters.push(...jebanniAndMikamiGroup);
+  } else {
+    // 나머지 캐릭터 중에서 2개 선택
+    for (let i = 0; i < remainingCharacterCount; i++) {
+      const randomIndex = Math.floor(Math.random() * remainingCharacters.length);
+      selectedCharacters.push(remainingCharacters[randomIndex]);
+      remainingCharacters.splice(randomIndex, 1);
     }
+  }
+  
+  const finalSelectedCharacters = {};
+
+  // 선택한 캐릭터로 초기화
+  selectedCharacters.forEach((character) => {
+    finalSelectedCharacters[character] = characters[character];
+  });
+
+  if (!originalCharactor) {
+    originalCharactor = JSON.parse(JSON.stringify(finalSelectedCharacters));
+    mapNameToJSON(roomData, originalCharactor, function(callback) {
+      callback_mapping(callback);
+    });
+  }else{
+    originalCharactor = JSON.parse(JSON.stringify(finalSelectedCharacters));
+    mapNameToJSON(roomData, originalCharactor, function(callback) {
+      callback_mapping(callback);
+    });
+  }
+    
+    //if (!originalCharactor9) {
+    //  originalCharactor9 = JSON.parse(JSON.stringify(charactor9));
+    //  mapNameToJSON(roomData, charactor9, function(callback) {
+    //    callback_mapping(callback);
+    //  });
+    //} else {
+    //  const charactor_origin = JSON.parse(JSON.stringify(originalCharactor9));
+    //  mapNameToJSON(roomData, charactor_origin, function(callback) {
+    //   callback_mapping(callback);
+    //  });
+    // }
   }
   //10인 조건문
   else if(roomData.length === 10){
-    if (!originalCharactor10) {
-      originalCharactor10 = JSON.parse(JSON.stringify(charactor10));
-      mapNameToJSON(roomData, charactor10, function(callback) {
+    // 필수로 들어가야 하는 5명의 캐릭터
+    const requiredCharacters = ["L", "N", "M", "Kira", "Kiyomi", "Hal", "Misa","Jebanni", "Mikami"];
+      
+    // 남은 1명의 캐릭터를 무작위로 선택
+    const remainingCharacters = Object.keys(characters).filter(character => !requiredCharacters.includes(character));
+    for (let i = 0; i < 1; i++) {
+      const randomIndex = Math.floor(Math.random() * remainingCharacters.length);
+      requiredCharacters.push(remainingCharacters[randomIndex]);
+      remainingCharacters.splice(randomIndex, 1);
+    }
+
+    const selectedCharacters = {};
+    requiredCharacters.forEach((character) => {
+      selectedCharacters[character] = characters[character];
+    });
+
+
+    if (!originalCharactor) {
+      originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
+      mapNameToJSON(roomData, originalCharactor, function(callback) {
         callback_mapping(callback);
       });
-    } else {
-      const charactor_origin = JSON.parse(JSON.stringify(originalCharactor10));
-      mapNameToJSON(roomData, charactor_origin, function(callback) {
+    }else{
+      originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
+      mapNameToJSON(roomData, originalCharactor, function(callback) {
         callback_mapping(callback);
       });
     }
+    
+    // if (!originalCharactor10) {
+    //   originalCharactor10 = JSON.parse(JSON.stringify(charactor10));
+    //   mapNameToJSON(roomData, charactor10, function(callback) {
+    //     callback_mapping(callback);
+    //   });
+    // } else {
+    //   const charactor_origin = JSON.parse(JSON.stringify(originalCharactor10));
+    //   mapNameToJSON(roomData, charactor_origin, function(callback) {
+    //     callback_mapping(callback);
+    //   });
+    // }
   }
   //11인 조건문
   else if(roomData.length === 11){
-    if (!originalCharactor11) {
-      originalCharactor11 = JSON.parse(JSON.stringify(charactor11));
-      mapNameToJSON(roomData, charactor11, function(callback) {
+     // 필수로 들어가야 하는 5명의 캐릭터
+     const requiredCharacters = ["L", "N", "M", "Kira", "Kiyomi", "Hal", "Misa","Jebanni", "Mikami"];
+      
+     // 남은 2명의 캐릭터를 무작위로 선택
+     const remainingCharacters = Object.keys(characters).filter(character => !requiredCharacters.includes(character));
+     for (let i = 0; i < 2; i++) {
+       const randomIndex = Math.floor(Math.random() * remainingCharacters.length);
+       requiredCharacters.push(remainingCharacters[randomIndex]);
+       remainingCharacters.splice(randomIndex, 1);
+     }
+ 
+     const selectedCharacters = {};
+     requiredCharacters.forEach((character) => {
+       selectedCharacters[character] = characters[character];
+     });
+ 
+ 
+     if (!originalCharactor) {
+      originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
+      mapNameToJSON(roomData, originalCharactor, function(callback) {
         callback_mapping(callback);
       });
-    } else {
-      const charactor_origin = JSON.parse(JSON.stringify(originalCharactor11));
-      mapNameToJSON(roomData, charactor_origin, function(callback) {
+    }else{
+      originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
+      mapNameToJSON(roomData, originalCharactor, function(callback) {
         callback_mapping(callback);
       });
     }
+    
+    
+    // if (!originalCharactor11) {
+    //   originalCharactor11 = JSON.parse(JSON.stringify(charactor11));
+    //   mapNameToJSON(roomData, charactor11, function(callback) {
+    //     callback_mapping(callback);
+    //   });
+    // } else {
+    //   const charactor_origin = JSON.parse(JSON.stringify(originalCharactor11));
+    //   mapNameToJSON(roomData, charactor_origin, function(callback) {
+    //     callback_mapping(callback);
+    //   });
+    // }
   }
   //12인 조건문
   else if(roomData.length === 12){
@@ -253,8 +495,14 @@ function mapNameToJSON(roomData, charactor, callback){
 //키라 체포, 캐릭터: 엘, 니아
 function arrest_Kira(chatId, capturedPerson, bot, arrest){
   const LwinPhoto = __dirname + '/img/LWin.jpg'
-  if(mapped_role.L.id === chatId ){
-    if(mapped_role.L.skill1 === true && mapped_role.L.alive === true){
+  if(mapped_role.L.id === chatId){
+    if(mapped_role.L.alive === true && mapped_role.L.skill1 === true){
+      mapped_role.L.skill1 = false;
+      arrestCool_L_start = Date.now();
+      setTimeout(()=>{
+        mapped_role.L.skill1 = true;
+      }, arrestCool_L)
+
       if(mapped_role.Kira.name === capturedPerson){
         console.log('L추리성공')
         for(const key in mapped_role){
@@ -283,7 +531,7 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
       }
       else{
         console.log('L추리실패')
-        mapped_role.L.skill1 = false;
+        //mapped_role.L.skill1 = false;
         for(const key2 in mapped_role){
           const participant2 = mapped_role[key2];
           const arrestMsg2 = `**[속보] 엘의 정체는 ${mapped_role.L.name} 입니다.**`
@@ -291,13 +539,27 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
         }
       }
     }
+    else if(mapped_role.L.alive === true && mapped_role.L.skill1 === false){
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - arrestCool_L_start
+      const remainingTime = Math.ceil((arrestCool_L - elapsedTime) / 1000);
+      bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+    }
     else{
       bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`)
     }
   }
+
+
   if(mapped_role.N.id === chatId){
     if(mapped_role.L.alive === false){
       if(mapped_role.N.skill1 === true && mapped_role.N.alive === true){
+        mapped_role.N.skill1 = false;
+        arrestCool_N_start = Date.now();
+        setTimeout(()=>{
+          mapped_role.N.skill1 = true;
+        }, arrestCool_N)
+
         if(mapped_role.Kira.name === capturedPerson){
           console.log('N추리성공')
           for(const key3 in mapped_role){
@@ -325,13 +587,19 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
         }
         else{
           console.log('N추리실패')
-          mapped_role.N.skill1 = false;
+          //mapped_role.N.skill1 = false;
           for(const key4 in mapped_role){
             const participant4 = mapped_role[key4];
             const arrestMsg4 = `**[속보] 니아의 정체는 ${mapped_role.N.name} 입니다.**`
             bot.sendMessage(participant4.id, arrestMsg4)
           }
         }
+      }
+      else if(mapped_role.N.alive === true && mapped_role.N.skill1 === false){
+        const currentTime = Date.now();
+        const elapsedTime = currentTime - arrestCool_N_start
+        const remainingTime = Math.ceil((arrestCool_N - elapsedTime) / 1000);
+        bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
       }
       else{
         bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`)
@@ -813,13 +1081,13 @@ function follow(chatId, followPerson, bot){
         mapped_role.Mogi.skill1 = true;
       }, follow_Mogi_Cool)
 
-      //50% 확률로 플레이어 확인
-      if(chance_Mogi > 0.5){
+      //70% 확률로 플레이어 확인
+      if(chance_Mogi >= 0.7){
         for(const key in mapped_role){
           if (mapped_role[key].name === followPerson) {
             setTimeout(()=>{
               bot.sendMessage(chatId, `[System] 플레이어의 정체는 ` + mapped_role[key].role + ` 입니다.`);
-              if(mapped_role[key].team === 'Kira' && chance2_Mogi > 0.3){
+              if(mapped_role[key].team === 'Kira' && chance2_Mogi > 0.5){
                 bot.sendMessage(chatId, `[System] ` + mapped_role[key].name+`에게 당신의 정체가 전달됩니다`)
                 bot.sendMessage(mapped_role[key].id, `[System] 당신을 미행한 `+ mapped_role.Mogi.name + `의 정체는 모기입니다.`)
               }
