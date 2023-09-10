@@ -38,6 +38,10 @@ let arrestCool_N_start;
 const broadCool = 30000; //방송 스킬 쿨타임: 테스트: 10초, 본게임 30초
 let broadCool_start;
 
+const wiretapping_Cool = 90000; //도청 스킬 쿨타임 테스트 , 본게임 90초, 
+let wiretappingCool_start;
+const wiretappingCool = 60000; // 연모스킬로 키라를 찾는데 걸리는 시간: 테스트 10초, 본게임 60초
+
 const deathNoteCool = 90000; //데스노트 스킬 쿨타임: 테스트 60초, 본게임 90초
 let deathNoteCool_start;
 const deathCool = 40000; // 데스노트 스킬로 죽는데 걸리는 시간: 테스트 10초, 본게임 40초
@@ -688,6 +692,100 @@ function broadcast(chatId, broadMsg, bot){
   }
 
 }
+
+
+//도청, 캐릭터: 엘
+function wiretapping(chatId, target, msg, bot){
+  if(mapped_role.L.id === chatId){
+    if(mapped_role.L.alive === true && mapped_role.L.skill3 === true){      
+      let foundMatch = false;
+      for(const key in mapped_role){
+        if(mapped_role[key].name === target){
+          mapped_role.L.skill3 = false;
+          wiretappingCool_start = Date.now();
+          setTimeout(()=>{
+            mapped_role.L.skill3 = true;
+          }, wiretapping_Cool)
+
+          bot.sendMessage(chatId, `[System] ${target}을 대상으로 30초간 도청을 시도합니다.`)
+
+          foundMatch = true;
+          const messageListener = (msg) => {
+            if (msg.chat.id === mapped_role[key].id && (msg.text.includes('/귓') || msg.text.includes('/쪽지'))) {
+              bot.sendMessage(chatId, '[System - 도청] '+ target +': ' + msg.text); // sender에게 메시지를 전송합니다.
+            }
+          };
+    
+          bot.on('message', messageListener);
+    
+          // 30초 후에 이벤트 리스너를 자동으로 제거합니다.
+          setTimeout(() => {
+            bot.removeListener('message', messageListener);
+            bot.sendMessage(chatId, `[System] ${target}을 대상으로 한 도청이 종료되었습니다.`);
+          }, wiretappingCool);
+    
+          break;
+        }
+      }
+
+      if (!foundMatch) {
+        bot.sendMessage(chatId, `[System] ${target}은(는) 도청할 수 있는 대상이 아닙니다.`);
+      }
+
+      // wiretapping_result(chatId, target, msg, bot, function(callback){
+      //   if(callback === true){
+      //     bot.sendMessage(chatId, `[System] ${target}을 대상으로 한 도청이 종료되었습니다.`);
+      //   }
+      // })
+    }
+    else if(mapped_role.L.alive === true && mapped_role.L.skill3 === false){
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - wiretappingCool_start
+      const remainingTime = Math.ceil((wiretapping_Cool - elapsedTime) / 1000);
+      bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+    }
+    else{
+      bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`);
+    }
+  }
+  else{
+    bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
+  }
+}
+
+//도청에 대한 결과 처리
+function wiretapping_result(chatId, target, msg, bot, callback){
+  let foundMatch = false;
+  for(const key in mapped_role){
+    if(mapped_role[key].name === target){
+      bot.sendMessage(chatId, `[System] ${target}을 대상으로 30초간 도청을 시도합니다.`)
+
+      foundMatch = true;
+      const messageListener = (msg) => {
+        if (msg.chat.id === mapped_role[key].id && (msg.text.includes('/귓') || msg.text.includes('/쪽지'))) {
+          bot.sendMessage(chatId, '[System - 도청] '+ target +': ' + msg.text); // sender에게 메시지를 전송합니다.
+        }
+      };
+
+      bot.on('message', messageListener);
+
+      // 30초 후에 이벤트 리스너를 자동으로 제거합니다.
+      setTimeout(() => {
+        bot.removeListener('message', messageListener);
+        callback(true)
+      }, wiretappingCool);
+
+      break;
+    }
+  }
+
+  if(!foundMatch){
+    bot.sendMessage(chatId, `${receiver}의 도청에 실패했습니다.`)
+  }
+}
+
+
+
 
 //키요미 감시, 캐릭터: 니아
 function watching_Kiyomi(chatId, role, capturedPerson, bot){
@@ -1787,10 +1885,60 @@ function note_result(sender, receiver, note_msg, bot, callback){
   }
 }
 
+//(공용) 명함교환
+function namecard_exchange(chatId, receiver, msg, bot){
+  let foundMatch = false;
+  for(const key in mapped_role){
+    if(mapped_role[key].id === chatId && mapped_role[key].alive === true){
+      if(mapped_role[key].note> 0 && !foundMatch){
+        const sender = mapped_role[key]        
+        namecard_result(sender, receiver, msg, bot, function(callback){
+          if(callback === true){
+            mapped_role[key].note = parseInt(mapped_role[key].note) - 1
+          }
+        })
+        foundMatch = true;
+        break;      
+      }
+      else if(!foundMatch){
+        bot.sendMessage(chatId, `남은 교환요청 횟수가 없습니다.`)
+        foundMatch = true;
+      }
+    }else if(mapped_role[key].id === chatId && mapped_role[key].alive === false){
+      bot.sendMessage(chatId, `당신은 사망상태입니다.`);
+    }
+  }
+}
+
+function namecard_result(sender, receiver, msg, bot, callback){
+  let foundMatch = false;
+  for(const key in mapped_role){
+    if(mapped_role[key].name === receiver){
+      bot.sendMessage(sender.id, `${receiver}에게 쪽지 전달에 성공했습니다\n남은횟수: ${sender.note-1}회`)
+      bot.sendMessage(mapped_role[key].id, `${sender.name}에게서 명함교환 요청이 왔습니다.`)
+          
+      
+      bot.on('message', (msg) => {     
+        if (msg.chat.id === mapped_role[key].id && (msg.text.includes('/귓') || msg.text.includes('/쪽지'))) {
+          bot.sendMessage(sender.id, msg.text); // sender에게 메시지를 전송합니다.
+        }
+      });
+      callback(true)
+      foundMatch = true;
+      break;
+    }
+  }
+
+  if(!foundMatch){
+    bot.sendMessage(sender.id, `${receiver}에게 쪽지 전달에 실패했습니다\n남은횟수: ${sender.note}회`)
+  }
+}
+
 module.exports = {
   startGame,
   arrest_Kira,
   broadcast,
+  wiretapping,
   watching_Kiyomi,
   successor,
   kidnap_Kiyomi,
@@ -1814,6 +1962,7 @@ module.exports = {
   notice,
   whisper,
   whisper_result,
+  namecard_exchange,
   note,
   note_result
 };

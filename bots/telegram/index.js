@@ -169,6 +169,19 @@ function start() {
     });
 
 
+    //명교 [상대]
+    // bot.onText(/\/명교 (.+)/, (msg, match) => {
+    //   const chatId = msg.chat.id;
+    //   const receiver = match[1];
+      
+    //   if(room.getGameStatus() === false){
+    //     bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+    //   }
+    //   else{
+    //     game.namecard_exchange(chatId, receiver, msg, bot)
+    //   }
+    // });
+
     //키라 체포 - 엘, 니아
     bot.onText(/\/체포 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
@@ -197,6 +210,17 @@ function start() {
       }
     });
 
+    //도청 - 엘
+    bot.onText(/\/도청 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const target = match[1];
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        game.wiretapping(chatId, target, msg, bot);  
+      }
+    });    
 
     //키요미 감시 - 니아
     bot.onText(/\/감시 (.+)/, (msg, match) => {
