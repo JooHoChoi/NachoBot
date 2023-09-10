@@ -102,6 +102,18 @@ function resetRoom() {
   room = [];
   gameStarted = false;
 }
+
+function expelUserFromRoom(chatId, name, bot) {
+  const userIndex = room.findIndex(user => user.name === name);
+  if (userIndex !== -1) {
+    const expelledUser = room.splice(userIndex, 1)[0];
+    //console.log(`${expelledUser.name}님이 방에서 추방되었습니다.`);
+    bot.sendMessage(chatId, `${expelledUser.name}님이 방에서 추방되었습니다.`);
+  }
+  else{
+    bot.sendMessage(chatId, `${name}은(는) 방에 존재하지 않습니다.`);
+  }
+}
     
 module.exports = {
   getRoom,
@@ -112,5 +124,6 @@ module.exports = {
   startGame,
   getRoomStatus,
   resetRoom,
-  getGameStatus
+  getGameStatus,
+  expelUserFromRoom
 };

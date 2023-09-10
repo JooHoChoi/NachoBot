@@ -123,7 +123,20 @@ function start() {
       }
     });
 
-
+    //강퇴하기
+    bot.onText(/\/강퇴 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const person = match[1].split(' ');;
+      const values = person[0];
+      
+      if(chatId === room.getRoom()[0].id || chatId === masterId){
+        room.expelUserFromRoom(chatId, values, bot); // 사용자를 room 배열에서 추방하는 함수 호출
+      }
+      else{
+        bot.sendMessage(chatId, '강퇴기능은 방장 또는 관리자만 사용할 수 있습니다.');
+      }
+      
+    });
 
 
     //게임 명령어
