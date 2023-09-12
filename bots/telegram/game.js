@@ -1180,7 +1180,7 @@ function follow(chatId, followPerson, bot){
       }, follow_Mogi_Cool)
 
       //70% 확률로 플레이어 확인
-      if(chance_Mogi >= 0.7){
+      if(chance_Mogi >= 0.3){
         for(const key in mapped_role){
           if (mapped_role[key].name === followPerson) {
             setTimeout(()=>{
@@ -1598,7 +1598,7 @@ function envoyEyes(chatId, envoyEyePerson, bot){
         }
       }
       else if(parseInt(mapped_role.Misa.chance) === 1){
-        if(chance_Misa > 0.8){
+        if(chance_Misa > 0.2){
           bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은횟수: 0회`);
           mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
         }
