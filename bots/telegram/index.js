@@ -32,9 +32,17 @@ function start() {
 
 <기타 명령어>
     /자추 A B: A가 B에게 자추를 시전합니다`;
-
     
     bot.sendMessage(chatId, response);
+  });
+
+  //룰북 주소 전달 메세지
+  bot.onText(/\/룰북/, (msg, match) => {
+    const chatId = msg.chat.id;  
+
+    const rulebook = `https://nachomafia.azurewebsites.net/`
+    
+    bot.sendMessage(chatId, rulebook);
   });
 
   // '/게임참가' 명령어가 오면, 참가, 나가기, 현황, 시작 명령어를 선택할 수 있는 회신을 보냄
@@ -269,6 +277,7 @@ function start() {
       const chatId = msg.chat.id;
       const input = match[1];
       const values = input.split(' ');
+      let deathreason = '심장마비';
       
       if(room.getGameStatus() === false){
         bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
@@ -277,7 +286,11 @@ function start() {
         if (values.length >= 2) {
           const role = values[0];
           const capturedPerson = values[1];
-          game.pieceNote(chatId, role, capturedPerson, bot, function(pieceNote){
+          if (values.length > 2) {
+            deathreason = values.slice(2).join(' '); // 사용자가 입력한 값으로 업데이트됩니다.
+          }
+
+          game.pieceNote(chatId, role, capturedPerson, deathreason, bot, function(pieceNote){
             if(pieceNote === true){
               room.resetRoom();
             }
@@ -412,6 +425,7 @@ function start() {
       const chatId = msg.chat.id;
       const input = match[1];
       const values = input.split(' ');
+      let deathreason = '심장마비';
       
       if(room.getGameStatus() === false){
         bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
@@ -420,11 +434,15 @@ function start() {
         if (values.length >= 2) {
           const role = values[0];
           const capturedPerson = values[1];
-          game.deathNote(chatId, role, capturedPerson, bot, function(deathNotes){
+          if (values.length > 2) {
+            deathreason = values.slice(2).join(' '); // 사용자가 입력한 값으로 업데이트됩니다.
+          }
+
+          game.deathNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
             if(deathNotes === true){ 
               room.resetRoom();
-            }
-          });
+           }
+          });      
         } else {
           bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
         }
@@ -436,6 +454,7 @@ function start() {
       const chatId = msg.chat.id;
       const input = match[1];
       const values = input.split(' ');
+      let deathreason = '심장마비';
       
       if(room.getGameStatus() === false){
         bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
@@ -444,7 +463,11 @@ function start() {
         if (values.length >= 2) {
           const role = values[0];
           const capturedPerson = values[1];
-          game.watchNote(chatId, role, capturedPerson, bot, function(watchNote, mapped_role){
+          if (values.length > 2) {
+            deathreason = values.slice(2).join(' '); // 사용자가 입력한 값으로 업데이트됩니다.
+          }
+
+          game.watchNote(chatId, role, capturedPerson, deathreason, bot, function(watchNote, mapped_role){
             if(watchNote === true){ 
               room.resetRoom();
             }
@@ -507,6 +530,7 @@ function start() {
       const chatId = msg.chat.id;
       const input = match[1];
       const values = input.split(' ');
+      let deathreason = '심장마비';
       
       if(room.getGameStatus() === false){
         bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
@@ -515,7 +539,11 @@ function start() {
         if (values.length >= 2) {
           const role = values[0];
           const capturedPerson = values[1];
-          game.desinNote(chatId, role, capturedPerson, bot, function(desinNotes){
+          if (values.length > 2) {
+            deathreason = values.slice(2).join(' '); // 사용자가 입력한 값으로 업데이트됩니다.
+          }
+
+          game.desinNote(chatId, role, capturedPerson, deathreason, bot, function(desinNotes){
             if(desinNotes === true){ 
               room.resetRoom();
             }

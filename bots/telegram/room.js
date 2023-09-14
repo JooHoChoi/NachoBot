@@ -109,6 +109,9 @@ function expelUserFromRoom(chatId, name, bot) {
     const expelledUser = room.splice(userIndex, 1)[0];
     //console.log(`${expelledUser.name}님이 방에서 추방되었습니다.`);
     bot.sendMessage(chatId, `${expelledUser.name}님이 방에서 추방되었습니다.`);
+
+    // 강퇴당한 사용자에게도 메시지를 전송
+    bot.sendMessage(expelledUser.id, '방에서 추방되었습니다.');
   }
   else{
     bot.sendMessage(chatId, `${name}은(는) 방에 존재하지 않습니다.`);
