@@ -512,6 +512,7 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
         console.log('L추리성공')
         for(const key in mapped_role){
           const participant = mapped_role[key];
+          mapped_role.Kira.deathreason = "체포";
           const arrestMsg = `**[속보] 키라 ${mapped_role.Kira.name} (이)가 체포되었습니다 -게임 종료-**`
           bot.sendPhoto(participant.id, LwinPhoto, { caption: arrestMsg })
           .then(() => {
@@ -524,7 +525,7 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
         }
 
         const combinedMessage = Object.values(mapped_role)
-        .map(person => `${person.role}: ${person.name}`)
+        .map(person => `${person.role}: ${person.name} - 사인: ${person.deathreason}`)
         .join('\n');
 
         // 모든 플레이어에게 통합된 메시지 전송
@@ -567,6 +568,7 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
 
         if(mapped_role.Kira.name === capturedPerson){
           console.log('N추리성공')
+          mapped_role.Kira.deathreason = "체포";
           for(const key3 in mapped_role){
             const participant3 = mapped_role[key3];
             const arrestMsg3 = `**[속보] 키라 ${mapped_role.Kira.name} (이)가 체포되었습니다 -게임 종료-**`
@@ -580,7 +582,7 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
             });              
           }
           const combinedMessage = Object.values(mapped_role)
-          .map(person => `${person.role}: ${person.name}`)
+          .map(person => `${person.role}: ${person.name} - 사인: ${person.deathreason}`)
           .join('\n');
 
           // 모든 플레이어에게 통합된 메시지 전송
@@ -869,6 +871,7 @@ function kidnap_Kiyomi(chatId, role, capturedPerson, bot){
           if(mapped_role.Kiyomi.alive === true){
             mapped_role.M.skill2 = true; //데스노트 조각 활성화
             mapped_role.Kiyomi.alive = false; // 키요미 사망처리
+            mapped_role.Kiyomi.deathreason = "납치";
   
             bot.sendMessage(chatId, `[System] `+ capturedPerson + `의 정체는 키요미가 맞습니다. 그녀를 체포합니다.`)
             bot.sendMessage(mapped_role.Kiyomi.id, `[System] 당신은 멜로에 의해 납치되었습니다.`)
@@ -923,7 +926,7 @@ function pieceNote(chatId, role, capturedPerson, deathreason, bot, pieceNote){
             deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
               if(callback===true){
                 const combinedMessage = Object.values(mapped_role)
-                .map(person => `${person.role}: ${person.name}`)
+                .map(person => `${person.role}: ${person.name} - 사인: ${person.deathreason}`)
                 .join('\n');
 
                 // 모든 플레이어에게 통합된 메시지 전송
@@ -1016,6 +1019,7 @@ function arrest_Misa(chatId, role, capturedPerson, bot){
         console.log('미사 연금여부 checking...')
         if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson) {
           mapped_role.Misa.alive = false; // 미사 사망처리
+          mapped_role.Misa.deathreason = "연금";
   
           bot.sendMessage(chatId, `[System] `+ capturedPerson + `의 정체는 미사가 맞습니다. 그녀를 연금합니다.`)
           bot.sendMessage(mapped_role.Misa.id, `[System] 당신은 할리드너에 의해 연금되었습니다.`)
@@ -1365,7 +1369,7 @@ function deathNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
               deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
                 if(callback===true){
                   const combinedMessage = Object.values(mapped_role)
-                  .map(person => `${person.role}: ${person.name}`)
+                  .map(person => `${person.role}: ${person.name} - 사인: ${person.deathreason}`)    
                   .join('\n');
           
                   // 모든 플레이어에게 통합된 메시지 전송
@@ -1420,7 +1424,7 @@ function watchNote(chatId, role, capturedPerson, deathreason, bot, watchNote){
             deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
               if(callback===true){
                 const combinedMessage = Object.values(mapped_role)
-                .map(person => `${person.role}: ${person.name}`)
+                .map(person => `${person.role}: ${person.name} - 사인: ${person.deathreason}`)
                 .join('\n');
 
                 // 모든 플레이어에게 통합된 메시지 전송
@@ -1453,7 +1457,8 @@ function watchNote(chatId, role, capturedPerson, deathreason, bot, watchNote){
 function deathMsg(chatId, dead, deathreason, bot, callback){
   const KirawinPhoto = __dirname + '/img/KiraWin.jpg'
   const LwinPhoto = __dirname + '/img/LWin.jpg'
-  dead.alive = false;
+  dead.alive = false; //사망처리
+  dead.deathreason = deathreason;
   bot.sendMessage(chatId, '[System] 데스노트로 인해 ' + dead.role + '(이)가 사망했습니다.\n※사인: '+deathreason)
   bot.sendMessage(dead.id, '[System] 당신은 데스노트에 의해 사망했습니다\n※사인: '+deathreason);
   
@@ -1741,7 +1746,7 @@ function desinNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
               deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
                 if(callback===true){
                   const combinedMessage = Object.values(mapped_role)
-                  .map(person => `${person.role}: ${person.name}`)
+                  .map(person => `${person.role}: ${person.name} - 사인: ${person.deathreason}`)
                   .join('\n');
 
                   // 모든 플레이어에게 통합된 메시지 전송
