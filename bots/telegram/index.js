@@ -113,10 +113,9 @@ function start() {
 
     bot.onText(/\/시작 사신/, (msg) => {
       const chatId = msg.chat.id
-      const game = require('./game2');
-
+      const sasin = true;
       if (room.getRoom().length >= 3 && chatId === room.getRoom()[0].id) {
-        room.startGame2(bot); //사신 게임 시작 함수 호출
+        room.startGame(bot, sasin); //사신 게임 시작 함수 호출
       } else {
         bot.sendMessage(chatId, '게임은 4인부터 플레이 가능하며, 방장만 시작할 수 있습니다.');
       }

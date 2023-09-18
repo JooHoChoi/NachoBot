@@ -1,6 +1,5 @@
 // room.js
 const game = require('./game')
-const game2 = require('./game2')
 
 let room = [];
 const maxParticipants = 12; // 최대 참여자 수
@@ -33,59 +32,12 @@ function removeUserFromRoom(chatId) {
   room.splice(userIndex, 1);
 }
 
-function startGame(bot) {
+function startGame(bot, sasin=false) {
   const startPhoto = __dirname + '/img/start.jpg'
   const roomPart = room.map((participant) => participant.name);
   if(gameStarted===false){
     gameStarted = true;
-    game.startGame(room, function(callback_mapping){
-      //console.log(callback_mapping)
-      const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
-      const startMsg = `
-      **데스노트 게임을 시작합니다!!**
-[참여 플레이어의 이름]
-${roomPart}
-
-[게임 역할${roomPart.length}인]
-${participantRole}`;
-        for(const key in callback_mapping){
-          const participant = callback_mapping[key];
-          const roleImg = __dirname + participant.img
-          const roleMsg = `당신의 역할은 ${participant.role} 입니다.\n
-[**보유 스킬**]
-${participant.explain}`;
-          bot.sendPhoto(participant.id, startPhoto, { caption: startMsg })
-          .then(() => {
-            //console.log('사진 전송 완료');
-          })
-          .catch((error) => {
-            console.error('사진 전송 실패:', error);
-            bot.sendMessage(participant.id, startMsg)
-          });
-          setTimeout(()=>{
-            bot.sendPhoto(participant.id, roleImg, { caption: roleMsg })
-            .then(() => {
-              //console.log('사진 전송 완료');
-            })
-            .catch((error) => {
-              console.error('사진 전송 실패:', error);
-              bot.sendMessage(participant.id, roleMsg)
-            });
-          }, 2000)
-        }
-    });  
-  }
-  else{
-    const message = `이미 게임이 시작된 상태입니다`
-  }
-}
-
-function startGame2(bot) {
-  const startPhoto = __dirname + '/img/start.jpg'
-  const roomPart = room.map((participant) => participant.name);
-  if(gameStarted===false){
-    gameStarted = true;
-    game2.startGame(room, bot, function(callback_mapping){
+    game.startGame(room, sasin, function(callback_mapping){
       //console.log(callback_mapping)
       const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
       const startMsg = `
@@ -177,5 +129,4 @@ module.exports = {
   resetRoom,
   getGameStatus,
   expelUserFromRoom,
-  startGame2
 };
