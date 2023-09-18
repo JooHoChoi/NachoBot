@@ -2024,5 +2024,7 @@ module.exports = {
   whisper_result,
   namecard_exchange,
   note,
-  note_result
+  note_result,
+  sasin_start,
+  sasinNote
 };
