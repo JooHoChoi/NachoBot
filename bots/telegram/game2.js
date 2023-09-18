@@ -476,7 +476,7 @@ function startGame(roomData, bot, callback_mapping) {
     }
   }
 
-  setTimeout(sasinNote(roomData, bot), 300000); // 게임 시작 5분 후 사신 류크가 랜덤으로 한 명씩 노트에 적는다.
+  setTimeout(sasin_start(bot), 300000); // 게임 시작 5분 후 사신 류크가 랜덤으로 한 명씩 노트에 적는다.
 
 }
 
@@ -503,15 +503,27 @@ function mapNameToJSON(roomData, charactor, callback){
   callback(charactor);
 }
 
-const sasin = {
-  "skill" : true
-};
+// 사신 활동 시작
+function sasin_start(bot){
+
+  // 모든 플레이어에게 통합된 메시지 전송
+  for (const key_vf in mapped_role) {
+    const person = mapped_role[key_vf];
+    bot.sendMessage(person.id, `** 사신 류크가 따분해 합니다. **\n 1분 마다 무작위로 사신 노트에 이름이 적힙니다. \n`);
+  }
+  
+  setInterval(sasinNote, 60000);
+} 
+
 
 // 사신노트 
 function sasinNote(bot){
-  sasin.skill = false;
-  
-  sasin_note_cool_start = Date.now();  
+
+  // 모든 플레이어에게 통합된 메시지 전송
+  for (const key_vf in mapped_role) {
+    const person = mapped_role[key_vf];
+    bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+  }
 }
 
 //키라 체포, 캐릭터: 엘, 니아
