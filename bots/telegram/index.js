@@ -111,15 +111,16 @@ function start() {
       }
     });
 
-    bot.onText(/\/시작 사신/, (msg) => {
-      const chatId = msg.chat.id
-      const sasin = true;
-      if (room.getRoom().length >= 3 && chatId === room.getRoom()[0].id) {
-        room.startGame(bot, sasin); //사신 게임 시작 함수 호출
-      } else {
-        bot.sendMessage(chatId, '게임은 4인부터 플레이 가능하며, 방장만 시작할 수 있습니다.');
-      }
-    });
+    //사신모드 nodejs 비동기용으로 수정필요
+    // bot.onText(/\/시작 사신/, (msg) => {
+    //   const chatId = msg.chat.id
+    //   const sasin = true;
+    //   if (room.getRoom().length >= 3 && chatId === room.getRoom()[0].id) {
+    //     room.startGame(bot, sasin); //사신 게임 시작 함수 호출
+    //   } else {
+    //     bot.sendMessage(chatId, '게임은 4인부터 플레이 가능하며, 방장만 시작할 수 있습니다.');
+    //   }
+    // });
 
     //참여중인 사람 확인
     bot.onText(/\/현황/, (msg) => {
@@ -299,13 +300,30 @@ function start() {
           const capturedPerson = values[1];
           if (values.length > 2) {
             deathreason = values.slice(2).join(' '); // 사용자가 입력한 값으로 업데이트됩니다.
+            if(deathreason == '생존'){
+              deathreason = '심장마비';
+              game.pieceNote(chatId, role, capturedPerson, deathreason, bot, function(pieceNote){
+                if(pieceNote === true){
+                  room.resetRoom();
+                }
+              });
+            }
+            else{
+              game.pieceNote(chatId, role, capturedPerson, deathreason, bot, function(pieceNote){
+                if(pieceNote === true){
+                  room.resetRoom();
+                }
+              });
+            }
+          }
+          else{
+            game.pieceNote(chatId, role, capturedPerson, deathreason, bot, function(pieceNote){
+              if(pieceNote === true){
+                room.resetRoom();
+              }
+            });
           }
 
-          game.pieceNote(chatId, role, capturedPerson, deathreason, bot, function(pieceNote){
-            if(pieceNote === true){
-              room.resetRoom();
-            }
-          });
         } else {
           bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
         }
@@ -447,13 +465,29 @@ function start() {
           const capturedPerson = values[1];
           if (values.length > 2) {
             deathreason = values.slice(2).join(' '); // 사용자가 입력한 값으로 업데이트됩니다.
+            if(deathreason == '생존'){
+              deathreason = '심장마비';
+              game.deathNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
+                if(deathNotes === true){ 
+                  room.resetRoom();
+               }
+              });
+            }
+            else{
+              game.deathNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
+                if(deathNotes === true){ 
+                  room.resetRoom();
+               }
+              });
+            }
           }
-
-          game.deathNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
-            if(deathNotes === true){ 
-              room.resetRoom();
-           }
-          });      
+          else{
+            game.deathNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
+              if(deathNotes === true){ 
+                room.resetRoom();
+             }
+            });
+          }    
         } else {
           bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
         }
@@ -476,13 +510,29 @@ function start() {
           const capturedPerson = values[1];
           if (values.length > 2) {
             deathreason = values.slice(2).join(' '); // 사용자가 입력한 값으로 업데이트됩니다.
-          }
-
-          game.watchNote(chatId, role, capturedPerson, deathreason, bot, function(watchNote, mapped_role){
-            if(watchNote === true){ 
-              room.resetRoom();
+            if(deathreason == '생존'){
+              deathreason = '심장마비';
+              game.watchNote(chatId, role, capturedPerson, deathreason, bot, function(watchNote, mapped_role){
+                if(watchNote === true){ 
+                  room.resetRoom();
+                }
+              });
             }
-          });
+            else{
+              game.watchNote(chatId, role, capturedPerson, deathreason, bot, function(watchNote, mapped_role){
+                if(watchNote === true){ 
+                  room.resetRoom();
+                }
+              });
+            }
+          }
+          else{
+            game.watchNote(chatId, role, capturedPerson, deathreason, bot, function(watchNote, mapped_role){
+              if(watchNote === true){ 
+                room.resetRoom();
+              }
+            });
+          }
         } else {
           bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
         }
@@ -513,6 +563,50 @@ function start() {
       else{
         //game.js 함수에서 스킬사용 가능자인지 체크
         game.envoyEyes(chatId, envoyEye, bot);  
+      }
+    });
+
+    bot.onText(/\/렘의노트 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const input = match[1];
+      const values = input.split(' ');
+      let deathreason = '심장마비';
+      
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        if (values.length >= 2) {
+          const role = values[0];
+          const capturedPerson = values[1];
+          if (values.length > 2) {
+            deathreason = values.slice(2).join(' '); // 사용자가 입력한 값으로 업데이트됩니다.
+            if(deathreason == '생존'){
+              deathreason = '심장마비';
+              game.remNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
+                if(deathNotes === true){ 
+                  room.resetRoom();
+               }
+              });
+            }
+            else{
+              game.remNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
+                if(deathNotes === true){ 
+                  room.resetRoom();
+               }
+              });
+            }
+          }
+          else{
+            game.remNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
+              if(deathNotes === true){ 
+                room.resetRoom();
+             }
+            });
+          }    
+        } else {
+          bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
+        }
       }
     });
 
@@ -552,13 +646,29 @@ function start() {
           const capturedPerson = values[1];
           if (values.length > 2) {
             deathreason = values.slice(2).join(' '); // 사용자가 입력한 값으로 업데이트됩니다.
-          }
-
-          game.desinNote(chatId, role, capturedPerson, deathreason, bot, function(desinNotes){
-            if(desinNotes === true){ 
-              room.resetRoom();
+            if(deathreason == '생존'){
+              deathreason = '심장마비';
+              game.desinNote(chatId, role, capturedPerson, deathreason, bot, function(desinNotes){
+                if(desinNotes === true){ 
+                  room.resetRoom();
+                }
+              });
             }
-          });
+            else{
+              game.desinNote(chatId, role, capturedPerson, deathreason, bot, function(desinNotes){
+                if(desinNotes === true){ 
+                  room.resetRoom();
+                }
+              });
+            }
+          }
+          else{
+            game.desinNote(chatId, role, capturedPerson, deathreason, bot, function(desinNotes){
+              if(desinNotes === true){ 
+                room.resetRoom();
+              }
+            });
+          }
         } else {
           bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
         }
