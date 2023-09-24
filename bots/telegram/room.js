@@ -32,12 +32,12 @@ function removeUserFromRoom(chatId) {
   room.splice(userIndex, 1);
 }
 
-function startGame(bot) {
+function startGame(bot, sasin=false) {
   const startPhoto = __dirname + '/img/start.jpg'
   const roomPart = room.map((participant) => participant.name);
   if(gameStarted===false){
     gameStarted = true;
-    game.startGame(room, function(callback_mapping){
+    game.startGame(room, sasin, function(callback_mapping){
       //console.log(callback_mapping)
       const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
       const startMsg = `
@@ -128,5 +128,5 @@ module.exports = {
   getRoomStatus,
   resetRoom,
   getGameStatus,
-  expelUserFromRoom
+  expelUserFromRoom,
 };

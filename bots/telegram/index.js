@@ -23,6 +23,7 @@ function start() {
     /나가기: 참여한 게임에서 나갑니다.
     /현황: 참가신청 현황을 확인합니다.
     /시작: 방장(/현황 맨 앞 플레이어)이 게임을 시작합니다(9~12인)
+    /시작 사신 : 방장(/현황 맨 앞 플레이어)이 사신 모드 게임을 시작합니다(9~12인) 
     /민원 [할말]: 방장에게 민원을 넣습니다.
   
 <게임 명령어 - 공용스킬>
@@ -109,7 +110,17 @@ function start() {
         bot.sendMessage(chatId, '게임은 4인부터 플레이 가능하며, 방장만 시작할 수 있습니다.');
       }
     });
-    
+
+    bot.onText(/\/시작 사신/, (msg) => {
+      const chatId = msg.chat.id
+      const sasin = true;
+      if (room.getRoom().length >= 3 && chatId === room.getRoom()[0].id) {
+        room.startGame(bot, sasin); //사신 게임 시작 함수 호출
+      } else {
+        bot.sendMessage(chatId, '게임은 4인부터 플레이 가능하며, 방장만 시작할 수 있습니다.');
+      }
+    });
+
     //참여중인 사람 확인
     bot.onText(/\/현황/, (msg) => {
       const chatId = msg.chat.id;

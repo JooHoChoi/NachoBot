@@ -12,6 +12,7 @@ const charactor12 = require('./charactor12.json');
 const characters = require('./charactor12.json');
 
 const index = require('./index');
+const message = require('./message');
 
 let room;
 let mapped_role;
@@ -93,7 +94,7 @@ const worship_kira_Cool = 120000; // 키라숭배 스킬: 테스트 30초, 본�
 let worship_kira_Cool_start;
 
 
-function startGame(roomData, callback_mapping) {
+function startGame(roomData, sasin, callback_mapping) {
   room = roomData;
 
   //3인 테스트용 조건문
@@ -472,7 +473,11 @@ function startGame(roomData, callback_mapping) {
       });
     }
   }
+  if(sasin === true){
+    setTimeout(sasin_start(bot), 300000); // 게임 시작 5분 후 사신 류크가 랜덤으로 한 명씩 노트에 적는다.
+  }
 }
+
 
 //캐릭 배정 알고리즘
 function mapNameToJSON(roomData, charactor, callback){
@@ -495,6 +500,47 @@ function mapNameToJSON(roomData, charactor, callback){
   mapped_role = charactor;
   console.log(charactor);
   callback(charactor);
+}
+
+// 사신 활동 시작
+function sasin_start(bot){
+
+  // 모든 플레이어에게 통합된 메시지 전송
+  for (const key_vf in mapped_role) {
+    const person = mapped_role[key_vf];
+    bot.sendMessage(person.id, `** 사신 류크가 따분해 합니다. **\n 1분 마다 무작위로 사신 노트에 이름이 적힙니다. \n`);
+  }
+  setInterval(sasinNote, 60000);
+} 
+
+// 사신노트 
+function sasinNote(bot){
+  for(const key in mapped_role){
+    if(mapped_role[key].alive == true){
+      const aliveCharacters = [];
+      aliveCharacters.push(key);
+    }
+  }
+  
+  // 류크의 선택
+  alive_len = aliveCharacters.length;
+  const sasinPick_num = Math.floor(Math.random() * alive_len);
+  const sasinPick = aliveCharacters[sasinPick_num];
+
+  message.deathMsgSasin(sasinPick, bot, function(callback){
+    if(callback===true){
+      const combinedMessage = Object.values(mapped_role)
+      .map(person => `${person.role}: ${person.name} - 사인: 류크`)
+      .join('\n');
+
+      // 모든 플레이어에게 통합된 메시지 전송
+      for (const key_vf in mapped_role) {
+        const person = mapped_role[key_vf];
+        bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+      } 
+      deathNotes(true);
+    }
+  });
 }
 
 //키라 체포, 캐릭터: 엘, 니아
@@ -1995,5 +2041,7 @@ module.exports = {
   whisper_result,
   namecard_exchange,
   note,
-  note_result
+  note_result,
+  sasin_start,
+  sasinNote
 };
