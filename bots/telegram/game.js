@@ -1995,6 +1995,7 @@ function desinNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
         bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
       }
       else if(mapped_role.Mikami.alive === true && mapped_role.Mikami.seal === false && mapped_role.Mikami.skill1 === true){
+        bot.sendMessage(chatId, '[System] 노트의 일치여부를 체크합니다.');
         setTimeout(()=>{
           mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
           bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
