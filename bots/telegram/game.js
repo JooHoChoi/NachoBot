@@ -558,9 +558,8 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
 
       if(mapped_role.Kira.name === capturedPerson){
         console.log('L추리성공')
-<<<<<<< HEAD
         winLTeam(bot);
-=======
+
         mapped_role.Kira.deathreason = "체포";
         const combinedMessage = Object.values(mapped_role)
         .map(person => {
@@ -596,7 +595,6 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
             bot.sendMessage(participant.id, arrestMsg)
           });
         }
->>>>>>> 5f707dbb974f20b80e21afe754aad61a90e5d669
         arrest(true)
       }
       else{
@@ -632,9 +630,8 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
 
         if(mapped_role.Kira.name === capturedPerson){
           console.log('N추리성공')
-<<<<<<< HEAD
           winLTeam(bot);
-=======
+
           mapped_role.Kira.deathreason = "체포";
           const combinedMessage = Object.values(mapped_role)
           .map(person => {
@@ -670,7 +667,7 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
               bot.sendMessage(participant.id, arrestMsg)
             });
           }
->>>>>>> 5f707dbb974f20b80e21afe754aad61a90e5d669
+
           arrest(true);
         }
         else{
@@ -1008,8 +1005,6 @@ function pieceNote(chatId, role, capturedPerson, deathreason, bot, pieceNote){
             console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
               deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
                 if(callback===true){
-<<<<<<< HEAD
-=======
                   const combinedMessage = Object.values(mapped_role)
                     .map(person => {
                       let message;
@@ -1031,7 +1026,6 @@ function pieceNote(chatId, role, capturedPerson, deathreason, bot, pieceNote){
                     const person = mapped_role[key_vf];
                     bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
                   }
->>>>>>> 5f707dbb974f20b80e21afe754aad61a90e5d669
                   pieceNote(true);
                 }
               });
@@ -1475,9 +1469,6 @@ function deathNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
             else{
               console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
                 deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
-<<<<<<< HEAD
-                  if(callback===true){ 
-=======
                   if(callback===true){
                     const combinedMessage = Object.values(mapped_role)
                     .map(person => {
@@ -1499,8 +1490,7 @@ function deathNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
                     for (const key_vf in mapped_role) {
                       const person = mapped_role[key_vf];
                       bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-                    } 
->>>>>>> 5f707dbb974f20b80e21afe754aad61a90e5d669
+                    }
                     deathNotes(true);
                   }
               });
@@ -1546,8 +1536,6 @@ function watchNote(chatId, role, capturedPerson, deathreason, bot, watchNote){
             console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
             deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
               if(callback===true){
-<<<<<<< HEAD
-=======
                 const combinedMessage = Object.values(mapped_role)
                   .map(person => {
                     let message;
@@ -1569,7 +1557,6 @@ function watchNote(chatId, role, capturedPerson, deathreason, bot, watchNote){
                   const person = mapped_role[key_vf];
                   bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
                 }
->>>>>>> 5f707dbb974f20b80e21afe754aad61a90e5d669
                 watchNote(true);
               }
             });
@@ -2093,9 +2080,6 @@ function desinNote(chatId, role, capturedPerson, deathreason, bot, desinNotes){
                 bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
                 deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
                   if(callback===true){
-<<<<<<< HEAD
-                    desinNotes(true);
-=======
                     const combinedMessage = Object.values(mapped_role)
                     .map(person => {
                       let message;
@@ -2117,8 +2101,7 @@ function desinNote(chatId, role, capturedPerson, deathreason, bot, desinNotes){
                       const person = mapped_role[key_vf];
                       bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
                     }
-                    deathNotes(true);
->>>>>>> 5f707dbb974f20b80e21afe754aad61a90e5d669
+                    desinNotes(true);
                   }
                 });
 
