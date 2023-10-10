@@ -12,6 +12,7 @@ const charactor12 = require('./charactor12.json');
 const characters = require('./charactor12.json');
 
 const index = require('./index');
+const message = require('./message');
 
 let room;
 let mapped_role;
@@ -65,12 +66,15 @@ const detective_Cool = 60000; //수사관 스킬: 테스트 10초, 본게임 60�
 const detective_waiting_Cool = 10000; //수사관스킬 결과를 받는데 걸리는 시간 10초
 let detective_Cool_start;
 
-const love_Kira_Cool = 120000; //연모 스킬: 테스트 15초, 본게임 120초(키라정체가 1분뒤 공개되기 때문)
+const love_Kira_Cool = 10000; //연모 스킬: 테스트 15초, 본게임 10초(미사상향으로 쿨제거)
 let love_Kira_Cool_start;
-const loveCool = 60000; // 연모스킬로 키라를 찾는데 걸리는 시간: 테스트 10초, 본게임 60초
+const loveCool = 10000; // 연모스킬로 키라를 찾는데 걸리는 시간: 테스트 10초, 본게임 10초
 
 const envoyEyes_Cool = 60000; //사신의눈 스킬: 테스트 10초, 본게임 60초
 let envoyEyes_Cool_start;
+
+const remNoteCool = 90000; // 렘의노트 스킬 쿨타임: 테스트 60초, 본게임 90초
+let remNoteCool_start;
 
 const follow_Mogi_Cool = 120000; //미행 스킬: 테스트 15초, 본게임 120초
 let follow_Mogi_Cool_start;
@@ -85,15 +89,15 @@ let babo_Mathuda_Cool_start;
 const arrest_Mikami_Cool = 60000; //바꿔치기 스킬: 테스트 10초, 본게임 60초
 let arrest_Mikami_Cool_start;
 
-const chase_Jebanni_Cool = 120000; //추적 스킬: 테스트 15초, 본게임 120초
+const chase_Jebanni_Cool = 100000; //추적 스킬: 테스트 15초, 본게임 100초
 let chase_Jebanni_Cool_start;
-const chaseJebanniCool = 60000; //추적스킬로 플레이어를 확인하는데 걸리는 시간: 테스트 10초, 본게임 60초
+const chaseJebanniCool = 50000; //추적스킬로 플레이어를 확인하는데 걸리는 시간: 테스트 10초, 본게임 50초
 
-const worship_kira_Cool = 120000; // 키라숭배 스킬: 테스트 30초, 본게임 120초
+const worship_kira_Cool = 100000; // 키라숭배 스킬: 테스트 30초, 본게임 120초
 let worship_kira_Cool_start;
 
 
-function startGame(roomData, callback_mapping) {
+function startGame(roomData, sasin, callback_mapping) {
   room = roomData;
 
   //3인 테스트용 조건문
@@ -472,7 +476,11 @@ function startGame(roomData, callback_mapping) {
       });
     }
   }
+  if(sasin === true){
+    setTimeout(sasin_start(bot), 300000); // 게임 시작 5분 후 사신 류크가 랜덤으로 한 명씩 노트에 적는다.
+  }
 }
+
 
 //캐릭 배정 알고리즘
 function mapNameToJSON(roomData, charactor, callback){
@@ -497,9 +505,49 @@ function mapNameToJSON(roomData, charactor, callback){
   callback(charactor);
 }
 
+// 사신 활동 시작
+function sasin_start(bot){
+
+  // 모든 플레이어에게 통합된 메시지 전송
+  for (const key_vf in mapped_role) {
+    const person = mapped_role[key_vf];
+    bot.sendMessage(person.id, `** 사신 류크가 따분해 합니다. **\n 1분 마다 무작위로 사신 노트에 이름이 적힙니다. \n`);
+  }
+  setInterval(sasinNote, 60000);
+} 
+
+// 사신노트 
+function sasinNote(bot){
+  for(const key in mapped_role){
+    if(mapped_role[key].alive == true){
+      const aliveCharacters = [];
+      aliveCharacters.push(key);
+    }
+  }
+  
+  // 류크의 선택
+  alive_len = aliveCharacters.length;
+  const sasinPick_num = Math.floor(Math.random() * alive_len);
+  const sasinPick = aliveCharacters[sasinPick_num];
+
+  message.deathMsgSasin(sasinPick, bot, function(callback){
+    if(callback===true){
+      const combinedMessage = Object.values(mapped_role)
+      .map(person => `${person.role}: ${person.name} - 사인: 류크`)
+      .join('\n');
+
+      // 모든 플레이어에게 통합된 메시지 전송
+      for (const key_vf in mapped_role) {
+        const person = mapped_role[key_vf];
+        bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+      } 
+      deathNotes(true);
+    }
+  });
+}
+
 //키라 체포, 캐릭터: 엘, 니아
 function arrest_Kira(chatId, capturedPerson, bot, arrest){
-  const LwinPhoto = __dirname + '/img/LWin.jpg'
   if(mapped_role.L.id === chatId){
     if(mapped_role.L.alive === true && mapped_role.L.skill1 === true){
       mapped_role.L.skill1 = false;
@@ -510,29 +558,7 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
 
       if(mapped_role.Kira.name === capturedPerson){
         console.log('L추리성공')
-        for(const key in mapped_role){
-          const participant = mapped_role[key];
-          mapped_role.Kira.deathreason = "체포";
-          const arrestMsg = `**[속보] 키라 ${mapped_role.Kira.name} (이)가 체포되었습니다 -게임 종료-**`
-          bot.sendPhoto(participant.id, LwinPhoto, { caption: arrestMsg })
-          .then(() => {
-            //console.log('사진 전송 완료');
-          })
-          .catch((error) => {
-            //console.error('사진 전송 실패:', error);
-            bot.sendMessage(participant.id, arrestMsg)
-          });
-        }
-
-        const combinedMessage = Object.values(mapped_role)
-        .map(person => `${person.role}: ${person.name} - 사인: ${person.deathreason}`)
-        .join('\n');
-
-        // 모든 플레이어에게 통합된 메시지 전송
-        for (const key_vf in mapped_role) {
-          const person = mapped_role[key_vf];
-          bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-        }
+        winLTeam(bot);
         arrest(true)
       }
       else{
@@ -568,29 +594,8 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
 
         if(mapped_role.Kira.name === capturedPerson){
           console.log('N추리성공')
-          mapped_role.Kira.deathreason = "체포";
-          for(const key3 in mapped_role){
-            const participant3 = mapped_role[key3];
-            const arrestMsg3 = `**[속보] 키라 ${mapped_role.Kira.name} (이)가 체포되었습니다 -게임 종료-**`
-            bot.sendPhoto(participant3.id, LwinPhoto, { caption: arrestMsg3 })
-            .then(() => {
-              //console.log('사진 전송 완료');
-            })
-            .catch((error) => {
-              //console.error('사진 전송 실패:', error);
-              bot.sendMessage(participant3.id, arrestMsg3)
-            });              
-          }
-          const combinedMessage = Object.values(mapped_role)
-          .map(person => `${person.role}: ${person.name} - 사인: ${person.deathreason}`)
-          .join('\n');
-
-          // 모든 플레이어에게 통합된 메시지 전송
-          for (const key_vf in mapped_role) {
-            const person = mapped_role[key_vf];
-            bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-          }
-          arrest(true)
+          winLTeam(bot);
+          arrest(true);
         }
         else{
           console.log('N추리실패')
@@ -917,37 +922,28 @@ function pieceNote(chatId, role, capturedPerson, deathreason, bot, pieceNote){
   if(mapped_role.M.id === chatId){
     if(mapped_role.M.skill2 === true && mapped_role.M.alive === true){
       mapped_role.M.skill2 = false;
-      let foundMatch = false; //일치하는 플레이어를 찾는 변수
-      for(const key in mapped_role){
-        console.log('데스노트 일치여부 checking...')
-        if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true) {
-          console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
-          setTimeout(()=>{
-            deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
-              if(callback===true){
-                const combinedMessage = Object.values(mapped_role)
-                .map(person => `${person.role}: ${person.name} - 사인: ${person.deathreason}`)
-                .join('\n');
 
-                // 모든 플레이어에게 통합된 메시지 전송
-                for (const key_vf in mapped_role) {
-                  const person = mapped_role[key_vf];
-                  bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+      bot.sendMessage(chatId, '[System] 노트의 일치여부를 체크합니다.');
+      setTimeout(()=>{
+        let foundMatch = false; //일치하는 플레이어를 찾는 변수
+        for(const key in mapped_role){
+          console.log('데스노트 일치여부 checking...')
+          if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true) {
+            console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
+              deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
+                if(callback===true){
+                  pieceNote(true);
                 }
-                pieceNote(true);
-              }
-            });
-  
-          }, deathCool);
-          foundMatch = true;
-          break;
+              });
+            foundMatch = true;
+            break;
+          }
         }
-      }
-      if(!foundMatch){
-        setTimeout(()=>{
+        if(!foundMatch){
           bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
-        }, deathCool);
-      }
+        }
+      }, deathCool)
+      
     }
     else{
       bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`);
@@ -1154,33 +1150,44 @@ function chase(chatId, chasePerson, bot){
   if(mapped_role.Jebanni.id === chatId){
     const chance_Jebanni = Math.random();
     const chance2_Jebanni = Math.random();
+    
     if(mapped_role.Jebanni.alive === true && mapped_role.Jebanni.skill2 === true){
-      mapped_role.Jebanni.skill2 = false;
-      chase_Jebanni_Cool_start = Date.now();
-      setTimeout(()=>{
-        mapped_role.Jebanni.skill2 = true;
-      }, chase_Jebanni_Cool)
+      let foundMatch = false;
+      for(const key_name in mapped_role){
+        if(mapped_role[key_name].name === chasePerson){
+          foundMatch = true;
+          bot.sendMessage(chatId, `[System] ${chasePerson} 플레이어를 추적합니다.`);
+          mapped_role.Jebanni.skill2 = false;
+          chase_Jebanni_Cool_start = Date.now();
+          setTimeout(()=>{
+            mapped_role.Jebanni.skill2 = true;
+          }, chase_Jebanni_Cool)
 
-       //50% 확률로 플레이어 확인
-       if(chance_Jebanni > 0.5){
-        for(const key in mapped_role){
-          if (mapped_role[key].name === chasePerson) {
-            setTimeout(()=>{
-              bot.sendMessage(chatId, `[System] 추적한 플레이어의 정체는 ` + mapped_role[key].role + ` 입니다.`);
-              if(mapped_role[key].team === 'L' && chance2_Jebanni > 0.5){
-                bot.sendMessage(chatId, `[System] ` + mapped_role[key].name+`에게 당신의 정체가 전달됩니다`)
-                bot.sendMessage(mapped_role[key].id, `[System] 당신을 추적한 `+ mapped_role.Jebanni.name + `의 정체는 제반니입니다.`)
+          //70% 확률로 플레이어 확인
+          if(chance_Jebanni > 0.3){
+            for(const key in mapped_role){
+              if (mapped_role[key].name === chasePerson) {
+                setTimeout(()=>{
+                  bot.sendMessage(chatId, `[System] 추적한 플레이어의 정체는 ` + mapped_role[key].role + ` 입니다.`);
+                  if(chance2_Jebanni > 0.5){
+                    bot.sendMessage(chatId, `[System] ` + mapped_role[key].name+`에게 당신의 정체가 전달됩니다`)
+                    bot.sendMessage(mapped_role[key].id, `[System] 당신을 추적한 `+ mapped_role.Jebanni.name + `의 정체는 제반니입니다.`)
+                  }
+                }, chaseJebanniCool)
               }
+            } 
+          }
+          else{
+            setTimeout(()=>{
+              bot.sendMessage(chatId, `[System] 플레이어 추적에 실패했습니다`);
             }, chaseJebanniCool)
           }
-        } 
-      }
-      else{
-        setTimeout(()=>{
-          bot.sendMessage(chatId, `[System] 플레이어 추적에 실패했습니다`);
-        }, chaseJebanniCool)
+        }
       }
 
+      if (!foundMatch) {
+        bot.sendMessage(chatId, `[System] ${chasePerson}은(는) 추적할 수 있는 대상이 아닙니다.`);
+      }
     }
     else if(mapped_role.Jebanni.alive === true && mapped_role.Jebanni.skill2 === false){
       const currentTime = Date.now();
@@ -1352,45 +1359,35 @@ function deathNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
         mapped_role.Kira.skill1 = true;
       }, deathNoteCool)
 
-      let foundMatch = false; //일치하는 플레이어를 찾는 변수
-      for(const key in mapped_role){
-        console.log('데스노트 일치여부 checking...')
-        if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true){
-          if(mapped_role[key].role === '니아' && mapped_role.L.alive === true){
-            setTimeout(()=>{
-              bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
-            }, deathCool);
+      bot.sendMessage(chatId, '[System] 노트의 일치여부를 체크합니다.');
+      setTimeout(()=>{
+        let foundMatch = false; //일치하는 플레이어를 찾는 변수
+        for(const key in mapped_role){
+          console.log('데스노트 일치여부 checking...')
+          if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true){
+            if(mapped_role[key].role === '니아' && mapped_role.L.alive === true){
+              setTimeout(()=>{
+                bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
+              }, deathCool);
+              foundMatch = true;
+              break;
+            }
+            else{
+              console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
+                deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
+                  if(callback===true){ 
+                    deathNotes(true);
+                  }
+              });
             foundMatch = true;
             break;
+            }  
           }
-          else{
-            console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
-            setTimeout(()=>{
-              deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
-                if(callback===true){
-                  const combinedMessage = Object.values(mapped_role)
-                  .map(person => `${person.role}: ${person.name} - 사인: ${person.deathreason}`)    
-                  .join('\n');
-          
-                  // 모든 플레이어에게 통합된 메시지 전송
-                  for (const key_vf in mapped_role) {
-                    const person = mapped_role[key_vf];
-                    bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-                  } 
-                  deathNotes(true);
-                }
-            });
-          }, deathCool);
-          foundMatch = true;
-          break;
-          }  
         }
-      }
-      if(!foundMatch){
-        setTimeout(()=>{
+        if(!foundMatch){
           bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
-        }, deathCool);
-      }
+        }
+      }, deathCool)
     }
     else if(mapped_role.Kira.skill1 === false){
       const currentTime = Date.now();
@@ -1409,6 +1406,7 @@ function watchNote(chatId, role, capturedPerson, deathreason, bot, watchNote){
   if(mapped_role.Kira.id === chatId){
     if(mapped_role.Kira.skill2 === true){
       mapped_role.Kira.skill2 = false;
+      bot.sendMessage(chatId, '[System] 노트의 일치여부를 체크합니다.');
       
       let foundMatch = false; //일치하는 플레이어를 찾는 변수
       for(const key in mapped_role){
@@ -1423,15 +1421,6 @@ function watchNote(chatId, role, capturedPerson, deathreason, bot, watchNote){
             console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
             deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
               if(callback===true){
-                const combinedMessage = Object.values(mapped_role)
-                .map(person => `${person.role}: ${person.name} - 사인: ${person.deathreason}`)
-                .join('\n');
-
-                // 모든 플레이어에게 통합된 메시지 전송
-                for (const key_vf in mapped_role) {
-                  const person = mapped_role[key_vf];
-                  bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-                }
                 watchNote(true);
               }
             });
@@ -1455,8 +1444,21 @@ function watchNote(chatId, role, capturedPerson, deathreason, bot, watchNote){
 
 //데스노트로 인한 결과처리
 function deathMsg(chatId, dead, deathreason, bot, callback){
-  const KirawinPhoto = __dirname + '/img/KiraWin.jpg'
-  const LwinPhoto = __dirname + '/img/LWin.jpg'
+  let KiraWinPhoto = __dirname + '/img/KiraWin.jpg'
+  let LLosePhoto = __dirname + '/img/LLose.jpg'
+  const LwinPhoto = __dirname + '/img/LWin_renewal.jpg'
+  const KiraLosePhoto = __dirname + '/img/KiraLose.jpg'
+
+  //이벤트 스킨 적용
+  if(mapped_role.Kira.id === 6419631188){
+    KiraWinPhoto = __dirname + '/img/KiraWin_peach.jpg'
+    LLosePhoto = __dirname + '/img/KiraWin_peach.jpg'
+  }
+  else if(mapped_role.Kira.id === 6125062530){
+    KiraWinPhoto = __dirname + '/img/KiraWin_6125062530.jpg'
+    LLosePhoto = __dirname + '/img/KiraWin_6125062530.jpg'
+  }
+
   dead.alive = false; //사망처리
   dead.deathreason = deathreason;
   bot.sendMessage(chatId, '[System] 데스노트로 인해 ' + dead.role + '(이)가 사망했습니다.\n※사인: '+deathreason)
@@ -1464,19 +1466,53 @@ function deathMsg(chatId, dead, deathreason, bot, callback){
   
   if(dead.role === '엘'){
     if(mapped_role.N.alive === false){ //니아가 죽어있는 상태면 게임 종료
+      const combinedMessage = Object.values(mapped_role)
+      .map(person => {
+        let message;
+        if (person.deathreason === '생존') {
+          message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+        }
+        else if(person.deathreason === '체포'){
+          message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+        } 
+        else {
+          message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
+        }
+        return message;
+      })
+      .join('\n');
+
+      // 모든 플레이어에게 통합된 메시지 전송
+      for (const key_vf in mapped_role) {
+        const person = mapped_role[key_vf];
+        bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+      }
+
       for(const key in mapped_role){
         const participant = mapped_role[key];
         const message = `
         **L과N 전원 사망했습니다. 키라의 승리입니다 -게임 종료-**`;
 
-        bot.sendPhoto(participant.id, KirawinPhoto, { caption: message })
+        if(participant.team === 'L'){
+          bot.sendPhoto(participant.id, LLosePhoto, { caption: message })
           .then(() => {
             //console.log('사진 전송 완료');
           })
           .catch((error) => {
-            console.error('사진 전송 실패:', error);
+            //console.error('사진 전송 실패:', error);
             bot.sendMessage(participant.id, message)
           });
+        }
+        else if(participant.team === 'Kira'){
+          bot.sendPhoto(participant.id, KiraWinPhoto, { caption: message })
+          .then(() => {
+            //console.log('사진 전송 완료');
+          })
+          .catch((error) => {
+            //console.error('사진 전송 실패:', error);
+            bot.sendMessage(participant.id, message)
+          });
+        }
       }
       callback(true);
     }
@@ -1496,37 +1532,104 @@ function deathMsg(chatId, dead, deathreason, bot, callback){
     }
   }
   if(dead.role === '니아' && mapped_role.L.alive === false){
+    const combinedMessage = Object.values(mapped_role)
+    .map(person => {
+      let message;
+      if (person.deathreason === '생존') {
+        message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+      }
+      else if(person.deathreason === '체포'){
+        message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+      } 
+      else {
+        message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
+      }
+      return message;
+    })
+    .join('\n');
+
+    // 모든 플레이어에게 통합된 메시지 전송
+    for (const key_vf in mapped_role) {
+      const person = mapped_role[key_vf];
+      bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+    }
+    
     for(const key in mapped_role){
       const participant = mapped_role[key];
       const message = `
       **L과N 전원 사망했습니다. 키라의 승리입니다 -게임 종료-**`;
-      bot.sendPhoto(participant.id, KirawinPhoto, { caption: message })
-          .then(() => {
-            //console.log('사진 전송 완료');
-          })
-          .catch((error) => {
-            console.error('사진 전송 실패:', error);
-            bot.sendMessage(participant.id, message)
-          });
+      
+      if(participant.team === 'L'){
+        bot.sendPhoto(participant.id, LLosePhoto, { caption: message })
+        .then(() => {
+          //console.log('사진 전송 완료');
+        })
+        .catch((error) => {
+          //console.error('사진 전송 실패:', error);
+          bot.sendMessage(participant.id, message)
+        });
+      }
+      else if(participant.team === 'Kira'){
+        bot.sendPhoto(participant.id, KiraWinPhoto, { caption: message })
+        .then(() => {
+          //console.log('사진 전송 완료');
+        })
+        .catch((error) => {
+          //console.error('사진 전송 실패:', error);
+          bot.sendMessage(participant.id, message)
+        });
+      }
     }
     callback(true);
   }
 
   if(dead.role === '키라'){
+    const combinedMessage = Object.values(mapped_role)
+    .map(person => {
+      let message;
+      if (person.deathreason === '생존') {
+        message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+      }
+      else if(person.deathreason === '체포'){
+        message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+      } 
+      else {
+        message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
+      }
+      return message;
+    })
+    .join('\n');
+
+    // 모든 플레이어에게 통합된 메시지 전송
+    for (const key_vf in mapped_role) {
+      const person = mapped_role[key_vf];
+      bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+    }
+
     for(const key in mapped_role){
       const participant = mapped_role[key];
       const message = `
       **키라가 사망했습니다. L측의 승리입니다 -게임 종료-**`;
-      //bot.sendMessage(participant.id, message)
-      //roomReset.resetRoom();
-      bot.sendPhoto(participant.id, LwinPhoto, { caption: message })
-          .then(() => {
-            //console.log('사진 전송 완료');
-          })
-          .catch((error) => {
-            console.error('사진 전송 실패:');
-            bot.sendMessage(participant.id, message)
-          });
+      if(mapped_role[key].team === 'L'){
+        bot.sendPhoto(participant.id, LwinPhoto, { caption: message })
+        .then(() => {
+          //console.log('사진 전송 완료');
+        })
+        .catch((error) => {
+          //console.error('사진 전송 실패:', error);
+          bot.sendMessage(participant.id, message)
+        });
+      }
+      else if(mapped_role[key].team === 'Kira'){
+        bot.sendPhoto(participant.id, KiraLosePhoto, { caption: message })
+        .then(() => {
+          //console.log('사진 전송 완료');
+        })
+        .catch((error) => {
+          //console.error('사진 전송 실패:', error);
+          bot.sendMessage(participant.id, message)
+        });
+      }
     }
     callback(true);
   }
@@ -1537,24 +1640,31 @@ function love_Kira(chatId, bot){
   if(mapped_role.Misa.id === chatId){
     const chance_Misa = Math.random()
     if(mapped_role.Misa.alive === true && mapped_role.Misa.skill1 === true){
-      mapped_role.Misa.skill1 = false;
-      love_Kira_Cool_start = Date.now();
-      setTimeout(()=>{
-        mapped_role.Misa.skill1 = true;
-      }, love_Kira_Cool)
-
-      //50% 확률로 키라 확인
-      if(chance_Misa > 0.5){
+      if(mapped_role.Misa.lifepoint >= 50){
+        mapped_role.Misa.skill1 = false;
+        love_Kira_Cool_start = Date.now();
         setTimeout(()=>{
-          bot.sendMessage(chatId, `[System] 키라의 정체는 ` + mapped_role.Kira.name + ` 입니다.`);
-        }, loveCool)
+          mapped_role.Misa.skill1 = true;
+        }, love_Kira_Cool)
+  
+        //50% 확률로 키라 확인
+        if(chance_Misa > 0.5){
+          setTimeout(()=>{
+            mapped_role.Misa.lifepoint = parseInt(mapped_role.Misa.lifepoint) - 50;
+            bot.sendMessage(chatId, `[System] 키라의 정체는 ` + mapped_role.Kira.name + ` 입니다. \n 남은포인트: ` + mapped_role.Misa.lifepoint);
+          }, loveCool)
+        }
+        else{
+          setTimeout(()=>{
+            mapped_role.Misa.lifepoint = parseInt(mapped_role.Misa.lifepoint) - 50;
+            bot.sendMessage(chatId, `[System] 키라를 확인하는데 실패했습니다 \n 남은포인트: ` + mapped_role.Misa.lifepoint);
+  
+          }, loveCool)
+        }
       }
       else{
-        setTimeout(()=>{
-          bot.sendMessage(chatId, `[System] 키라를 확인하는데 실패했습니다`);
-        }, loveCool)
+        bot.sendMessage(chatId, `[System] 스킬사용을 위한 남은 포인트가 부족합니다.`);
       }
-
     }
     else if(mapped_role.Misa.alive === true && mapped_role.Misa.skill1 === false){
       const currentTime = Date.now();
@@ -1577,75 +1687,89 @@ function envoyEyes(chatId, envoyEyePerson, bot){
   if(mapped_role.Misa.id === chatId){
     const chance_Misa = Math.random();
     if(mapped_role.Misa.alive === true && mapped_role.Misa.skill2 === true){
-      mapped_role.Misa.skill2 = false;
-      envoyEyes_Cool_start = Date.now();
-      setTimeout(()=>{
-        mapped_role.Misa.skill2 = true;
-      }, envoyEyes_Cool)
-
-      if(parseInt(mapped_role.Misa.chance) === 4){
-        if(chance_Misa > 0.9){
-          bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은횟수: 3회`);
-          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
-        }
-        else{
-          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
-          for(const key in mapped_role){
-            //console.log('사신의눈 checking...')
-            if (mapped_role[key].name === envoyEyePerson) {
-              bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.\n 남은횟수: 3회`)
+      if(mapped_role.Misa.lifepoint >= 100){
+        mapped_role.Misa.skill2 = false;
+        envoyEyes_Cool_start = Date.now();
+        setTimeout(()=>{
+          mapped_role.Misa.skill2 = true;
+        }, envoyEyes_Cool)
+  
+        if(parseInt(mapped_role.Misa.chance) === 4){
+          if(chance_Misa > 0.9){
+            mapped_role.Misa.lifepoint = parseInt(mapped_role.Misa.lifepoint) - 100;
+            mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+            bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은포인트: ` + mapped_role.Misa.lifepoint + ` / 남은횟수: 3회`);
+          }
+          else{
+            mapped_role.Misa.lifepoint = parseInt(mapped_role.Misa.lifepoint) - 100;
+            mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+            for(const key in mapped_role){
+              //console.log('사신의눈 checking...')
+              if (mapped_role[key].name === envoyEyePerson) {
+                bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.\n 남은포인트: ` + mapped_role.Misa.lifepoint + ` / 남은횟수: 3회`)
+              }
             }
           }
         }
-      }
-      else if(parseInt(mapped_role.Misa.chance) === 3){
-        if(chance_Misa > 0.8){
-          bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은횟수: 2회`);
-          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
-        }
-        else{
-          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
-          for(const key in mapped_role){
-            //console.log('사신의눈 checking...')
-            if (mapped_role[key].name === envoyEyePerson) {
-              bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.\n 남은횟수: 2회`)
+        else if(parseInt(mapped_role.Misa.chance) === 3){
+          if(chance_Misa > 0.8){
+            mapped_role.Misa.lifepoint = parseInt(mapped_role.Misa.lifepoint) - 100;
+            mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+            bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은포인트: ` + mapped_role.Misa.lifepoint + ` / 남은횟수: 2회`);
+          }
+          else{
+            mapped_role.Misa.lifepoint = parseInt(mapped_role.Misa.lifepoint) - 100;
+            mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+            for(const key in mapped_role){
+              //console.log('사신의눈 checking...')
+              if (mapped_role[key].name === envoyEyePerson) {
+                bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.\n 남은포인트: ` + mapped_role.Misa.lifepoint + ` / 남은횟수: 2회`)
+              }
             }
           }
         }
-      }
-      else if(parseInt(mapped_role.Misa.chance) === 2){
-        if(chance_Misa > 0.6){
-          bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은횟수: 1회`);
-          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
-        }
-        else{
-          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
-          for(const key in mapped_role){
-            //console.log('사신의눈 checking...')
-            if (mapped_role[key].name === envoyEyePerson) {
-              bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.\n 남은횟수: 1회`)
+        else if(parseInt(mapped_role.Misa.chance) === 2){
+          if(chance_Misa > 0.6){
+            mapped_role.Misa.lifepoint = parseInt(mapped_role.Misa.lifepoint) - 100;
+            mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+            bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은포인트: ` + mapped_role.Misa.lifepoint + ` / 남은횟수: 1회`);
+          }
+          else{
+            mapped_role.Misa.lifepoint = parseInt(mapped_role.Misa.lifepoint) - 100;
+            mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+            for(const key in mapped_role){
+              //console.log('사신의눈 checking...')
+              if (mapped_role[key].name === envoyEyePerson) {
+                bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.\n 남은포인트: ` + mapped_role.Misa.lifepoint + ` / 남은횟수: 1회`)
+              }
             }
           }
         }
-      }
-      else if(parseInt(mapped_role.Misa.chance) === 1){
-        if(chance_Misa > 0.2){
-          bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은횟수: 0회`);
-          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
-        }
-        else{
-          mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
-          for(const key in mapped_role){
-            //console.log('사신의눈 checking...')
-            if (mapped_role[key].name === envoyEyePerson) {
-              bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.\n 남은횟수: 0회`)
+        else if(parseInt(mapped_role.Misa.chance) === 1){
+          if(chance_Misa > 0.2){
+            mapped_role.Misa.lifepoint = parseInt(mapped_role.Misa.lifepoint) - 100;
+            mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+            bot.sendMessage(chatId, `[System] 사신의눈 발동에 실패했습니다.\n 남은포인트: ` + mapped_role.Misa.lifepoint + ` / 남은횟수: 0회`);
+          }
+          else{
+            mapped_role.Misa.lifepoint = parseInt(mapped_role.Misa.lifepoint) - 100;
+            mapped_role.Misa.chance = parseInt(mapped_role.Misa.chance) - 1;
+            for(const key in mapped_role){
+              //console.log('사신의눈 checking...')
+              if (mapped_role[key].name === envoyEyePerson) {
+                bot.sendMessage(chatId, `[System] `+ envoyEyePerson + `의 정체는 ` + mapped_role[key].role + `입니다.\n 남은포인트: ` + mapped_role.Misa.lifepoint + ` / 남은횟수: 0회`)
+              }
             }
           }
         }
+        else if(parseInt(mapped_role.Misa.chance) === 0){
+          bot.sendMessage(chatId, `[System] 더이상 사신의눈을 사용할 수 없습니다.`);
+        }
       }
-      else if(parseInt(mapped_role.Misa.chance) === 0){
-        bot.sendMessage(chatId, `[System] 더이상 사신의눈을 사용할 수 없습니다.`);
+      else{
+        bot.sendMessage(chatId, `[System] 스킬사용을 위한 포인트가 부족합니다.`);
       }
+      
     }
     else if(mapped_role.Misa.alive === true && mapped_role.Misa.skill2 === false){
       const currentTime = Date.now();
@@ -1660,6 +1784,80 @@ function envoyEyes(chatId, envoyEyePerson, bot){
   }
   else{
     bot.sendMessage(chatId, `스킬사용이 가능한 역할이 아닙니다`);
+  }
+}
+
+//렘의노트. 캐릭터: 미사
+function remNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
+  if(mapped_role.Misa.id === chatId){
+    if(mapped_role.Misa.lifepoint >= 300){
+      if(mapped_role.Misa.alive === true && mapped_role.Misa.skill3 === true){
+        mapped_role.Misa.skill3 = false;
+        remNoteCool_start = Date.now();
+        setTimeout(()=>{
+          mapped_role.Misa.skill3 = true;
+        }, remNoteCool)
+        
+        bot.sendMessage(chatId, '[System] 노트의 일치여부를 체크합니다.');
+        let foundMatch = false; //일치하는 플레이어를 찾는 변수
+        for(const key in mapped_role){
+          console.log('데스노트 일치여부 checking...')
+          if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true){
+            console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
+              mapped_role.Misa.lifepoint = parseInt(mapped_role.Misa.lifepoint) - 300;
+              bot.sendMessage(chatId, '[System] 남은포인트: ' + mapped_role.Misa.lifepoint);
+              deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
+                if(callback===true){
+                  const combinedMessage = Object.values(mapped_role)
+                  .map(person => {
+                    let message;
+                    if (person.deathreason === '생존') {
+                      message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+                    }
+                    else if(person.deathreason === '체포'){
+                      message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+                    } 
+                    else {
+                      message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
+                    }
+                    return message;
+                  })
+                  .join('\n');
+
+                  // 모든 플레이어에게 통합된 메시지 전송
+                  for (const key_vf in mapped_role) {
+                    const person = mapped_role[key_vf];
+                    bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+                  }
+                  deathNotes(true);
+                }
+              });
+            foundMatch = true;
+            break;
+          }
+        }
+        if(!foundMatch){
+          mapped_role.Misa.lifepoint = parseInt(mapped_role.Misa.lifepoint) - 300;
+          bot.sendMessage(chatId, '[System] 남은포인트: ' + mapped_role.Misa.lifepoint);
+          bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
+        }
+      }
+      else if(mapped_role.Misa.alive === true && mapped_role.Misa.skill3 === false){
+        const currentTime = Date.now();
+        const elapsedTime = currentTime - remNoteCool_start
+        const remainingTime = Math.ceil((remNoteCool - elapsedTime) / 1000);
+        bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+      }
+      else{
+        bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`);
+      }
+    }
+    else{
+      bot.sendMessage(chatId, `[System] 스킬사용을 위한 포인트가 부족합니다.`);
+    }
+  }
+  else{
+    bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
   }
 }
 
@@ -1725,7 +1923,7 @@ function gatheringInfo(chatId, role, capturedPerson, bot){
 }
 
 //대신노트 - 캐릭터: 미카미
-function desinNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
+function desinNote(chatId, role, capturedPerson, deathreason, bot, desinNotes){
   if(mapped_role.Mikami.id === chatId){
     if(mapped_role.Mikami.skill1_num > 0){
       if(mapped_role.Mikami.alive === true && mapped_role.Mikami.seal === true && mapped_role.Mikami.skill1 === true){
@@ -1734,41 +1932,33 @@ function desinNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
         setTimeout(()=>{
           mapped_role.Mikami.skill1 = true;
         }, deathNoteCool)
-  
-        let foundMatch = false; //일치하는 플레이어를 찾는 변수
-        for(const key in mapped_role){
-          console.log('데스노트 일치여부 checking...')
-          if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true){
-            console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
-            setTimeout(()=>{
-              mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
-              bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
-              deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
-                if(callback===true){
-                  const combinedMessage = Object.values(mapped_role)
-                  .map(person => `${person.role}: ${person.name} - 사인: ${person.deathreason}`)
-                  .join('\n');
-
-                  // 모든 플레이어에게 통합된 메시지 전송
-                  for (const key_vf in mapped_role) {
-                    const person = mapped_role[key_vf];
-                    bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+        
+        bot.sendMessage(chatId, '[System] 노트의 일치여부를 체크합니다.');
+        setTimeout(()=>{
+          let foundMatch = false; //일치하는 플레이어를 찾는 변수
+          for(const key in mapped_role){
+            console.log('데스노트 일치여부 checking...')
+            if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true){
+              console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
+                mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
+                bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
+                deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
+                  if(callback===true){
+                    desinNotes(true);
                   }
-                  deathNotes(true);
-                }
-              });
-            }, deathCool);
-            foundMatch = true;
-            break;
+                });
+
+              foundMatch = true;
+              break;
+            }
           }
-        }
-        if(!foundMatch){
-          setTimeout(()=>{
-            mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
-            bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
-            bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
-          }, deathCool);
-        }
+          if(!foundMatch){
+              mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
+              bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
+              bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
+          }
+        }, deathCool)
+        
       }
       else if(mapped_role.Mikami.alive === true && mapped_role.Mikami.skill1 === false){
         const currentTime = Date.now();
@@ -1777,6 +1967,7 @@ function desinNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
         bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
       }
       else if(mapped_role.Mikami.alive === true && mapped_role.Mikami.seal === false && mapped_role.Mikami.skill1 === true){
+        bot.sendMessage(chatId, '[System] 노트의 일치여부를 체크합니다.');
         setTimeout(()=>{
           mapped_role.Mikami.skill1_num = parseInt(mapped_role.Mikami.skill1_num) - 1;
           bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
@@ -1797,16 +1988,29 @@ function desinNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
   }
 }
 
-//키라 숭배, 캐릭터: 미카미
+//키라숭배, 캐릭터: 미카미
 function worship_Kira(chatId, bot){
   if(mapped_role.Mikami.id === chatId){
+    const chance_Mikami = Math.random();
     if(mapped_role.Mikami.alive === true && mapped_role.Mikami.skill2 === true){
       mapped_role.Mikami.skill2 = false;
       worship_kira_Cool_start = Date.now();
-      setTimeout(()=>{
-        bot.sendMessage(chatId, `[System] 키요미의 정체는 ` + mapped_role.Kiyomi.name + '입니다.');
-        mapped_role.Mikami.skill2 = true;
-      }, worship_kira_Cool)
+      
+      //키라 정체 알려줌
+      if(chance_Mikami > 0.5){
+        setTimeout(()=>{
+          bot.sendMessage(chatId, `[System] 키라의 정체는 ` + mapped_role.Kira.name + '입니다.');
+          mapped_role.Mikami.skill2 = true;
+        }, worship_kira_Cool)
+      }
+      //키요미 정체 알려줌
+      else{
+        setTimeout(()=>{
+          bot.sendMessage(chatId, `[System] 키요미의 정체는 ` + mapped_role.Kiyomi.name + '입니다.');
+          mapped_role.Mikami.skill2 = true;
+        }, worship_kira_Cool)
+      }
+      
     }
     else if(mapped_role.Mikami.alive === true && mapped_role.Mikami.skill2 === false){
       const currentTime = Date.now();
@@ -1827,6 +2031,62 @@ function worship_Kira(chatId, bot){
 function notice(info){
   info(mapped_role)
 }
+
+//체포 스킬로 인한 결과처리 - 엘팀 승리
+function winLTeam(bot){
+  const LwinPhoto = __dirname + '/img/LWin_renewal.jpg'
+  const KiraLosePhoto = __dirname + '/img/KiraLose.jpg'
+  mapped_role.Kira.deathreason = "체포";
+  const combinedMessage = Object.values(mapped_role)
+  .map(person => {
+    let message;
+    if (person.deathreason === '생존') {
+      message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+    }
+    else if(person.deathreason === '체포'){
+      message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+    } 
+    else {
+      message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
+    }
+    return message;
+  })
+  .join('\n');
+
+  // 모든 플레이어에게 통합된 메시지 전송
+  for (const key_vf in mapped_role) {
+    const person = mapped_role[key_vf];
+    bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+  }
+
+  for(const key in mapped_role){
+    const participant = mapped_role[key];
+    const arrestMsg = `**[속보] 키라 ${mapped_role.Kira.name} (이)가 체포되었습니다 -게임 종료-**`
+    if(participant.team === 'L'){
+      bot.sendPhoto(participant.id, LwinPhoto, { caption: arrestMsg })
+      .then(() => {
+        //console.log('사진 전송 완료');
+      })
+      .catch((error) => {
+        //console.error('사진 전송 실패:', error);
+        bot.sendMessage(participant.id, arrestMsg)
+      });
+    }
+    else if(participant.team === 'Kira'){
+      bot.sendPhoto(participant.id, KiraLosePhoto, { caption: arrestMsg })
+      .then(() => {
+        //console.log('사진 전송 완료');
+      })
+      .catch((error) => {
+        //console.error('사진 전송 실패:', error);
+        bot.sendMessage(participant.id, arrestMsg)
+      });
+    }
+    
+  }
+}
+
+
 
 //(공용) 귓날리기 횟수 검증
 function whisper(chatId, receiver, whisper_msg, bot){
@@ -1968,6 +2228,7 @@ function namecard_result(sender, receiver, msg, bot, callback){
 module.exports = {
   startGame,
   arrest_Kira,
+  winLTeam,
   broadcast,
   wiretapping,
   watching_Kiyomi,
@@ -1987,6 +2248,7 @@ module.exports = {
   watchNote,
   love_Kira,
   envoyEyes,
+  remNote,
   gatheringInfo,
   desinNote,
   worship_Kira,
@@ -1995,5 +2257,7 @@ module.exports = {
   whisper_result,
   namecard_exchange,
   note,
-  note_result
+  note_result,
+  sasin_start,
+  sasinNote
 };
