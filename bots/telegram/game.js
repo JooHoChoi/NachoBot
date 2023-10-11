@@ -559,42 +559,6 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
       if(mapped_role.Kira.name === capturedPerson){
         console.log('L추리성공')
         winLTeam(bot);
-
-        mapped_role.Kira.deathreason = "체포";
-        const combinedMessage = Object.values(mapped_role)
-        .map(person => {
-          let message;
-          if (person.deathreason === '생존') {
-            message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
-          }
-          else if(person.deathreason === '체포'){
-            message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
-          } 
-          else {
-            message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
-          }
-          return message;
-        })
-        .join('\n');
-
-        // 모든 플레이어에게 통합된 메시지 전송
-        for (const key_vf in mapped_role) {
-          const person = mapped_role[key_vf];
-          bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-        }
-
-        for(const key in mapped_role){
-          const participant = mapped_role[key];
-          const arrestMsg = `**[속보] 키라 ${mapped_role.Kira.name} (이)가 체포되었습니다 -게임 종료-**`
-          bot.sendPhoto(participant.id, LwinPhoto, { caption: arrestMsg })
-          .then(() => {
-            //console.log('사진 전송 완료');
-          })
-          .catch((error) => {
-            //console.error('사진 전송 실패:', error);
-            bot.sendMessage(participant.id, arrestMsg)
-          });
-        }
         arrest(true)
       }
       else{
@@ -631,43 +595,6 @@ function arrest_Kira(chatId, capturedPerson, bot, arrest){
         if(mapped_role.Kira.name === capturedPerson){
           console.log('N추리성공')
           winLTeam(bot);
-
-          mapped_role.Kira.deathreason = "체포";
-          const combinedMessage = Object.values(mapped_role)
-          .map(person => {
-            let message;
-            if (person.deathreason === '생존') {
-              message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
-            }
-            else if(person.deathreason === '체포'){
-              message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
-            } 
-            else {
-              message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
-            }
-            return message;
-          })
-          .join('\n');
-  
-          // 모든 플레이어에게 통합된 메시지 전송
-          for (const key_vf in mapped_role) {
-            const person = mapped_role[key_vf];
-            bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-          }
-  
-          for(const key in mapped_role){
-            const participant = mapped_role[key];
-            const arrestMsg = `**[속보] 키라 ${mapped_role.Kira.name} (이)가 체포되었습니다 -게임 종료-**`
-            bot.sendPhoto(participant.id, LwinPhoto, { caption: arrestMsg })
-            .then(() => {
-              //console.log('사진 전송 완료');
-            })
-            .catch((error) => {
-              //console.error('사진 전송 실패:', error);
-              bot.sendMessage(participant.id, arrestMsg)
-            });
-          }
-
           arrest(true);
         }
         else{
@@ -1377,10 +1304,10 @@ function check_L(chatId, bot){
 //엘확인 메세지 처리
 function check_L_MSG(chatId, bot){
   if(mapped_role.L.alive === true){
-    bot.sendMessage(chatId, `[System] 엘의 정체는 ` + mapped_role.L.name + '입니다.');
+    bot.sendMessage(chatId, `[System] 엘확인 스킬 결과: 엘의 정체는 ` + mapped_role.L.name + '입니다.');
   }
   else{
-    bot.sendMessage(chatId, '[System] 엘의 정체는' + mapped_role.N.name + `입니다.`);
+    bot.sendMessage(chatId, '[System] 엘확인 스킬 결과: 엘의 정체는' + mapped_role.N.name + `입니다.`);
   }
 }
 
