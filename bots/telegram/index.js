@@ -630,6 +630,19 @@ function start() {
       }
     });
 
+    //속옷노트 - 키요미
+    bot.onText(/\/속옷노트/, (msg) => {
+      const chatId = msg.chat.id;
+
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        //game.js 함수에서 스킬사용 가능자인지 체크
+        game.underwearNote(chatId, bot);
+      }
+    });
+
     //대신노트 + 역할 + 이름 - 미카미
     bot.onText(/\/대신노트 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
