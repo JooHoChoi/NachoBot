@@ -43,6 +43,7 @@ const wiretapping_Cool = 60000; //도청 스킬 쿨타임 테스트 , 본게임 
 let wiretappingCool_start;
 const wiretappingCool = 30000; // 도청스킬 지속시간: 테스트 10초, 본게임 30초
 let wiretappingTimeout;
+let messageListener = () => {}; //도청스킬 리스너 함수
 
 const deathNoteCool = 90000; //데스노트 스킬 쿨타임: 테스트 60초, 본게임 90초
 let deathNoteCool_start;
@@ -731,7 +732,7 @@ function wiretapping(chatId, target, msg, bot){
           bot.sendMessage(chatId, `[System] ${target}을 대상으로 30초간 도청을 시도합니다.`)
 
           foundMatch = true;
-          const messageListener = (msg) => {
+          messageListener = (msg) => {
             if (msg.chat.id === mapped_role[key].id && mapped_role[key].alive === true) {
               const messageText = msg.text.trim(); // 메시지 텍스트를 양 끝의 공백을 제거하고 저장합니다.
               const firstTwoCharacters = messageText.slice(0,2);
@@ -751,12 +752,6 @@ function wiretapping(chatId, target, msg, bot){
               }
             }
           };
-
-          // const messageListener = (msg) => {
-          //   if (msg.chat.id === mapped_role[key].id && mapped_role[key].alive === true && (msg.text.includes('/귓') || msg.text.includes('/쪽지'))) {
-          //     bot.sendMessage(chatId, '[System - 도청] '+ target +': ' + msg.text); // sender에게 메시지를 전송합니다.
-          //   }
-          // };
     
           bot.on('message', messageListener);
     
@@ -1502,7 +1497,7 @@ function deathMsg(chatId, dead, deathreason, bot, callback){
   
   if(dead.role === '엘'){
     if(mapped_role.N.alive === false){ //니아가 죽어있는 상태면 게임 종료
-      clearAllTimeout();
+      clearAllTimeout(bot);
       const combinedMessage = Object.values(mapped_role)
       .map(person => {
         let message;
@@ -1569,7 +1564,7 @@ function deathMsg(chatId, dead, deathreason, bot, callback){
     }
   }
   if(dead.role === '니아' && mapped_role.L.alive === false){
-    clearAllTimeout();
+    clearAllTimeout(bot);
     const combinedMessage = Object.values(mapped_role)
     .map(person => {
       let message;
@@ -1623,7 +1618,7 @@ function deathMsg(chatId, dead, deathreason, bot, callback){
 
   if(dead.role === '키라'){
     LwinPhoto = __dirname + '/img/Mwin.jpg'
-    clearAllTimeout();
+    clearAllTimeout(bot);
     const combinedMessage = Object.values(mapped_role)
     .map(person => {
       let message;
@@ -2070,7 +2065,8 @@ function worship_Kira(chatId, bot){
 }
 
 //타임아웃 초기화
-function clearAllTimeout(){
+function clearAllTimeout(bot){
+  bot.removeListener('message', messageListener);
   clearTimeout(wiretappingTimeout);
   clearTimeout(deathNoteTimeout);
   clearTimeout(desinNoteTimeout);
@@ -2106,7 +2102,7 @@ function winLTeam(bot){
   }
 
   mapped_role.Kira.deathreason = "체포";
-  clearAllTimeout();
+  clearAllTimeout(bot);
   const combinedMessage = Object.values(mapped_role)
   .map(person => {
     let message;
