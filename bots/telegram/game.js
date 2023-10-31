@@ -2190,14 +2190,14 @@ function whisper_result(sender, receiver, whisper_msg, bot, callback){
   for(const key in mapped_role){
     if(sender.role === '멜로'){
       const chocoletMelo_chance = Math.random();
-      if(chocoletMelo_chance >= 0.5){
+      if(mapped_role[key].name === receiver && chocoletMelo_chance >= 0.5){
         bot.sendMessage(sender.id, `${receiver}에게 귓속말 전달에 성공했습니다\n남은횟수: ${sender.whisper-1}회`)
         bot.sendMessage(mapped_role[key].id, `[귓속말] ???(오독오독): ${whisper_msg}`)
         callback(true)
         foundMatch = true;
         break;
       }
-      else{
+      else if(mapped_role[key].name === receiver && chocoletMelo_chance < 0.5){
         bot.sendMessage(sender.id, `${receiver}에게 귓속말 전달에 성공했습니다\n남은횟수: ${sender.whisper-1}회`)
         bot.sendMessage(mapped_role[key].id, `[귓속말] ???: ${whisper_msg}`)
         callback(true)
