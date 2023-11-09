@@ -111,6 +111,14 @@ function start() {
       }
     });
 
+    //모드 - 이미지 송출 여부 선택가능
+    bot.onText(/\/모드/, (msg, match) => {
+      // 'msg' : 텔레그램으로 부터 수신한 메세지
+      const chatId = msg.chat.id;
+      
+      room.changeMode(chatId, bot)
+    });
+
     //사신모드 nodejs 비동기용으로 수정필요
     // bot.onText(/\/시작 사신/, (msg) => {
     //   const chatId = msg.chat.id

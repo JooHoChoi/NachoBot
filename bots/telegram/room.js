@@ -18,7 +18,7 @@ function isUserAlreadyInRoom(chatId) {
 }
 
 function addUserInfoToRoom(chatId, name, bot) {
-  const user = { id: chatId, name: name };
+  const user = { id: chatId, name: name, mode: "이미지" };
   room.push(user);
   console.log(user.name + "님이 참가했습니다.");
   console.log(room);
@@ -38,7 +38,6 @@ function startGame(bot, sasin=false) {
   if(gameStarted===false){
     gameStarted = true;
     game.startGame(room, sasin, function(callback_mapping){
-      //console.log(callback_mapping)
       const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
       const startMsg = `
       **데스노트 게임을 시작합니다!!**
@@ -53,24 +52,32 @@ ${participantRole}`;
           const roleMsg = `당신의 역할은 ${participant.role} 입니다.\n
 [**보유 스킬**]
 ${participant.explain}`;
-          bot.sendPhoto(participant.id, startPhoto, { caption: startMsg })
-          .then(() => {
-            //console.log('사진 전송 완료');
-          })
-          .catch((error) => {
-            console.error('사진 전송 실패:', error);
-            bot.sendMessage(participant.id, startMsg)
-          });
-          setTimeout(()=>{
-            bot.sendPhoto(participant.id, roleImg, { caption: roleMsg })
+          if(participant.mode==='이미지'){
+            bot.sendPhoto(participant.id, startPhoto, { caption: startMsg })
             .then(() => {
               //console.log('사진 전송 완료');
             })
             .catch((error) => {
               console.error('사진 전송 실패:', error);
-              bot.sendMessage(participant.id, roleMsg)
+              bot.sendMessage(participant.id, startMsg)
             });
-          }, 2000)
+            setTimeout(()=>{
+              bot.sendPhoto(participant.id, roleImg, { caption: roleMsg })
+              .then(() => {
+                //console.log('사진 전송 완료');
+              })
+              .catch((error) => {
+                console.error('사진 전송 실패:', error);
+                bot.sendMessage(participant.id, roleMsg)
+              });
+            }, 2000)
+          }
+          else if(participant.mode==='텍스트'){
+            bot.sendMessage(participant.id, startMsg)
+            setTimeout(()=>{
+              bot.sendMessage(participant.id, roleMsg)
+            }, 2000)
+          }
         }
     });  
   }
@@ -98,6 +105,23 @@ function getGameStatus(){
   return gameStarted;
 }
 
+function changeMode(chatId, bot){
+  if(gameStarted === false){
+    const user = room.find(user => user.id === chatId);
+
+    if (user) {
+      user.mode = (user.mode === '이미지') ? '텍스트' : '이미지';
+      bot.sendMessage(chatId, `${user.name}님의 모드가 변경되었습니다. 현재 모드: ${user.mode}`);
+    } else {
+      bot.sendMeesage('모드 변경에 실패했습니다');
+    }
+  }
+  else{
+    return '게임이 진행중입니다. 게임 명령어만 사용이 가능합니다.'
+  }
+  
+}
+
 function resetRoom() {
   room = [];
   gameStarted = false;
@@ -117,6 +141,8 @@ function expelUserFromRoom(chatId, name, bot) {
     bot.sendMessage(chatId, `${name}은(는) 방에 존재하지 않습니다.`);
   }
 }
+
+
     
 module.exports = {
   getRoom,
@@ -126,6 +152,7 @@ module.exports = {
   removeUserFromRoom,
   startGame,
   getRoomStatus,
+  changeMode,
   resetRoom,
   getGameStatus,
   expelUserFromRoom,
