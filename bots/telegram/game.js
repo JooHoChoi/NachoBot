@@ -1275,7 +1275,7 @@ function chase(chatId, chasePerson, bot){
       if(mapped_role[part_key].name === chasePerson){
         particicpantMatch = true;
         if(mapped_role.Jebanni.alive === true && mapped_role.Jebanni.skill2 === true){
-          if(mapped_role[key_name].name === chasePerson){
+          //if(mapped_role[key_name].name === chasePerson){
             const chance_Jebanni = Math.random();
             const chance2_Jebanni = Math.random();
             bot.sendMessage(chatId, `[System] ${chasePerson} 플레이어를 추적합니다.`);
@@ -1304,7 +1304,7 @@ function chase(chatId, chasePerson, bot){
                 bot.sendMessage(chatId, `[System] 플레이어 추적에 실패했습니다`);
               }, chaseJebanniCool)
             }
-          }
+          //}
         }
         else if(mapped_role.Jebanni.alive === true && mapped_role.Jebanni.skill2 === false){
           const currentTime = Date.now();
