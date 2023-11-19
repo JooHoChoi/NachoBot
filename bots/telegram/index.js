@@ -112,23 +112,38 @@ function start() {
     });
 
     //모드 - 이미지 송출 여부 선택가능
-    bot.onText(/\/모드/, (msg, match) => {
+    bot.onText(/\/모드/, (msg) => {
       // 'msg' : 텔레그램으로 부터 수신한 메세지
       const chatId = msg.chat.id;
       
       room.changeMode(chatId, bot)
     });
 
-    //사신모드 nodejs 비동기용으로 수정필요
-    // bot.onText(/\/시작 사신/, (msg) => {
-    //   const chatId = msg.chat.id
-    //   const sasin = true;
-    //   if (room.getRoom().length >= 3 && chatId === room.getRoom()[0].id) {
-    //     room.startGame(bot, sasin); //사신 게임 시작 함수 호출
-    //   } else {
-    //     bot.sendMessage(chatId, '게임은 4인부터 플레이 가능하며, 방장만 시작할 수 있습니다.');
-    //   }
-    // });
+    //DLC - 사신
+    bot.onText(/\/일반/, (msg) => {
+      // 'msg' : 텔레그램으로 부터 수신한 메세지
+      const chatId = msg.chat.id;
+      if(chatId === masterId){
+      //if(chatId === room.getRoom()[0].id || chatId === masterId){
+        room.generalMode(chatId, bot)
+      }
+      else{
+        bot.sendMessage(chatId, '일반모드 변경은 방장 또는 관리자만 사용할 수 있습니다.');
+      }
+    });
+
+    bot.onText(/\/사신/, (msg) => {
+      // 'msg' : 텔레그램으로 부터 수신한 메세지
+      const chatId = msg.chat.id;
+      if(chatId === masterId){
+      //if(chatId === room.getRoom()[0].id || chatId === masterId){  
+        room.sasinMode(chatId, bot)
+      }
+      else{
+        bot.sendMessage(chatId, '사신모드 변경은 방장 또는 관리자만 사용할 수 있습니다.');
+      }
+    });
+
 
     //참여중인 사람 확인
     bot.onText(/\/현황/, (msg) => {
@@ -520,14 +535,14 @@ function start() {
             deathreason = values.slice(2).join(' '); // 사용자가 입력한 값으로 업데이트됩니다.
             if(deathreason == '생존'){
               deathreason = '심장마비';
-              game.watchNote(chatId, role, capturedPerson, deathreason, bot, function(watchNote, mapped_role){
+              game.watchNote(chatId, role, capturedPerson, deathreason, bot, function(watchNote){
                 if(watchNote === true){ 
                   room.resetRoom();
                 }
               });
             }
             else{
-              game.watchNote(chatId, role, capturedPerson, deathreason, bot, function(watchNote, mapped_role){
+              game.watchNote(chatId, role, capturedPerson, deathreason, bot, function(watchNote){
                 if(watchNote === true){ 
                   room.resetRoom();
                 }
@@ -535,7 +550,7 @@ function start() {
             }
           }
           else{
-            game.watchNote(chatId, role, capturedPerson, deathreason, bot, function(watchNote, mapped_role){
+            game.watchNote(chatId, role, capturedPerson, deathreason, bot, function(watchNote){
               if(watchNote === true){ 
                 room.resetRoom();
               }
@@ -726,10 +741,6 @@ function start() {
       }
     });
 
-
-
-
-
    //관리자용 명령어
     //참가인원 초기화
     bot.onText(/\/초기화/, (msg, match) => {
@@ -761,7 +772,8 @@ function start() {
 }
 
 module.exports = { 
-   start: start
+   start: start,
+   reset: reset
 };
 
 function reset(){

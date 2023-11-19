@@ -4,6 +4,7 @@ const game = require('./game')
 let room = [];
 const maxParticipants = 12; // 최대 참여자 수
 let gameStarted = false; // 게임 시작 여부를 저장하는 변수
+let mode = '일반';
 
 function getRoom(){
   return room;
@@ -32,15 +33,18 @@ function removeUserFromRoom(chatId) {
   room.splice(userIndex, 1);
 }
 
-function startGame(bot, sasin=false) {
+function startGame(bot) {
   const startPhoto = __dirname + '/img/start.jpg'
   const roomPart = room.map((participant) => participant.name);
   if(gameStarted===false){
     gameStarted = true;
-    game.startGame(room, sasin, function(callback_mapping){
+    game.startGame(room, mode, bot, function(callback_mapping){
       const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
       const startMsg = `
       **데스노트 게임을 시작합니다!!**
+[게임 유형]
+${mode} 모드
+
 [참여 플레이어의 이름]
 ${roomPart}
 
@@ -94,7 +98,13 @@ function getRoomStatus() {
   
     const participantNames = room.map(user => user.name).join(', ');
     const participantCount = room.length;
-    return `현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
+    if(mode=='사신'){
+      return `게임 유형: 사신\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
+    }
+    else{
+      return `게임 유형: 일반\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
+    }
+    
   }
   else{
     return '게임이 진행중입니다. 게임 명령어만 사용이 가능합니다.'
@@ -121,6 +131,37 @@ function changeMode(chatId, bot){
   }
   
 }
+function generalMode(chatId, bot){
+  if(gameStarted === false){
+    if(mode==='일반'){
+      bot.sendMessage(chatId, `이미 게임유형이 일반모드 입니다`);
+    }
+    else{
+      mode = '사신';
+      bot.sendMessage(chatId, `게임 유형이 일반모드가 변경되었습니다. 현재 모드: 일반모드`);
+    }
+    
+  }
+  else{
+    return '게임이 진행중입니다. 게임 명령어만 사용이 가능합니다.'
+  }
+}
+
+function sasinMode(chatId, bot){
+  if(gameStarted === false){
+    if(mode==='사신'){
+      bot.sendMessage(chatId, `이미 게임유형이 사신모드 입니다`);
+    }
+    else{
+      mode = '사신';
+      bot.sendMessage(chatId, `게임 유형이 사신모드가 변경되었습니다. 현재 모드: 사신모드`);
+    }
+    
+  }
+  else{
+    return '게임이 진행중입니다. 게임 명령어만 사용이 가능합니다.'
+  }
+}
 
 function resetRoom() {
   room = [];
@@ -141,8 +182,6 @@ function expelUserFromRoom(chatId, name, bot) {
     bot.sendMessage(chatId, `${name}은(는) 방에 존재하지 않습니다.`);
   }
 }
-
-
     
 module.exports = {
   getRoom,
@@ -153,7 +192,9 @@ module.exports = {
   startGame,
   getRoomStatus,
   changeMode,
-  resetRoom,
+  generalMode,
+  sasinMode,
+  resetRoom: resetRoom,
   getGameStatus,
   expelUserFromRoom,
 };

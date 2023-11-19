@@ -1,4 +1,6 @@
 // game.js
+const roomModule = require('./message');
+
 const charactor3 = require('./charactor3.json');
 const charactor4 = require('./charactor4.json');
 const charactor5 = require('./charactor5.json');
@@ -11,10 +13,7 @@ const charactor11 = require('./charactor11.json');
 const charactor12 = require('./charactor12.json');
 const characters = require('./charactor12.json');
 
-const index = require('./index');
-const message = require('./message');
-
-let room;
+//let room;
 let mapped_role;
 let originalCharactor;
 let originalCharactor3;
@@ -27,6 +26,8 @@ let originalCharactor5;
 // let originalCharactor10;
 // let originalCharactor11;
 let originalCharactor12;
+
+let sasinNoteInterval;
 
 //스킬 쿨다운 기준값
 //스킬 쿨다운 체크값
@@ -66,7 +67,7 @@ const underwear_Note_Cool = 200000;
 const gatheringInfo_Cool = 60000; //정보수집 스킬 쿨타임: 테스트 10초, 본게임 60초
 let gatheringInfo_Cool_start;
 
-const underwearNoteCool = 30000; //속옷노트 스킬 지속시간 60초
+const underwearNoteCool = 60000; //속옷노트 스킬 지속시간 60초
 let underwearNoteTimeout;
 
 const arrest_Misa_Cool = 60000; //연금 스킬: 테스트 10초, 본게임 60초
@@ -113,8 +114,8 @@ let worship_kira_Cool_start;
 let worship_kiraTimeout
 
 
-function startGame(roomData, sasin, callback_mapping) {
-  room = roomData;
+function startGame(roomData, mode, bot, callback_mapping) {
+  //room = roomData;
 
   //3인 테스트용 조건문
   if(roomData.length === 3){
@@ -492,8 +493,9 @@ function startGame(roomData, sasin, callback_mapping) {
       });
     }
   }
-  if(sasin === true){
-    setTimeout(sasin_start(bot), 300000); // 게임 시작 5분 후 사신 류크가 랜덤으로 한 명씩 노트에 적는다.
+
+  if(mode==='사신'){
+    sasin_start(bot);
   }
 }
 
@@ -524,43 +526,31 @@ function mapNameToJSON(roomData, charactor, callback){
 
 // 사신 활동 시작
 function sasin_start(bot){
-
   // 모든 플레이어에게 통합된 메시지 전송
-  for (const key_vf in mapped_role) {
-    const person = mapped_role[key_vf];
-    bot.sendMessage(person.id, `** 사신 류크가 따분해 합니다. **\n 1분 마다 무작위로 사신 노트에 이름이 적힙니다. \n`);
-  }
-  setInterval(sasinNote, 60000);
+  setTimeout(()=>{
+    for(const key in mapped_role){
+      bot.sendMessage(mapped_role[key].id, '**[속보] 사신 류크가 따분해 합니다.**\n사신노트에 의해 1분마다 플레이어 중 1명이 사망합니다.')
+    }
+    sasinNoteInterval = setInterval(() => sasinNote(bot), 6000);
+  }, 5000)
 } 
 
 // 사신노트 
 function sasinNote(bot){
-  for(const key in mapped_role){
-    if(mapped_role[key].alive == true){
-      const aliveCharacters = [];
-      aliveCharacters.push(key);
+  const aliveParticipants = Object.keys(mapped_role).filter(key => mapped_role[key].alive);
+  const deathreason = '류크의 따분함'
+  if (aliveParticipants.length > 0) {
+    const randomKey = aliveParticipants[Math.floor(Math.random() * aliveParticipants.length)];
+    mapped_role[randomKey].alive = false;
+    for (const key in mapped_role) {
+      bot.sendMessage(mapped_role[key].id, `**[속보] 사신 류크에 의해 ${mapped_role[randomKey].role}이(가) 사망했습니다.**`);
     }
+    deathMsg('6330829908', mapped_role[randomKey], deathreason, bot, function(callback){
+      if(callback===true){
+        bot.sendMessage('5771249800', '사신모드 게임이 종료되었습니다 초기화 부탁드립니다.')
+      }
+    });
   }
-  
-  // 류크의 선택
-  alive_len = aliveCharacters.length;
-  const sasinPick_num = Math.floor(Math.random() * alive_len);
-  const sasinPick = aliveCharacters[sasinPick_num];
-
-  message.deathMsgSasin(sasinPick, bot, function(callback){
-    if(callback===true){
-      const combinedMessage = Object.values(mapped_role)
-      .map(person => `${person.role}: ${person.name} - 사인: 류크`)
-      .join('\n');
-
-      // 모든 플레이어에게 통합된 메시지 전송
-      for (const key_vf in mapped_role) {
-        const person = mapped_role[key_vf];
-        bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-      } 
-      deathNotes(true);
-    }
-  });
 }
 
 //키라 체포, 캐릭터: 엘, 니아
@@ -1628,11 +1618,7 @@ function deathMsg(chatId, dead, deathreason, bot, callback){
   if(mapped_role.N.id === 6457738141){
     KiraWinPhoto = __dirname + '/img/NLose_6457738141.jpg'
     LLosePhoto = __dirname + '/img/NLose_6457738141.jpg'
-    if(mapped_role.kira.id === 6419631188){
-      KiraWinPhoto = __dirname + '/img/KiraWin_6419631188.jpg'
-    }
   }
-
 
   dead.alive = false; //사망처리
   dead.deathreason = deathreason;
@@ -2296,6 +2282,8 @@ function clearAllTimeout(bot){
   clearTimeout(check_LTimeout);
   clearTimeout(chase_JebanniTimeout);
   clearTimeout(worship_kiraTimeout);
+
+  clearInterval(sasinNoteInterval);
 }
 
 //(공용) 역할 전달
