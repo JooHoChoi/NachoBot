@@ -137,7 +137,7 @@ function generalMode(chatId, bot){
       bot.sendMessage(chatId, `이미 게임유형이 일반모드 입니다`);
     }
     else{
-      mode = '사신';
+      mode = '일반';
       bot.sendMessage(chatId, `게임 유형이 일반모드가 변경되었습니다. 현재 모드: 일반모드`);
     }
     

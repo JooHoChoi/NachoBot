@@ -531,7 +531,7 @@ function sasin_start(bot){
     for(const key in mapped_role){
       bot.sendMessage(mapped_role[key].id, '**[속보] 사신 류크가 따분해 합니다.**\n사신노트에 의해 1분마다 플레이어 중 1명이 사망합니다.')
     }
-    sasinNoteInterval = setInterval(() => sasinNote(bot), 6000);
+    sasinNoteInterval = setInterval(() => sasinNote(bot), 60000);
   }, 5000)
 } 
 
