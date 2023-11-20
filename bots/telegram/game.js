@@ -529,9 +529,9 @@ function sasin_start(bot){
   // 모든 플레이어에게 통합된 메시지 전송
   setTimeout(()=>{
     for(const key in mapped_role){
-      bot.sendMessage(mapped_role[key].id, '**[속보] 사신 류크가 따분해 합니다.**\n2분마다 류크가 장난을 시작합니다')
+      bot.sendMessage(mapped_role[key].id, '**[속보] 사신 류크가 따분해 합니다.**\n90초마다 류크가 장난질을 시작합니다')
     }
-    sasinNoteInterval = setInterval(() => sasinNote(bot), 120000);
+    sasinNoteInterval = setInterval(() => sasinNote(bot), 90000);
   }, 5000)
 } 
 
