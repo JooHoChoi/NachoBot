@@ -166,6 +166,7 @@ function sasinMode(chatId, bot){
 function resetRoom() {
   room = [];
   gameStarted = false;
+  mode='일반';
 }
 
 function expelUserFromRoom(chatId, name, bot) {
