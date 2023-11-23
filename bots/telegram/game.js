@@ -567,12 +567,12 @@ function sasinNote(bot){
     const randomKey3 = allParticipants[Math.floor(Math.random() * allParticipants.length)];
     if(mapped_role[randomKey3].alive === true){
       for (const key3 in mapped_role) {
-        bot.sendMessage(mapped_role[key3].id, `**[속보] 사신 류크가 공개한 ${mapped_role[randomKey3].role}은 생존 상태입니다.**`);
+        bot.sendMessage(mapped_role[key3].id, `**[속보] 사신 류크가 공개한 ${mapped_role[randomKey3].role}는(은) 생존 상태입니다.**`);
       }
     }
     else{
       for (const key3 in mapped_role) {
-        bot.sendMessage(mapped_role[key3].id, `**[속보] 사신 류크가 공개한 ${mapped_role[randomKey3].role}은 사망 상태입니다.**`);
+        bot.sendMessage(mapped_role[key3].id, `**[속보] 사신 류크가 공개한 ${mapped_role[randomKey3].role}는(은) 사망 상태입니다.**`);
       }
     }
   }
