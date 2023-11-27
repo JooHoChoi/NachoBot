@@ -120,27 +120,15 @@ function start() {
     });
 
     //DLC - 사신
-    bot.onText(/\/일반/, (msg) => {
+    bot.onText(/\/유형/, (msg) => {
       // 'msg' : 텔레그램으로 부터 수신한 메세지
       const chatId = msg.chat.id;
-      if(chatId === masterId){
-      //if(chatId === room.getRoom()[0].id || chatId === masterId){
-        room.generalMode(chatId, bot)
-      }
-      else{
-        bot.sendMessage(chatId, '일반모드 변경은 방장 또는 관리자만 사용할 수 있습니다.');
-      }
-    });
-
-    bot.onText(/\/사신/, (msg) => {
-      // 'msg' : 텔레그램으로 부터 수신한 메세지
-      const chatId = msg.chat.id;
-      if(chatId === masterId){
+      if(chatId === room.getRoom()[0].id || chatId === masterId){
       //if(chatId === room.getRoom()[0].id || chatId === masterId){  
         room.sasinMode(chatId, bot)
       }
       else{
-        bot.sendMessage(chatId, '사신모드 변경은 방장 또는 관리자만 사용할 수 있습니다.');
+        bot.sendMessage(chatId, '게임유형 변경은 방장 또는 관리자만 사용할 수 있습니다.');
       }
     });
 

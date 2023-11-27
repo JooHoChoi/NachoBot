@@ -539,42 +539,78 @@ function sasin_start(bot){
 function sasinNote(bot){
   const sasin_chance = Math.random();
   
-  if(sasin_chance>=0.75){
+  if(sasin_chance>=0.8){
     const aliveParticipants = Object.keys(mapped_role).filter(key => mapped_role[key].alive);
     const deathreason = '류크의 따분함'
     if (aliveParticipants.length > 0) {
       const randomKey = aliveParticipants[Math.floor(Math.random() * aliveParticipants.length)];
-      mapped_role[randomKey].alive = false;
-      for (const key in mapped_role) {
-        bot.sendMessage(mapped_role[key].id, `**[속보] 사신 류크에 의해 ${mapped_role[randomKey].role}이(가) 사망했습니다.**`);
-      }
-      deathMsg('6330829908', mapped_role[randomKey], deathreason, bot, function(callback){
-        if(callback===true){
-          bot.sendMessage('5771249800', '사신모드 게임이 종료되었습니다 초기화 부탁드립니다.')
+      if(mapped_role[randomKey].role === '키라')
+      {
+        for (const key in mapped_role) {
+          bot.sendMessage(mapped_role[key].id, `**[속보] 사신 류크가 ${mapped_role[randomKey].role}의 행보를 흥미로워합니다.**`)
         }
-      });
+      }
+      else if(mapped_role[randomKey].role === '엘' && mapped_role.N.alive === false){
+        for (const key in mapped_role) {
+          bot.sendMessage(mapped_role[key].id, `**[속보] 사신 류크가 엘과 키라의 승부를 흥미롭게 지켜보고 있습니다.**`)
+        }
+      }
+      else if(mapped_role[randomKey].role === '니아' && mapped_role.L.alive === false){
+        for (const key in mapped_role) {
+          bot.sendMessage(mapped_role[key].id, `**[속보] 사신 류크가 니아와 키라의 승부를 흥미롭게 지켜보고 있습니다.**`)
+        }
+      }
+      else{
+        mapped_role[randomKey].alive = false;
+        for (const key in mapped_role) {
+          bot.sendMessage(mapped_role[key].id, `**[속보] 사신 류크에 의해 ${mapped_role[randomKey].role}이(가) 사망했습니다.**`);
+        }
+        deathMsg('6330829908', mapped_role[randomKey], deathreason, bot, function(callback){
+          if(callback===true){
+            bot.sendMessage('5771249800', '사신모드 게임이 종료되었습니다 초기화 부탁드립니다.')
+          }
+        });
+      }
     }
   }
-  else if(sasin_chance<0.75 && sasin_chance>=0.45){
+  else if(sasin_chance<0.8 && sasin_chance>=0.4){
     const openParticipants = Object.keys(mapped_role);
     const randomKey2 = openParticipants[Math.floor(Math.random() * openParticipants.length)];
     for (const key2 in mapped_role) {
       bot.sendMessage(mapped_role[key2].id, `**[속보] 따분한 류크가 말하길 ${mapped_role[randomKey2].role}의 정체는 ${mapped_role[randomKey2].name} 입니다.**`);
     }
   }
-  else if(sasin_chance<0.45){
-    const allParticipants = Object.keys(mapped_role)
-    const randomKey3 = allParticipants[Math.floor(Math.random() * allParticipants.length)];
-    if(mapped_role[randomKey3].alive === true){
-      for (const key3 in mapped_role) {
-        bot.sendMessage(mapped_role[key3].id, `**[속보] 사신 류크가 공개한 ${mapped_role[randomKey3].role}는(은) 생존 상태입니다.**`);
-      }
+  else if(sasin_chance<0.4){
+    const openParticipants = Object.keys(mapped_role);
+    let randomKey2;
+    let randomRole;
+    let randomName;
+  
+    do {
+      randomKey2 = openParticipants[Math.floor(Math.random() * openParticipants.length)];
+      randomRole = mapped_role[randomKey2].role;
+      const names = Object.values(mapped_role).map(player => player.name);
+      randomName = names[Math.floor(Math.random() * names.length)];
+    } while (randomName === mapped_role[randomKey2].name);
+  
+    // 모든 참가자에게 role과 일치하지 않는 name을 전달
+    for (const key2 in mapped_role) {
+      bot.sendMessage(mapped_role[key2].id, `**[속보] 따분한 류크가 말하길 ${randomRole}의 정체는 ${randomName} 입니다.**`);
     }
-    else{
-      for (const key3 in mapped_role) {
-        bot.sendMessage(mapped_role[key3].id, `**[속보] 사신 류크가 공개한 ${mapped_role[randomKey3].role}는(은) 사망 상태입니다.**`);
-      }
-    }
+
+    // [랜덤으로 정체공개] - 크게 영향이 없어 삭제
+    // const allParticipants = Object.keys(mapped_role)
+    // const randomKey3 = allParticipants[Math.floor(Math.random() * allParticipants.length)];
+    // if(mapped_role[randomKey3].alive === true){
+    //   for (const key3 in mapped_role) {
+    //     bot.sendMessage(mapped_role[key3].id, `**[속보] 사신 류크가 공개한 ${mapped_role[randomKey3].role}는(은) 생존 상태입니다.**`);
+    //   }
+    // }
+    // else{
+    //   for (const key3 in mapped_role) {
+    //     bot.sendMessage(mapped_role[key3].id, `**[속보] 사신 류크가 공개한 ${mapped_role[randomKey3].role}는(은) 사망 상태입니다.**`);
+    //   }
+    // }
   }
 }
 
@@ -2258,6 +2294,7 @@ function worship_Kira(chatId, bot){
   if(mapped_role.Mikami.id === chatId){
     const chance_Mikami = Math.random();
     if(mapped_role.Mikami.alive === true && mapped_role.Mikami.skill2 === true){
+      bot.sendMessage(chatId, `[System] 키라를 숭배하며 계시를 기다리고 있습니다`);
       mapped_role.Mikami.skill2 = false;
       worship_kira_Cool_start = Date.now();
       

@@ -131,31 +131,21 @@ function changeMode(chatId, bot){
   }
   
 }
-function generalMode(chatId, bot){
-  if(gameStarted === false){
-    if(mode==='일반'){
-      bot.sendMessage(chatId, `이미 게임유형이 일반모드 입니다`);
-    }
-    else{
-      mode = '일반';
-      bot.sendMessage(chatId, `게임 유형이 일반모드가 변경되었습니다. 현재 모드: 일반모드`);
-    }
-    
-  }
-  else{
-    return '게임이 진행중입니다. 게임 명령어만 사용이 가능합니다.'
-  }
-}
 
 function sasinMode(chatId, bot){
   if(gameStarted === false){
-    if(mode==='사신'){
-      bot.sendMessage(chatId, `이미 게임유형이 사신모드 입니다`);
-    }
-    else{
-      mode = '사신';
-      bot.sendMessage(chatId, `게임 유형이 사신모드가 변경되었습니다. 현재 모드: 사신모드`);
-    }
+
+      mode = (mode === '일반') ? '사신' : '일반';
+      bot.sendMessage(chatId, `게임 유형이 ${mode} 유형으로 변경되었습니다.`);
+    
+
+    // if(mode==='사신'){
+    //   bot.sendMessage(chatId, `이미 게임유형이 사신모드 입니다`);
+    // }
+    // else{
+    //   mode = '사신';
+    //   bot.sendMessage(chatId, `게임 유형이 사신모드가 변경되었습니다. 현재 모드: 사신모드`);
+    // }
     
   }
   else{
@@ -194,7 +184,6 @@ module.exports = {
   startGame,
   getRoomStatus,
   changeMode,
-  generalMode,
   sasinMode,
   resetRoom: resetRoom,
   getGameStatus,
