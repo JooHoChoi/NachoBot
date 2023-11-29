@@ -745,6 +745,21 @@ function start() {
        }
     });
 
+    //타임아웃 초기화
+    bot.onText(/\/타임리셋/, (msg, match) => {
+      // 'msg' : 텔레그램으로 부터 수신한 메세지
+      // 'match' : 정규식을 실행한 결과
+       const chatId = msg.chat.id; 
+       if(chatId === masterId){
+         game.clearAllTimeout(bot);
+         const resp = `타임아웃 및 인터벌을 초기화 합니다`;
+         bot.sendMessage(chatId, resp);
+       }else{
+         const resp = `관리자만 사용할 수 있는 기능입니다`;
+         bot.sendMessage(chatId, resp)
+       }
+    });
+
     bot.onText(/\/사진/, (msg, match) => {
       const chatId = msg.chat.id;
       console.log(__dirname)

@@ -157,7 +157,6 @@ function resetRoom() {
   room = [];
   gameStarted = false;
   mode='일반';
-  game.clearAllTimeout('');
 }
 
 function expelUserFromRoom(chatId, name, bot) {

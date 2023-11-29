@@ -1069,6 +1069,7 @@ function pieceNote(chatId, role, capturedPerson, deathreason, bot, pieceNote){
                 console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
                   deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
                     if(callback===true){
+                      winMelo(bot);
                       pieceNote(true);
                     }
                   });
@@ -1575,6 +1576,7 @@ function deathNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
                   console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
                     deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
                       if(callback===true){
+                        winKiraTeam(bot);
                         deathNotes(true);
                       }
                   });
@@ -1630,6 +1632,7 @@ function watchNote(chatId, role, capturedPerson, deathreason, bot, watchNote){
                 console.log(mapped_role[key].role + ' & ' + mapped_role[key].alive )
                 deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
                   if(callback===true){
+                    winKiraTeam(bot);
                     watchNote(true);
                   }
                 });
@@ -1659,28 +1662,6 @@ function watchNote(chatId, role, capturedPerson, deathreason, bot, watchNote){
 
 //데스노트로 인한 결과처리
 function deathMsg(chatId, dead, deathreason, bot, callback){
-  let KiraWinPhoto = __dirname + '/img/KiraWin.jpg'
-  let LLosePhoto = __dirname + '/img/LLose.jpg'
-  let LwinPhoto = __dirname + '/img/LWin_renewal.jpg'
-  let KiraLosePhoto = __dirname + '/img/KiraLose.jpg'
-
-  //이벤트 스킨 적용
-  //이벤트 적용 ~23.10.27
-  // if(mapped_role.Kira.id === 6419631188){
-  //   KiraWinPhoto = __dirname + '/img/KiraWin_peach.jpg'
-  //   LLosePhoto = __dirname + '/img/KiraWin_peach.jpg'
-  // }
-  // else if(mapped_role.Kira.id === 6125062530){
-  //   KiraWinPhoto = __dirname + '/img/KiraWin_6125062530.jpg'
-  //   LLosePhoto = __dirname + '/img/KiraWin_6125062530.jpg'
-  // }
-
-  //이벤트 적용 ~23.11.30(예정)
-  if(mapped_role.N.id === 6457738141){
-    KiraWinPhoto = __dirname + '/img/NLose_6457738141.jpg'
-    LLosePhoto = __dirname + '/img/NLose_6457738141.jpg'
-  }
-
   dead.alive = false; //사망처리
   dead.deathreason = deathreason;
   bot.sendMessage(chatId, '[System] 데스노트로 인해 ' + dead.role + '(이)가 사망했습니다.\n※사인: '+deathreason)
@@ -1688,66 +1669,6 @@ function deathMsg(chatId, dead, deathreason, bot, callback){
   
   if(dead.role === '엘'){
     if(mapped_role.N.alive === false){ //니아가 죽어있는 상태면 게임 종료
-      clearAllTimeout(bot);
-      const combinedMessage = Object.values(mapped_role)
-      .map(person => {
-        let message;
-        if (person.deathreason === '생존') {
-          message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
-        }
-        else if(person.deathreason === '체포'){
-          message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
-        } 
-        else {
-          message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
-        }
-        return message;
-      })
-      .join('\n');
-
-      // 모든 플레이어에게 통합된 메시지 전송
-      for (const key_vf in mapped_role) {
-        const person = mapped_role[key_vf];
-        bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-      }
-
-      for(const key in mapped_role){
-        const participant = mapped_role[key];
-        const message = `
-        **L과N 전원 사망했습니다. 키라의 승리입니다 -게임 종료-**`;
-
-        if(participant.team === 'L'){
-          if(participant.mode === '이미지'){
-            bot.sendPhoto(participant.id, LLosePhoto, { caption: message })
-            .then(() => {
-              //console.log('사진 전송 완료');
-            })
-            .catch((error) => {
-              //console.error('사진 전송 실패:', error);
-              bot.sendMessage(participant.id, message)
-            });
-          }
-          else if(participant.mode === '텍스트'){
-            bot.sendMessage(participant.id, message);
-          }
-          
-        }
-        else if(participant.team === 'Kira'){
-          if(participant.mode === '이미지'){
-            bot.sendPhoto(participant.id, KiraWinPhoto, { caption: message })
-            .then(() => {
-              //console.log('사진 전송 완료');
-            })
-            .catch((error) => {
-              //console.error('사진 전송 실패:', error);
-              bot.sendMessage(participant.id, message)
-            });
-          }
-          else if(participant.mode === '텍스트'){
-            bot.sendMessage(participant.id, message)
-          }
-        }
-      }
       callback(true);
     }
     else{ //니아가 살아있는 상태라면
@@ -1765,133 +1686,15 @@ function deathMsg(chatId, dead, deathreason, bot, callback){
       callback(false);
     }
   }
-  if(dead.role === '니아' && mapped_role.L.alive === false){
-    clearAllTimeout(bot);
-    const combinedMessage = Object.values(mapped_role)
-    .map(person => {
-      let message;
-      if (person.deathreason === '생존') {
-        message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
-      }
-      else if(person.deathreason === '체포'){
-        message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
-      } 
-      else {
-        message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
-      }
-      return message;
-    })
-    .join('\n');
-
-    // 모든 플레이어에게 통합된 메시지 전송
-    for (const key_vf in mapped_role) {
-      const person = mapped_role[key_vf];
-      bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-    }
-    
-    for(const key in mapped_role){
-      const participant = mapped_role[key];
-      const message = `
-      **L과N 전원 사망했습니다. 키라의 승리입니다 -게임 종료-**`;
-      
-      if(participant.team === 'L'){
-        if(participant.mode === '이미지'){
-          bot.sendPhoto(participant.id, LLosePhoto, { caption: message })
-          .then(() => {
-            //console.log('사진 전송 완료');
-          })
-          .catch((error) => {
-            //console.error('사진 전송 실패:', error);
-            bot.sendMessage(participant.id, message)
-          });
-        }
-        else if(participant.mode ==='텍스트'){
-          bot.sendMessage(participant.id, message)
-        }
-        
-      }
-      else if(participant.team === 'Kira'){
-        if(participant.mode === '이미지'){
-          bot.sendPhoto(participant.id, KiraWinPhoto, { caption: message })
-          .then(() => {
-            //console.log('사진 전송 완료');
-          })
-          .catch((error) => {
-            //console.error('사진 전송 실패:', error);
-            bot.sendMessage(participant.id, message)
-          });
-        }
-        else if(participant.mode === '텍스트'){
-          bot.sendMessage(participant.id, message)
-        }
-        
-      }
-    }
+  else if(dead.role === '니아' && mapped_role.L.alive === false){
     callback(true);
   }
 
-  if(dead.role === '키라'){
-    LwinPhoto = __dirname + '/img/Mwin.jpg'
-    clearAllTimeout(bot);
-    const combinedMessage = Object.values(mapped_role)
-    .map(person => {
-      let message;
-      if (person.deathreason === '생존') {
-        message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
-      }
-      else if(person.deathreason === '체포'){
-        message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
-      } 
-      else {
-        message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
-      }
-      return message;
-    })
-    .join('\n');
-
-    // 모든 플레이어에게 통합된 메시지 전송
-    for (const key_vf in mapped_role) {
-      const person = mapped_role[key_vf];
-      bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-    }
-
-    for(const key in mapped_role){
-      const participant = mapped_role[key];
-      const message = `
-      **키라가 사망했습니다. L측의 승리입니다 -게임 종료-**`;
-      if(mapped_role[key].team === 'L'){
-        if(participant.mode === '이미지'){
-          bot.sendPhoto(participant.id, LwinPhoto, { caption: message })
-          .then(() => {
-            //console.log('사진 전송 완료');
-          })
-          .catch((error) => {
-            //console.error('사진 전송 실패:', error);
-            bot.sendMessage(participant.id, message)
-          });
-        }
-        else if(participant.mode === '텍스트'){
-          bot.sendMessage(participant.id, message)
-        }
-        
-      }
-      else if(mapped_role[key].team === 'Kira'){
-        if(participant.mode === '이미지'){
-          bot.sendPhoto(participant.id, KiraLosePhoto, { caption: message })
-          .then(() => {
-            //console.log('사진 전송 완료');
-          })
-          .catch((error) => {
-            //console.error('사진 전송 실패:', error);
-            bot.sendMessage(participant.id, message)
-          });
-        }
-        else if(participant.mode === '텍스트'){
-          bot.sendMessage(participant.id, message)
-        }
-      }
-    }
+  else if(dead.role === '키라'){
     callback(true);
+  }
+  else{
+    callback(false);
   }
 }
 
@@ -2082,6 +1885,7 @@ function remNote(chatId, role, capturedPerson, deathreason, bot, deathNotes){
                   bot.sendMessage(chatId, '[System] 남은포인트: ' + mapped_role.Misa.lifepoint);
                   deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
                     if(callback===true){
+                      winKiraTeam(bot);
                       deathNotes(true);
                     }
                   });
@@ -2240,6 +2044,7 @@ function desinNote(chatId, role, capturedPerson, deathreason, bot, desinNotes){
                     bot.sendMessage(chatId, '[System] 남은 노트횟수:' + mapped_role.Mikami.skill1_num+'회');
                     deathMsg(chatId, mapped_role[key], deathreason, bot, function(callback){
                       if(callback===true){
+                        winKiraTeam(bot);
                         desinNotes(true);
                       }
                     });
@@ -2429,7 +2234,153 @@ function winLTeam(bot){
   }
 }
 
+function winKiraTeam(bot){
+  let KiraWinPhoto = __dirname + '/img/KiraWin.jpg'
+  let LLosePhoto = __dirname + '/img/LLose.jpg'
+  let LwinPhoto = __dirname + '/img/LWin_renewal.jpg'
+  let KiraLosePhoto = __dirname + '/img/KiraLose.jpg'
 
+  //이벤트 스킨 적용
+  //이벤트 적용 ~23.10.27
+  // if(mapped_role.Kira.id === 6419631188){
+  //   KiraWinPhoto = __dirname + '/img/KiraWin_peach.jpg'
+  //   LLosePhoto = __dirname + '/img/KiraWin_peach.jpg'
+  // }
+  // else if(mapped_role.Kira.id === 6125062530){
+  //   KiraWinPhoto = __dirname + '/img/KiraWin_6125062530.jpg'
+  //   LLosePhoto = __dirname + '/img/KiraWin_6125062530.jpg'
+  // }
+
+  //이벤트 적용 ~23.11.30(예정)
+  if(mapped_role.N.id === 6457738141){
+    KiraWinPhoto = __dirname + '/img/NLose_6457738141.jpg'
+    LLosePhoto = __dirname + '/img/NLose_6457738141.jpg'
+  }
+  
+  clearAllTimeout(bot);
+  const combinedMessage = Object.values(mapped_role)
+  .map(person => {
+    let message;
+    if (person.deathreason === '생존') {
+      message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+    }
+    else if(person.deathreason === '체포'){
+      message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+    } 
+    else {
+      message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
+    }
+    return message;
+  })
+  .join('\n');
+
+  // 모든 플레이어에게 통합된 메시지 전송
+  for (const key_vf in mapped_role) {
+    const person = mapped_role[key_vf];
+    bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+  }
+
+  for(const key in mapped_role){
+    const participant = mapped_role[key];
+    const message = `
+    **L과N 전원 사망했습니다. 키라의 승리입니다 -게임 종료-**`;
+
+    if(participant.team === 'L'){
+      if(participant.mode === '이미지'){
+        bot.sendPhoto(participant.id, LLosePhoto, { caption: message })
+        .then(() => {
+          //console.log('사진 전송 완료');
+        })
+        .catch((error) => {
+          //console.error('사진 전송 실패:', error);
+          bot.sendMessage(participant.id, message)
+        });
+      }
+      else if(participant.mode === '텍스트'){
+        bot.sendMessage(participant.id, message);
+      }
+      
+    }
+    else if(participant.team === 'Kira'){
+      if(participant.mode === '이미지'){
+        bot.sendPhoto(participant.id, KiraWinPhoto, { caption: message })
+        .then(() => {
+          //console.log('사진 전송 완료');
+        })
+        .catch((error) => {
+          //console.error('사진 전송 실패:', error);
+          bot.sendMessage(participant.id, message)
+        });
+      }
+      else if(participant.mode === '텍스트'){
+        bot.sendMessage(participant.id, message)
+      }
+    }
+  }
+}
+
+function winMelo(bot){
+  LwinPhoto = __dirname + '/img/Mwin.jpg'
+  clearAllTimeout(bot);
+  const combinedMessage = Object.values(mapped_role)
+  .map(person => {
+    let message;
+    if (person.deathreason === '생존') {
+      message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+    }
+    else if(person.deathreason === '체포'){
+      message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+    } 
+    else {
+      message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
+    }
+    return message;
+  })
+  .join('\n');
+
+  // 모든 플레이어에게 통합된 메시지 전송
+  for (const key_vf in mapped_role) {
+    const person = mapped_role[key_vf];
+    bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+  }
+
+  for(const key in mapped_role){
+    const participant = mapped_role[key];
+    const message = `
+    **키라가 사망했습니다. L측의 승리입니다 -게임 종료-**`;
+    if(mapped_role[key].team === 'L'){
+      if(participant.mode === '이미지'){
+        bot.sendPhoto(participant.id, LwinPhoto, { caption: message })
+        .then(() => {
+          //console.log('사진 전송 완료');
+        })
+        .catch((error) => {
+          //console.error('사진 전송 실패:', error);
+          bot.sendMessage(participant.id, message)
+        });
+      }
+      else if(participant.mode === '텍스트'){
+        bot.sendMessage(participant.id, message)
+      }
+      
+    }
+    else if(mapped_role[key].team === 'Kira'){
+      if(participant.mode === '이미지'){
+        bot.sendPhoto(participant.id, KiraLosePhoto, { caption: message })
+        .then(() => {
+          //console.log('사진 전송 완료');
+        })
+        .catch((error) => {
+          //console.error('사진 전송 실패:', error);
+          bot.sendMessage(participant.id, message)
+        });
+      }
+      else if(participant.mode === '텍스트'){
+        bot.sendMessage(participant.id, message)
+      }
+    }
+  }
+}
 //(공용) 귓날리기 횟수 검증
 function whisper(chatId, receiver, whisper_msg, bot){
   let foundMatch = false;
@@ -2590,6 +2541,8 @@ module.exports = {
   startGame,
   arrest_Kira,
   winLTeam,
+  winKiraTeam,
+  winMelo,
   broadcast,
   wiretapping,
   watching_Kiyomi,
@@ -2621,5 +2574,6 @@ module.exports = {
   note,
   note_result,
   sasin_start,
-  sasinNote
+  sasinNote,
+  clearAllTimeout
 };
