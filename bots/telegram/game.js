@@ -2273,47 +2273,93 @@ function winKiraTeam(bot){
     return message;
   })
   .join('\n');
-
-  // 모든 플레이어에게 통합된 메시지 전송
-  for (const key_vf in mapped_role) {
-    const person = mapped_role[key_vf];
-    bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-  }
-
-  for(const key in mapped_role){
-    const participant = mapped_role[key];
-    const message = `
-    **L과N 전원 사망했습니다. 키라의 승리입니다 -게임 종료-**`;
-
-    if(participant.team === 'L'){
-      if(participant.mode === '이미지'){
-        bot.sendPhoto(participant.id, LLosePhoto, { caption: message })
-        .then(() => {
-          //console.log('사진 전송 완료');
-        })
-        .catch((error) => {
-          //console.error('사진 전송 실패:', error);
-          bot.sendMessage(participant.id, message)
-        });
-      }
-      else if(participant.mode === '텍스트'){
-        bot.sendMessage(participant.id, message);
-      }
-      
+  
+  if(mapped_role.Kira.alive === false){
+    // 모든 플레이어에게 통합된 메시지 전송
+    for (const key_vf in mapped_role) {
+      const person = mapped_role[key_vf];
+      bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
     }
-    else if(participant.team === 'Kira'){
-      if(participant.mode === '이미지'){
-        bot.sendPhoto(participant.id, KiraWinPhoto, { caption: message })
-        .then(() => {
-          //console.log('사진 전송 완료');
-        })
-        .catch((error) => {
-          //console.error('사진 전송 실패:', error);
+
+    for(const key in mapped_role){
+      const participant = mapped_role[key];
+      const message = `
+      **키라가 사망했습니다. L측의 승리입니다 -게임 종료-**`;
+      if(mapped_role[key].team === 'L'){
+        if(participant.mode === '이미지'){
+          bot.sendPhoto(participant.id, LwinPhoto, { caption: message })
+          .then(() => {
+            //console.log('사진 전송 완료');
+          })
+          .catch((error) => {
+            //console.error('사진 전송 실패:', error);
+            bot.sendMessage(participant.id, message)
+          });
+        }
+        else if(participant.mode === '텍스트'){
           bot.sendMessage(participant.id, message)
-        });
+        }
+        
       }
-      else if(participant.mode === '텍스트'){
-        bot.sendMessage(participant.id, message)
+      else if(mapped_role[key].team === 'Kira'){
+        if(participant.mode === '이미지'){
+          bot.sendPhoto(participant.id, KiraLosePhoto, { caption: message })
+          .then(() => {
+            //console.log('사진 전송 완료');
+          })
+          .catch((error) => {
+            //console.error('사진 전송 실패:', error);
+            bot.sendMessage(participant.id, message)
+          });
+        }
+        else if(participant.mode === '텍스트'){
+          bot.sendMessage(participant.id, message)
+        }
+      }
+    }          
+  }
+  else{
+    // 모든 플레이어에게 통합된 메시지 전송
+    for (const key_vf in mapped_role) {
+      const person = mapped_role[key_vf];
+      bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
+    }
+
+    for(const key in mapped_role){
+      const participant = mapped_role[key];
+      const message = `
+      **L과N 전원 사망했습니다. 키라의 승리입니다 -게임 종료-**`;
+
+      if(participant.team === 'L'){
+        if(participant.mode === '이미지'){
+          bot.sendPhoto(participant.id, LLosePhoto, { caption: message })
+          .then(() => {
+            //console.log('사진 전송 완료');
+          })
+          .catch((error) => {
+            //console.error('사진 전송 실패:', error);
+            bot.sendMessage(participant.id, message)
+          });
+        }
+        else if(participant.mode === '텍스트'){
+          bot.sendMessage(participant.id, message);
+        }
+        
+      }
+      else if(participant.team === 'Kira'){
+        if(participant.mode === '이미지'){
+          bot.sendPhoto(participant.id, KiraWinPhoto, { caption: message })
+          .then(() => {
+            //console.log('사진 전송 완료');
+          })
+          .catch((error) => {
+            //console.error('사진 전송 실패:', error);
+            bot.sendMessage(participant.id, message)
+          });
+        }
+        else if(participant.mode === '텍스트'){
+          bot.sendMessage(participant.id, message)
+        }
       }
     }
   }
@@ -2321,6 +2367,8 @@ function winKiraTeam(bot){
 
 function winMelo(bot){
   LwinPhoto = __dirname + '/img/Mwin.jpg'
+  let KiraLosePhoto = __dirname + '/img/KiraLose.jpg'
+  
   clearAllTimeout(bot);
   const combinedMessage = Object.values(mapped_role)
   .map(person => {
