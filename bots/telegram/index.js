@@ -52,6 +52,7 @@ function start() {
     const keyboard = {
       keyboard: [
         [{ text: '/참가' }, { text: '/나가기' }],
+        [{ text: '/유형' }, { text: '/모드' }],
         [{ text: '/현황' }, { text: '/시작' }]
       ],
       resize_keyboard: true,
@@ -116,7 +117,7 @@ function start() {
       // 'msg' : 텔레그램으로 부터 수신한 메세지
       const chatId = msg.chat.id;
       
-      room.changeMode(chatId, bot)
+      room.changeTextMode(chatId, bot)
     });
 
     //DLC - 사신
@@ -125,7 +126,7 @@ function start() {
       const chatId = msg.chat.id;
       if(chatId === room.getRoom()[0].id || chatId === masterId){
       //if(chatId === room.getRoom()[0].id || chatId === masterId){  
-        room.sasinMode(chatId, bot)
+        room.changeGameMode(chatId, bot)
       }
       else{
         bot.sendMessage(chatId, '게임유형 변경은 방장 또는 관리자만 사용할 수 있습니다.');

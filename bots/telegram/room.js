@@ -39,50 +39,90 @@ function startGame(bot) {
   if(gameStarted===false){
     gameStarted = true;
     game.startGame(room, mode, bot, function(callback_mapping){
-      const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
-      const startMsg = `
-      **데스노트 게임을 시작합니다!!**
-[게임 유형]
-${mode} 모드
-
-[참여 플레이어의 이름]
-${roomPart}
-
-[게임 역할${roomPart.length}인]
-${participantRole}`;
-        for(const key in callback_mapping){
-          const participant = callback_mapping[key];
-          const roleImg = __dirname + participant.img
-          const roleMsg = `당신의 역할은 ${participant.role} 입니다.\n
-[**보유 스킬**]
-${participant.explain}`;
-          if(participant.mode==='이미지'){
-            bot.sendPhoto(participant.id, startPhoto, { caption: startMsg })
-            .then(() => {
-              //console.log('사진 전송 완료');
-            })
-            .catch((error) => {
-              console.error('사진 전송 실패:', error);
-              bot.sendMessage(participant.id, startMsg)
-            });
-            setTimeout(()=>{
-              bot.sendPhoto(participant.id, roleImg, { caption: roleMsg })
+      //일반 또는 사신모드
+      if(mode=='일반' || mode=='사신'){
+        const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
+        const startMsg = `
+        **데스노트 게임을 시작합니다!!**
+  [게임 유형]
+  ${mode} 모드
+  
+  [참여 플레이어의 이름]
+  ${roomPart}
+  
+  [게임 역할${roomPart.length}인]
+  ${participantRole}`;
+          for(const key in callback_mapping){
+            const participant = callback_mapping[key];
+            const roleImg = __dirname + participant.img
+            const roleMsg = `당신의 역할은 ${participant.role} 입니다.\n
+  [**보유 스킬**]
+  ${participant.explain}`;
+            if(participant.mode==='이미지'){
+              bot.sendPhoto(participant.id, startPhoto, { caption: startMsg })
               .then(() => {
                 //console.log('사진 전송 완료');
               })
               .catch((error) => {
                 console.error('사진 전송 실패:', error);
-                bot.sendMessage(participant.id, roleMsg)
+                bot.sendMessage(participant.id, startMsg)
               });
-            }, 2000)
+              setTimeout(()=>{
+                bot.sendPhoto(participant.id, roleImg, { caption: roleMsg })
+                .then(() => {
+                  //console.log('사진 전송 완료');
+                })
+                .catch((error) => {
+                  console.error('사진 전송 실패:', error);
+                  bot.sendMessage(participant.id, roleMsg)
+                });
+              }, 2000)
+            }
+            else if(participant.mode==='텍스트'){
+              bot.sendMessage(participant.id, startMsg)
+              setTimeout(()=>{
+                bot.sendMessage(participant.id, roleMsg)
+              }, 2000)
+            }
           }
-          else if(participant.mode==='텍스트'){
-            bot.sendMessage(participant.id, startMsg)
-            setTimeout(()=>{
-              bot.sendMessage(participant.id, roleMsg)
-            }, 2000)
+      }
+      //바보 모드
+      else{
+        //const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
+        const startMsg = `
+        **데스노트 게임을 시작합니다!!**
+  [게임 유형]
+  ${mode} 모드
+  
+  [참여 플레이어의 이름]
+  ${roomPart}
+  
+  [게임 역할${roomPart.length}인]
+  바보모드에서는 공개되지 않습니다`;
+          for(const key in callback_mapping){
+            const participant = callback_mapping[key];
+            const roleMsg = `바보모드에서는 당신의 역할을 알려주지 않습니다`;
+            if(participant.mode==='이미지'){
+              bot.sendPhoto(participant.id, startPhoto, { caption: startMsg })
+              .then(() => {
+                //console.log('사진 전송 완료');
+              })
+              .catch((error) => {
+                console.error('사진 전송 실패:', error);
+                bot.sendMessage(participant.id, startMsg)
+              });
+              setTimeout(()=>{
+                bot.sendMessage(participant.id, roleMsg)
+              }, 2000)
+            }
+            else if(participant.mode==='텍스트'){
+              bot.sendMessage(participant.id, startMsg)
+              setTimeout(()=>{
+                bot.sendMessage(participant.id, roleMsg)
+              }, 2000)
+            }
           }
-        }
+      }
     });  
   }
   else{
@@ -101,6 +141,9 @@ function getRoomStatus() {
     if(mode=='사신'){
       return `게임 유형: 사신\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
     }
+    else if(mode=='바보'){
+      return `게임 유형: 바보\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
+    }
     else{
       return `게임 유형: 일반\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
     }
@@ -115,7 +158,7 @@ function getGameStatus(){
   return gameStarted;
 }
 
-function changeMode(chatId, bot){
+function changeTextMode(chatId, bot){
   if(gameStarted === false){
     const user = room.find(user => user.id === chatId);
 
@@ -132,21 +175,20 @@ function changeMode(chatId, bot){
   
 }
 
-function sasinMode(chatId, bot){
+function changeGameMode(chatId, bot){
   if(gameStarted === false){
-
-      mode = (mode === '일반') ? '사신' : '일반';
-      bot.sendMessage(chatId, `게임 유형이 ${mode} 유형으로 변경되었습니다.`);
-    
-
-    // if(mode==='사신'){
-    //   bot.sendMessage(chatId, `이미 게임유형이 사신모드 입니다`);
-    // }
-    // else{
-    //   mode = '사신';
-    //   bot.sendMessage(chatId, `게임 유형이 사신모드가 변경되었습니다. 현재 모드: 사신모드`);
-    // }
-    
+    if(mode === '일반'){
+      mode = '사신';
+      bot.sendMessage(chatId, `게임 유형이 사신 유형으로 변경되었습니다.`);
+    }
+    else if(mode === '사신'){
+      mode = '바보';
+      bot.sendMessage(chatId, `게임 유형이 바보 유형으로 변경되었습니다.`);
+    }
+    else {
+      mode = '일반';
+      bot.sendMessage(chatId, `게임 유형이 일반 유형으로 변경되었습니다.`);
+    }
   }
   else{
     return '게임이 진행중입니다. 게임 명령어만 사용이 가능합니다.'
@@ -182,8 +224,8 @@ module.exports = {
   removeUserFromRoom,
   startGame,
   getRoomStatus,
-  changeMode,
-  sasinMode,
+  changeGameMode,
+  changeTextMode,
   resetRoom: resetRoom,
   getGameStatus,
   expelUserFromRoom,
