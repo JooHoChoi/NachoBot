@@ -174,7 +174,7 @@ function start() {
     //게임 명령어
 
     //귓 [상대] [메세지]
-    bot.onText(/\/귓 (.+)/, (msg, match) => {
+    bot.onText(/^\/귓 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const input = match[1];
       const values = input.split(' ');
@@ -194,7 +194,7 @@ function start() {
     });
 
     //쪽지 [상대] [메세지]
-    bot.onText(/\/쪽지 (.+)/, (msg, match) => {
+    bot.onText(/^\/쪽지 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const input = match[1];
       const values = input.split(' ');
@@ -228,7 +228,7 @@ function start() {
     // });
 
     //키라 체포 - 엘, 니아
-    bot.onText(/\/체포 (.+)/, (msg, match) => {
+    bot.onText(/^\/체포 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const capturedPerson = match[1];
       if(room.getGameStatus() === false){
@@ -244,7 +244,7 @@ function start() {
     });
 
     //방송 - 엘, 니아, 키요미(2회)
-    bot.onText(/\/방송 (.+)/, (msg, match) => {
+    bot.onText(/^\/방송 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const broadMsg = `[L방송] : ` + match[1];
       if(room.getGameStatus() === false){
@@ -256,7 +256,7 @@ function start() {
     });
 
     //도청 - 엘
-    bot.onText(/\/도청 (.+)/, (msg, match) => {
+    bot.onText(/^\/도청 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const target = match[1];
       if(room.getGameStatus() === false){
@@ -268,7 +268,7 @@ function start() {
     });    
 
     //키요미 감시 - 니아
-    bot.onText(/\/감시 (.+)/, (msg, match) => {
+    bot.onText(/^\/감시 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const role = '키요미'
       const watchingPerson = match[1];
@@ -282,7 +282,7 @@ function start() {
     });
     
     //키요미 납치 - 멜로
-    bot.onText(/\/납치 (.+)/, (msg, match) => {
+    bot.onText(/^\/납치 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const role = '키요미'
       const kidnapPerson = match[1];
@@ -297,7 +297,7 @@ function start() {
     });
 
     //노트조각 + 역할 - 멜로
-    bot.onText(/\/노트조각 (.+)/, (msg, match) => {
+    bot.onText(/^\/노트조각 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const input = match[1];
       const values = input.split(' ');
@@ -343,7 +343,7 @@ function start() {
     });
 
     //집사 - 와타리
-    bot.onText(/\/집사/, (msg) => {
+    bot.onText(/^\/집사/, (msg) => {
       const chatId = msg.chat.id;
 
       if(room.getGameStatus() === false){
@@ -356,7 +356,7 @@ function start() {
     });
 
     //와미즈하우스 - 와타리
-    bot.onText(/\/와미즈하우스 (.+)/, (msg, match) => {
+    bot.onText(/^\/와미즈하우스 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const NiaMelo = match[1];
 
@@ -370,7 +370,7 @@ function start() {
     });
 
     //미사 연금 - 할리드너
-    bot.onText(/\/연금 (.+)/, (msg, match) => {
+    bot.onText(/^\/연금 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const role = '미사'
       const arrestPerson = match[1];
@@ -384,7 +384,7 @@ function start() {
     });
 
     //수사관 + 이름 - 할리드너
-    bot.onText(/\/수사관 (.+)/, (msg, match) => {
+    bot.onText(/^\/수사관 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const detectivePerson = match[1];
 
@@ -397,7 +397,7 @@ function start() {
     });
 
     //미행 + 이름 - 모기
-    bot.onText(/\/미행 (.+)/, (msg, match) => {
+    bot.onText(/^\/미행 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const followPerson = match[1];
 
@@ -410,7 +410,7 @@ function start() {
     });
 
     //엘확인 - 모기
-    bot.onText(/\/엘확인/, (msg) => {
+    bot.onText(/^\/엘확인/, (msg) => {
       const chatId = msg.chat.id;
 
       if(room.getGameStatus() === false){
@@ -422,7 +422,7 @@ function start() {
     });
 
     //바보 - 마츠다
-    bot.onText(/\/바보 (.+)/, (msg, match) => {
+    bot.onText(/^\/바보 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const checkPerson = match[1];
 
@@ -435,7 +435,7 @@ function start() {
     });    
 
     //바꿔치기 + 이름 - 제반니
-    bot.onText(/\/바꿔치기 (.+)/, (msg, match) => {
+    bot.onText(/^\/바꿔치기 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const role = '미카미'
       const changeNote = match[1];
@@ -449,7 +449,7 @@ function start() {
     });
 
     //추적 + 이름 - 제반니
-    bot.onText(/\/추적 (.+)/, (msg, match) => {
+    bot.onText(/^\/추적 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const chasePerson = match[1];
 
@@ -462,7 +462,7 @@ function start() {
     });
     
     //데스노트 + 역할 + 이름 - 라이토
-    bot.onText(/\/데스노트 (.+)/, (msg, match) => {
+    bot.onText(/^\/데스노트 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const input = match[1];
       const values = input.split(' ');
@@ -507,7 +507,7 @@ function start() {
     });
 
     //시계노트 + 역할 + 이름 - 라이토
-    bot.onText(/\/시계노트 (.+)/, (msg, match) => {
+    bot.onText(/^\/시계노트 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const input = match[1];
       const values = input.split(' ');
@@ -552,7 +552,7 @@ function start() {
     });
 
     //연모 - 미사
-    bot.onText(/\/연모/, (msg) => {
+    bot.onText(/^\/연모/, (msg) => {
       const chatId = msg.chat.id;
 
       if(room.getGameStatus() === false){
@@ -565,7 +565,7 @@ function start() {
     });
 
     //사신의눈 - 미사
-    bot.onText(/\/사신의눈 (.+)/, (msg, match) => {
+    bot.onText(/^\/사신의눈 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const envoyEye = match[1];
 
@@ -578,7 +578,7 @@ function start() {
       }
     });
 
-    bot.onText(/\/렘의노트 (.+)/, (msg, match) => {
+    bot.onText(/^\/렘의노트 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const input = match[1];
       const values = input.split(' ');
@@ -623,7 +623,7 @@ function start() {
     });
 
     //정보수집 - 키요미
-    bot.onText(/\/정보수집 (.+)/, (msg, match) => {
+    bot.onText(/^\/정보수집 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const input = match[1];
       const values = input.split(' ');
@@ -643,7 +643,7 @@ function start() {
     });
 
     //속옷노트 - 키요미
-    bot.onText(/\/속옷노트/, (msg) => {
+    bot.onText(/^\/속옷노트/, (msg) => {
       const chatId = msg.chat.id;
 
       if(room.getGameStatus() === false){
@@ -656,7 +656,7 @@ function start() {
     });
 
     //대신노트 + 역할 + 이름 - 미카미
-    bot.onText(/\/대신노트 (.+)/, (msg, match) => {
+    bot.onText(/^\/대신노트 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const input = match[1];
       const values = input.split(' ');
@@ -701,7 +701,7 @@ function start() {
     });    
 
     //키라숭배 - 미카미
-    bot.onText(/\/키라숭배/, (msg) => {
+    bot.onText(/^\/키라숭배/, (msg) => {
       const chatId = msg.chat.id;
 
       if(room.getGameStatus() === false){
