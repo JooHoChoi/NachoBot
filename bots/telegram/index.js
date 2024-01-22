@@ -170,6 +170,40 @@ function start() {
       
     });
 
+    //참가모드현황
+    bot.onText(/\/참모현/, (msg, match) => {
+      // 'msg' : 텔레그램으로 부터 수신한 메세지
+      // 'match' : 정규식을 실행한 결과
+      const chatId = msg.chat.id;
+      const name = msg.from.first_name;
+      if (room.getGameStatus() === true){
+        bot.sendMessage(chatId, '이미 게임이 진행중입니다.');
+        return;
+      }
+      if (room.isRoomFull()) {
+        bot.sendMessage(chatId, '이미 최대 참여자 수에 도달했습니다.');
+        return;
+      }
+    
+      if (room.isUserAlreadyInRoom(chatId)) {
+        bot.sendMessage(chatId, '이미 참여하셨습니다.');
+        return;
+      }
+    
+      room.addUserInfoToRoom(chatId, name, bot); // 사용자 정보를 room 배열에 추가하는 함수 호출
+    
+      const response = `안녕하세요, ${name}님! \n당신의 ID는 ${chatId}입니다.`;
+    
+      bot.sendMessage(chatId, response);
+      
+      // 모드
+      room.changeTextMode(chatId, bot)
+      // 현황
+      response = room.getRoomStatus();
+      bot.sendMessage(chatId, response);
+
+    });
+
 
     //게임 명령어
 
