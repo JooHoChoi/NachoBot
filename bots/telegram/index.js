@@ -199,9 +199,10 @@ function start() {
       // 모드
       room.changeTextMode(chatId, bot)
       // 현황
-      response = room.getRoomStatus();
-      bot.sendMessage(chatId, response);
-
+      setTimeout(function() {
+        response = room.getRoomStatus();
+        bot.sendMessage(chatId, response);
+      }, 1000); // 1초 후 현황 확인
     });
 
 
