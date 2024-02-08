@@ -200,8 +200,8 @@ function start() {
       room.changeTextMode(chatId, bot)
       // 현황
       setTimeout(function() {
-        response = room.getRoomStatus();
-        bot.sendMessage(chatId, response);
+        res = room.getRoomStatus();
+        bot.sendMessage(chatId, res);
       }, 1000); // 1초 후 현황 확인
     });
 
