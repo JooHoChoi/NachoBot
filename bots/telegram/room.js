@@ -144,6 +144,9 @@ function getRoomStatus() {
     else if(mode=='바보'){
       return `게임 유형: 바보\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
     }
+    else if(mode=='사신전'){
+      return `게임 유형: 사신전\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
+    }
     else{
       return `게임 유형: 일반\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
     }
@@ -184,6 +187,10 @@ function changeGameMode(chatId, bot){
     else if(mode === '사신'){
       mode = '바보';
       bot.sendMessage(chatId, `게임 유형이 바보 유형으로 변경되었습니다.`);
+    }
+    else if(mode === '바보'){
+      mode = '사신전';
+      bot.sendMessage(chatId, `게임 유형이 사신전 유형으로 변경되었습니다.`);
     }
     else {
       mode = '일반';
