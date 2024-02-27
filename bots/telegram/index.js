@@ -793,7 +793,7 @@ function start() {
       }
     });
 
-    //방송 - 
+    //방송 - 사신대왕, 킨다라
     bot.onText(/^\/사신방송 (.+)/, (msg, match) => {
       const chatId = msg.chat.id;
       const broadMsg = `[사신 방송] : ` + match[1];
@@ -824,6 +824,18 @@ function start() {
         }
       }
     });
+
+    //음식먹기  - 류크, 미드라, 칼리카차
+    bot.onText(/^\/음식먹기 (.+)/, (msg) => {
+      const chatId = msg.chat.id;
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        sasinGame.eatFood(chatId, bot)  
+      }
+    });
+      
 
     //기타 명령어
     bot.onText(/\/자추 (.+)/, (msg, match) => {
