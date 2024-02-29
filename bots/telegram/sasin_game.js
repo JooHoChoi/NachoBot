@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const characters = require('./sasin_char14.json');
+import SasinNote from './sasin_note.js';
 
 const deathNoteCool = 80000; //데스노트 스킬 쿨타임: 테스트 60초, 본게임 80초
 let deathNoteCool_start;
@@ -73,50 +74,7 @@ function startSasinGame(roomData, mode, bot, callback_mapping) {
         });
     });
 }
-function checkForLastSurvivor(mapped_role) {
-    let aliveCount = 0;
-    let lastSurvivor = null;
-  
-    for (const key in mapped_role) {
-      if (mapped_role[key].alive === true) {
-        aliveCount += 1;
-        lastSurvivor = mapped_role[key]; // 마지막으로 발견된 생존자 저장
-      }
-    }
-  
-    if (aliveCount === 1) {
-        mapped_role.Winner.name = lastSurvivor.name;
-        mapped_role.Winner.role = lastSurvivor.role;
-      console.log("단 한 명의 생존자가 있습니다:", lastSurvivor.name);
-      return 1;
-      // 여기서 단 한 명의 생존자가 남았을 때의 게임 로직을 처리할 수 있습니다.
-      // 예를 들어, 승자를 발표하거나 게임을 종료할 수 있습니다.
-    } else {
-      console.log("여러 명의 생존자가 있거나 아무도 없습니다.");
-      return 0;
-      // 여기서 여러 명의 생존자가 있거나 아무도 없을 때의 게임 로직을 처리할 수 있습니다.
-    }
-}
 
-//사신노트로 인한 결과처리
-function deathMsg(chatId, character, dead, deathreason, bot, callback){
-    dead.alive = false; //사망처리
-    dead.deathreason = deathreason;
-    const participant = mapped_role[key];
-    character.kill = parseInt(character.kill) + 1
-
-    bot.sendMessage(chatId, '[System] 사신노트로 인해 ' + dead.role + '(이)가 사망했습니다.\n※사인: '+deathreason);
-    bot.sendMessage(participant.id, '[System] '+ dead.role + '(이)가 사신노트에 의해 사망했습니다\n※사인: '+deathreason);
-    let winner = 0;
-    winner = checkForLastSurvivor(mapped_role);
-
-    if (winner){
-        callback(true);
-    } 
-    else {
-        callback(false);
-    }
-}
 
 //사신노트
 function sasinNote(chatId, role, capturedPerson, deathReason, bot, deathNotes) {
@@ -124,93 +82,19 @@ function sasinNote(chatId, role, capturedPerson, deathReason, bot, deathNotes) {
     for (const key in mapped_role) {
       if (mapped_role[key].id === chatId) {
         character = mapped_role[key];
+        if (character.noteObj === ""){
+            character.noteObj = new SasinNote(bot);
+        }
         break;
       }
-    }
-  
-    if (character.role === "시도우" && character.skill1_note === false) {
-      bot.sendMessage(chatId, `[System] 사용할 수 있는 노트가 없습니다. 먼저 노트를 찾으세요`);
-      return;
     }
 
-    const currentTime = Date.now();
-    const elapsedTime = currentTime - character.skill1_cool;
-    const remainingTime = Math.ceil((deathNoteCool - elapsedTime) / 1000);
-    if (remainingTime < 0 ){
-        character.skill1 === true
+    deathNotes = character.noteObj.executeNote(chatId, role, capturedPerson, deathReason);
+
+    if (deathNotes){
+        clearAllTimeout(bot);
     }
-    else{
-        bot.sendMessage(chatId, `[System] 스킬쿨타임이 ${remainingTime}초 남았습니다`);
-    }
-    
-    let participantMatch = false;
-    for (const part_key in mapped_role) {
-      if (mapped_role[part_key].name === capturedPerson) {
-        participantMatch = true;
-        if (character.skill1 === true) {
-          character.skill1 = false;
-          character.skill1_cool = Date.now();
-  
-          bot.sendMessage(chatId, '[System] 노트의 일치여부를 체크합니다.');
-          deathNoteTimeout = setTimeout(() => {
-            let foundMatch = false;
-            for (const key in mapped_role) {
-              console.log('데스노트 일치여부 checking...');
-              if (mapped_role[key].role === role && mapped_role[key].name === capturedPerson && mapped_role[key].alive === true) {
-                // 여기에 각 캐릭터 별 조건 로직 추가
-                if (mapped_role[key].role === '사신대왕' && mapped_role.King.life_cnt === 1){
-                    mapped_role.King.life_cnt = 0;
-                    bot.sendMessage(mapped_role.King.id, '[System] 사신노트에 이름이 적혀 생명력 하나를 잃습니다.');
-                    setTimeout(()=>{
-                        bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
-                      }, deathCool);
-                    break;
-                }
-                else if (mapped_role[key].role === '류크' && mapped_role.Ryuk.skill3_check === true){
-                    bot.sendMessage(mapped_role.Ryuk.id, '[System] 사신노트에 적혔지만 사과의 효능으로 죽지 않았습니다.');
-                    setTimeout(()=>{
-                        bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
-                      }, deathCool);
-                    break;
-                }
-                else if (mapped_role[key].role === '미드라' && mapped_role.Meadra.skill3_check === true){
-                    bot.sendMessage(mapped_role.Meadra.id, '[System] 사신노트에 적혔지만 바나나의 효능으로 죽지 않았습니다.');
-                    setTimeout(()=>{
-                        bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
-                        }, deathCool);
-                    break;
-                }
-                else if (mapped_role[key].role === '칼리카차' && mapped_role.Cali.skill3_check === true){
-                    bot.sendMessage(mapped_role.Cali.id, '[System] 사신노트에 적혔지만 블루베리의 효능으로 죽지 않았습니다.');
-                    setTimeout(()=>{
-                        bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
-                        }, deathCool);
-                    break;
-                }
-                deathMsg(chatId, character, mapped_role[key], deathReason, bot, function(callback) {
-                  if (callback === true) {
-                    // 생존자 1명 남아서 게임 끝
-                    victory(bot);
-                    deathNotes(true);
-                  }
-                });
-                foundMatch = true;
-                break;
-              }
-            }
-            if (!foundMatch) {
-              bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
-            }
-          }, character.deathCool);
-        } 
-        break;
-      }
-    }
-  
-    if (!participantMatch) {
-      bot.sendMessage(chatId, `[System] ${capturedPerson}은(는) 데스노트 사용가능한 대상이 아닙니다.`);
-    }
-  }
+}
 
 // /사신방송 - 사신대왕, 킨다라
 function broadcast(chatId, broadMsg, bot){
@@ -453,7 +337,6 @@ function eatFood(chatId, bot){
 //타임아웃 초기화
 function clearAllTimeout(bot){
     bot.removeListener('message', messageListener);
-    clearTimeout(deathNoteTimeout);
     clearTimeout(getInfoTimeout);
     clearTimeout(AraGetInfoTimeout);
     clearTimeout(RyukEatFoodTimeout);
@@ -462,68 +345,7 @@ function clearAllTimeout(bot){
 
   }
 
-// 최종 승리자 결과처리
-function victory(bot){
-    let WinnerPhoto = __dirname + '/sasin_img/winner.png'
-    let LosersPhoto = __dirname + '/sasin_img/loser.png'
 
-  clearAllTimeout(bot);
-  const combinedMessage = Object.values(mapped_role)
-  .map(person => {
-    let message;
-    if (person.deathreason === '생존') {
-      message = `${person.role}: ${person.name} - ${person.kill}킬 - 결과: ${person.deathreason}`;
-    }
-    else {
-      message = `${person.role}: ${person.name} - ${person.kill}킬 - 결과: ${person.deathreason}(으)로 사망`;
-    }
-    return message;
-  })
-  .join('\n');
-
-    // 모든 플레이어에게 통합된 메시지 전송
-  for (const key_vf in mapped_role) {
-    const person = mapped_role[key_vf];
-    bot.sendMessage(person.id, `**최종 결과를 안내드립니다**\n${combinedMessage}`);
-  }
-  
-  for(const key in mapped_role){
-    const participant = mapped_role[key];
-    const arrestMsg = `**[속보]  ${mapped_role.Winner.name} (이)가 최후의 생존자가 되었습니다. -게임 종료-**`
-
-    if(participant.name === mapped_role.Winner.name){
-      if(participant.mode === '이미지'){
-        bot.sendPhoto(participant.id, WinnerPhoto, { caption: arrestMsg })
-        .then(() => {
-          //console.log('사진 전송 완료');
-        })
-        .catch((error) => {
-          //console.error('사진 전송 실패:', error);
-          bot.sendMessage(participant.id, arrestMsg)
-        });
-      }
-      else if(participant.mode === '텍스트'){
-        bot.sendMessage(participant.id, arrestMsg)
-      }
-      
-    }
-    else{
-      if(participant.mode === '이미지'){
-        bot.sendPhoto(participant.id, LosersPhoto, { caption: arrestMsg })
-        .then(() => {
-          //console.log('사진 전송 완료');
-        })
-        .catch((error) => {
-          //console.error('사진 전송 실패:', error);
-          bot.sendMessage(participant.id, arrestMsg)
-        });
-      }
-      else if(participant.mode === '텍스트'){
-        bot.sendMessage(participant.id, arrestMsg)
-      }
-    }  
-  }
-}
 //(공용) 귓날리기 횟수 검증
 function whisper(chatId, receiver, whisper_msg, bot){
     let foundMatch = false;

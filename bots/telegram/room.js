@@ -43,7 +43,8 @@ function startGame(bot) {
       sasinGame.startSasinGame(room, mode, bot, function(callback_mapping){
         const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
         const startMsg = `
-        **데스노트 게임을 시작합니다!!**
+        **사신계에 혼돈이 찾아왔습니다.**
+        모두를 죽이고 최후의 생존자가 되세요
   [게임 유형]
   ${mode} 모드
   
