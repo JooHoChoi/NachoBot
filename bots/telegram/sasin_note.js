@@ -13,6 +13,14 @@ export class SasinNote {
       }
       return null;
     }
+    findCharacterByRole(role) {
+        for (const key in mapped_role) {
+          if (mapped_role[key].role === role) {
+            return mapped_role[key];
+          }
+        }
+        return null;
+      }
   
     sendMessage(chatId, message) {
       this.bot.sendMessage(chatId, message);
@@ -33,6 +41,18 @@ export class SasinNote {
       const character = this.findCharacterById(chatId);
       if (!character || (character.role === "시도우" && !character.skill1_note)) {
         this.sendMessage(chatId, `[System] 사용할 수 있는 노트가 없습니다. 먼저 노트를 찾으세요`);
+        return;
+      } else if (character.role === "제르오기"){
+        //Zellogi
+        Meadra = this.findCharacterByRole("미드라");
+        this.sendMessage(Meadra.id, `[System] 제르오기의 노트사용이 감지되었습니다.`);
+        this.sendMessage(Meadra.id, `[System] 역할 : ${role}, 이름 : ${capturedPerson}`);
+        return;
+      } else if (character.role === "미드라"){
+        //Meadra
+        Zellogi = this.findCharacterByRole("제르오기");
+        this.sendMessage(Zellogi.id, `[System] 미드라의 노트사용이 감지되었습니다.`);
+        this.sendMessage(Zellogi.id, `[System] 역할 : ${role}, 이름 : ${capturedPerson}`);
         return;
       }
   

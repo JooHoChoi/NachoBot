@@ -96,7 +96,7 @@ function sasinNote(chatId, role, capturedPerson, deathReason, bot, deathNotes) {
     }
 }
 
-// /사신방송 - 사신대왕, 킨다라
+// /사신방송 - 사신대왕, 시도우, 킨다라
 function broadcast(chatId, broadMsg, bot){
     console.log('사신 방송 실행')
     
@@ -122,6 +122,28 @@ function broadcast(chatId, broadMsg, bot){
       else{
         bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`)
       }
+    } else if (mapped_role.Sidoh.id === chatId){
+        // 시도우
+        if(mapped_role.Sidoh.skill2 === true && mapped_role.Sidoh.alive === true){
+            mapped_role.Sidoh.skill2 = false;
+            KinddaraBroadCool_start = Date.now();
+            setTimeout(()=>{
+              mapped_role.Sidoh.skill2 = true;
+            }, broadCool)
+            for(const key in mapped_role){
+              const participant = mapped_role[key];
+              bot.sendMessage(participant.id, broadMsg)
+            } 
+          }
+          else if(mapped_role.Sidoh.alive === true && mapped_role.Sidoh.skill2 === false){
+            const currentTime = Date.now();
+            const elapsedTime = currentTime - SidohBroadCool_start
+            const remainingTime = Math.ceil((broadCool - elapsedTime) / 1000);
+            bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
+          }
+          else{
+            bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`)
+          }
     } else if (mapped_role.Kinddara.id === chatId){
         // 킨다라
         if(mapped_role.Kinddara.skill2 === true && mapped_role.Kinddara.alive === true){
@@ -333,6 +355,21 @@ function eatFood(chatId, bot){
       bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
     }
 }
+//스킬확인  -  모든 사신, 쿨타임확인, 스킬사용 가능여부
+function skillcheck(chatId, bot){
+    for (const key in mapped_role) {
+        if (mapped_role[key].id === chatId) {
+          character = mapped_role[key];
+        }
+    }
+    const currentTime = Date.now();
+    const sanoelapsedTime = currentTime - character.skill1_cool
+    const sanoLeftTime = Math.ceil((deathNoteCool - sanoelapsedTime) / 1000);
+    
+    bot.sendMessage(chatId, `[System] 사신노트 쿨타임이 ` + sanoLeftTime + `초 남았습니다`);
+
+    
+}
 
 //타임아웃 초기화
 function clearAllTimeout(bot){
@@ -439,6 +476,7 @@ module.exports = {
     broadcast,
     getInfo,
     eatFood,
+    skillcheck,
 
     whisper,
     whisper_result,

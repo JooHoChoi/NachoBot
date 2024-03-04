@@ -1,9 +1,10 @@
 {
     "King": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
+        "skill2_cool": "",
         "skill3": true,
         "alive": true,
         "noteObj": "",
@@ -19,7 +20,7 @@
         "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망\n\n/사신방송 [메세지]: 사신의 이름으로 방송을 할 수 있다. (쿨타임 없음)\n\n사신노트에 두번 적혀야 죽습니다. (생명력 2배)" 
     },
     "Nu": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
@@ -37,7 +38,7 @@
         "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망\n\n/사신정보 [역할] [이름]: 역할과 이름의 일치여부를 알 수 있다."
     },
     "Ara": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
@@ -55,7 +56,7 @@
         "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망\n\n/사신정보 [역할] [이름]: 역할과 이름의 일치여부를 알 수 있다."
     },
     "Dalil": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
@@ -73,7 +74,7 @@
         "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망"
     },
     "Rem": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
@@ -91,7 +92,7 @@
         "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망"
     },
     "Zellogi": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
@@ -109,7 +110,7 @@
         "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망"
     },
     "Ryuk": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
@@ -128,7 +129,7 @@
         "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망\n\n/음식먹기 - 좋아하는 사과를 먹으면 30초동안 죽지 않는 상태가 됩니다."
     },
     "Gook": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
@@ -146,11 +147,12 @@
         "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망"
     },
     "Sidoh": {
-        "name": "", 
+        "name": "",
         "skill1": false,
         "skill1_cool": "",
         "skill1_note": false,
         "skill2": true,
+        "skill2_cool": "",
         "skill3": true,
         "alive": true,
         "noteObj": "",
@@ -162,10 +164,10 @@
         "role": "시도우",
         "img": "/sasin_img/8_시도우.webp",
         "rank": "8",
-        "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망"
+        "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망\n\n/사신방송 [메세지]: 사신의 이름으로 방송을 할 수 있다. (쿨타임 없음)"
     },
     "Meadra": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
@@ -184,7 +186,7 @@
         "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망\n\n/음식먹기 - 좋아하는 바나나를 먹으면 30초동안 죽지 않는 상태가 됩니다."
     },
     "Delli": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
@@ -202,7 +204,7 @@
         "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망"
     },
     "Cali": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
@@ -221,10 +223,11 @@
         "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망\n\n/음식먹기 - 좋아하는 블루베리를 먹으면 30초동안 죽지 않는 상태가 됩니다."
     },
     "Kinddara": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
+        "skill2_cool": "",
         "skill3": true,
         "alive": true,
         "noteObj": "",
@@ -239,7 +242,7 @@
         "explain": "/사신노트 [역할] [이름] [사인]: 역할과 이름이 일치하면 입력한 사인으로 40초뒤 사망\n\n/사신방송 [메세지]: 사신의 이름으로 방송을 할 수 있다." 
     },
     "Jealous": {
-        "name": "", 
+        "name": "",
         "skill1": true,
         "skill1_cool": "",
         "skill2": true,
@@ -258,6 +261,9 @@
     },
     "Winner": {
         "name": "",
+        "kill": 0,
+        "deathreason": "생존",
+        "id": "",
         "role": ""
     }
 }
