@@ -2,7 +2,7 @@ export class SasinNote {
     constructor(bot) {
       this.bot = bot;
       this.deathNotes = false;
-      this.deathNoteCool = 60000; // 예시 쿨타임 1분
+      this.deathNoteCool = 70000; // 예시 쿨타임 1분
     }
   
     findCharacterById(chatId) {
@@ -47,13 +47,11 @@ export class SasinNote {
         Meadra = this.findCharacterByRole("미드라");
         this.sendMessage(Meadra.id, `[System] 제르오기의 노트사용이 감지되었습니다.`);
         this.sendMessage(Meadra.id, `[System] 역할 : ${role}, 이름 : ${capturedPerson}`);
-        return;
       } else if (character.role === "미드라"){
         //Meadra
         Zellogi = this.findCharacterByRole("제르오기");
         this.sendMessage(Zellogi.id, `[System] 미드라의 노트사용이 감지되었습니다.`);
         this.sendMessage(Zellogi.id, `[System] 역할 : ${role}, 이름 : ${capturedPerson}`);
-        return;
       }
   
       if (!this.checkSkillCooldown(character)) {
@@ -113,6 +111,20 @@ export class SasinNote {
             }
             else if (mapped_role[key].role === '칼리카차' && mapped_role.Cali.skill3_check === true){
                 bot.sendMessage(mapped_role.Cali.id, '[System] 사신노트에 적혔지만 블루베리의 효능으로 죽지 않았습니다.');
+                setTimeout(()=>{
+                    bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
+                    }, deathCool);
+                break;
+            }
+            else if (mapped_role[key].role === '렘' && mapped_role.Rem.skill3_check === true){
+                bot.sendMessage(mapped_role.Rem.id, '[System] 사신노트에 적혔지만 효과가 없었습니다.');
+                setTimeout(()=>{
+                    bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
+                    }, deathCool);
+                break;
+            }
+            else if (mapped_role[key].role === '제라스' && mapped_role.Jealous.skill3_check === true){
+                bot.sendMessage(mapped_role.Jealous.id, '[System] 사신노트에 적혔지만 효과가 없었습니다.');
                 setTimeout(()=>{
                     bot.sendMessage(chatId, '[System] 아무 일도 일어나지 않았습니다.');
                     }, deathCool);

@@ -104,7 +104,7 @@ function broadcast(chatId, broadMsg, bot){
         // 사신대왕
       if(mapped_role.King.skill2 === true && mapped_role.King.alive === true){
         mapped_role.King.skill2 = false;
-        broadCool_start = Date.now();
+        mapped_role.King.skill2_cool = Date.now();
         setTimeout(()=>{
           mapped_role.King.skill2 = true;
         }, broadCool)
@@ -115,7 +115,7 @@ function broadcast(chatId, broadMsg, bot){
       }
       else if(mapped_role.King.alive === true && mapped_role.King.skill2 === false){
         const currentTime = Date.now();
-        const elapsedTime = currentTime - broadCool_start
+        const elapsedTime = currentTime - mapped_role.King.skill2_cool
         const remainingTime = Math.ceil((broadCool - elapsedTime) / 1000);
         bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
       }
@@ -126,7 +126,7 @@ function broadcast(chatId, broadMsg, bot){
         // 시도우
         if(mapped_role.Sidoh.skill2 === true && mapped_role.Sidoh.alive === true){
             mapped_role.Sidoh.skill2 = false;
-            KinddaraBroadCool_start = Date.now();
+            mapped_role.Sidoh.skill2_cool = Date.now();
             setTimeout(()=>{
               mapped_role.Sidoh.skill2 = true;
             }, broadCool)
@@ -137,7 +137,7 @@ function broadcast(chatId, broadMsg, bot){
           }
           else if(mapped_role.Sidoh.alive === true && mapped_role.Sidoh.skill2 === false){
             const currentTime = Date.now();
-            const elapsedTime = currentTime - SidohBroadCool_start
+            const elapsedTime = currentTime - mapped_role.Sidoh.skill2_cool
             const remainingTime = Math.ceil((broadCool - elapsedTime) / 1000);
             bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
           }
@@ -148,7 +148,7 @@ function broadcast(chatId, broadMsg, bot){
         // 킨다라
         if(mapped_role.Kinddara.skill2 === true && mapped_role.Kinddara.alive === true){
             mapped_role.Kinddara.skill2 = false;
-            KinddaraBroadCool_start = Date.now();
+            mapped_role.Kinddara.skill2_cool = Date.now();
             setTimeout(()=>{
               mapped_role.Kinddara.skill2 = true;
             }, broadCool)
@@ -159,7 +159,7 @@ function broadcast(chatId, broadMsg, bot){
           }
           else if(mapped_role.Kinddara.alive === true && mapped_role.Kinddara.skill2 === false){
             const currentTime = Date.now();
-            const elapsedTime = currentTime - KinddaraBroadCool_start
+            const elapsedTime = currentTime - mapped_role.Kinddara.skill2_cool
             const remainingTime = Math.ceil((broadCool - elapsedTime) / 1000);
             bot.sendMessage(chatId, `[System] 스킬쿨타임이 ` + remainingTime + `초 남았습니다`);
           }
@@ -355,6 +355,47 @@ function eatFood(chatId, bot){
       bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
     }
 }
+
+//금단의사랑 - 캐릭터: 렘, 제라스
+function forbiddenLove(chatId, bot){
+    if(mapped_role.Rem.id === chatId){
+      if(mapped_role.Rem.alive === true ){
+        mapped_role.Rem.skill3 = false;
+        mapped_role.Rem.skill3_check = true;
+  
+        bot.sendMessage(chatId, `[System] 규율 위반!! 미사를 살리기 위해 노트를 사용하였습니다. 3분뒤 재가 되어 소멸합니다.`);
+  
+        forbiddenLoveTimeout = setTimeout(()=>{
+            mapped_role.Rem.alive === false;
+            for (const key in mapped_role) {
+                bot.sendMessage(mapped_role[key].id, `[System] 렘이 재가 되어 소멸합니다.`);
+            }
+
+        }, forbiddenLoveCool)
+      } else if(mapped_role.Jealous.alive === true ){
+        mapped_role.Jealous.skill3 = false;
+        mapped_role.Jealous.skill3_check = true;
+  
+        bot.sendMessage(chatId, `[System] 규율 위반!! 미사를 살리기 위해 노트를 사용하였습니다. 3분뒤 재가 되어 소멸합니다.`);
+  
+        forbiddenLoveTimeout = setTimeout(()=>{
+            mapped_role.Jealous.alive === false;
+            for (const key in mapped_role) {
+                bot.sendMessage(mapped_role[key].id, `[System] 제라스가 재가 되어 소멸합니다.`);
+            }
+
+        }, forbiddenLoveCool)
+      }
+
+      else{
+        bot.sendMessage(chatId, `[System] 스킬사용이 가능한 상태가 아닙니다`);
+      }
+    } 
+    else{
+      bot.sendMessage(chatId, `[System] 스킬사용이 가능한 역할이 아닙니다`);
+    }
+  }
+
 //스킬확인  -  모든 사신, 쿨타임확인, 스킬사용 가능여부
 function skillcheck(chatId, bot){
     for (const key in mapped_role) {
@@ -368,7 +409,7 @@ function skillcheck(chatId, bot){
     
     bot.sendMessage(chatId, `[System] 사신노트 쿨타임이 ` + sanoLeftTime + `초 남았습니다`);
 
-    
+
 }
 
 //타임아웃 초기화
@@ -476,6 +517,7 @@ module.exports = {
     broadcast,
     getInfo,
     eatFood,
+    forbiddenLove,
     skillcheck,
 
     whisper,

@@ -835,6 +835,16 @@ function start() {
         sasinGame.eatFood(chatId, bot)  
       }
     });
+    //금단의사랑  - 렘, 제라스
+    bot.onText(/^\/금단의사랑 (.+)/, (msg) => {
+      const chatId = msg.chat.id;
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        sasinGame.forbiddenLove(chatId, bot)  
+      }
+    });
 
     //스킬확인  -  모든 사신, 쿨타임확인, 스킬사용 가능여부
     bot.onText(/^\/스킬확인 (.+)/, (msg) => {
