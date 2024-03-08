@@ -396,6 +396,22 @@ function forbiddenLove(chatId, bot){
     }
   }
 
+//해골쌓기  - 다릴길로더, 구크, 델리더블리 
+function buildingSkeletons(chatId, bot){
+    for (const key in mapped_role) {
+        if (mapped_role[key].id === chatId) {
+          character = mapped_role[key];
+        }
+    }
+    const currentTime = Date.now();
+    const sanoelapsedTime = currentTime - character.skill1_cool
+    const sanoLeftTime = Math.ceil((deathNoteCool - sanoelapsedTime) / 1000);
+    
+    bot.sendMessage(chatId, `[System] 사신노트 쿨타임이 ` + sanoLeftTime + `초 남았습니다`);
+
+
+}
+
 //스킬확인  -  모든 사신, 쿨타임확인, 스킬사용 가능여부
 function skillcheck(chatId, bot){
     for (const key in mapped_role) {
