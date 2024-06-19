@@ -195,9 +195,9 @@ function getRoomStatus() {
     else if(mode=='바보'){
       return `게임 유형: 바보\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
     }
-    else if(mode=='사신전'){
-      return `게임 유형: 사신전\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
-    }
+    // else if(mode=='사신전'){
+    //   return `게임 유형: 사신전\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
+    // }
     else{
       return `게임 유형: 일반\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
     }

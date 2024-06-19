@@ -122,13 +122,13 @@ function startGame(roomData, mode, bot, callback_mapping) {
     if (!originalCharactor3) {
       originalCharactor3 = JSON.parse(JSON.stringify(charactor3));
       //console.log("최초 실행: " + JSON.stringify(originalCharactor));
-      mapNameToJSON(roomData, charactor3, function(callback) {
+      mapNameToJSON(roomData, charactor3, roomData.length ,function(callback) {
         callback_mapping(callback);
       });
     } else {
       const charactor_origin = JSON.parse(JSON.stringify(originalCharactor3));
       //console.log("다회차 진행:" + JSON.stringify(charactor_origin));
-      mapNameToJSON(roomData, charactor_origin, function(callback) {
+      mapNameToJSON(roomData, charactor_origin, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }
@@ -137,13 +137,13 @@ function startGame(roomData, mode, bot, callback_mapping) {
   else if(roomData.length === 4){  
     if (!originalCharactor4) {
       originalCharactor4 = JSON.parse(JSON.stringify(charactor4));
-      mapNameToJSON(roomData, charactor4, function(callback) {
+      mapNameToJSON(roomData, charactor4, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     } else {
       const charactor_origin = JSON.parse(JSON.stringify(originalCharactor4));
       console.log("3인후4인" + charactor_origin.length);
-      mapNameToJSON(roomData, charactor_origin, function(callback) {
+      mapNameToJSON(roomData, charactor_origin, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }
@@ -152,12 +152,12 @@ function startGame(roomData, mode, bot, callback_mapping) {
   else if(roomData.length === 5){
     if (!originalCharactor5) {
       originalCharactor5 = JSON.parse(JSON.stringify(charactor5));
-      mapNameToJSON(roomData, charactor5, function(callback) {
+      mapNameToJSON(roomData, charactor5, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     } else {
       const charactor_origin = JSON.parse(JSON.stringify(originalCharactor5));
-      mapNameToJSON(roomData, charactor_origin, function(callback) {
+      mapNameToJSON(roomData, charactor_origin, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }
@@ -193,12 +193,12 @@ function startGame(roomData, mode, bot, callback_mapping) {
 
     if (!originalCharactor) {
       originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
-      mapNameToJSON(roomData, originalCharactor, function(callback) {
+      mapNameToJSON(roomData, originalCharactor, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }else{
       originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
-      mapNameToJSON(roomData, originalCharactor, function(callback) {
+      mapNameToJSON(roomData, originalCharactor, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }
@@ -245,12 +245,12 @@ function startGame(roomData, mode, bot, callback_mapping) {
 
     if (!originalCharactor) {
       originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
-      mapNameToJSON(roomData, originalCharactor, function(callback) {
+      mapNameToJSON(roomData, originalCharactor, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }else{
       originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
-      mapNameToJSON(roomData, originalCharactor, function(callback) {
+      mapNameToJSON(roomData, originalCharactor, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }
@@ -304,12 +304,12 @@ function startGame(roomData, mode, bot, callback_mapping) {
     
     if (!originalCharactor) {
       originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
-      mapNameToJSON(roomData, originalCharactor, function(callback) {
+      mapNameToJSON(roomData, originalCharactor, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }else{
       originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
-      mapNameToJSON(roomData, originalCharactor, function(callback) {
+      mapNameToJSON(roomData, originalCharactor, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }
@@ -370,12 +370,12 @@ function startGame(roomData, mode, bot, callback_mapping) {
 
   if (!originalCharactor) {
     originalCharactor = JSON.parse(JSON.stringify(finalSelectedCharacters));
-    mapNameToJSON(roomData, originalCharactor, function(callback) {
+    mapNameToJSON(roomData, originalCharactor, roomData.length, function(callback) {
       callback_mapping(callback);
     });
   }else{
     originalCharactor = JSON.parse(JSON.stringify(finalSelectedCharacters));
-    mapNameToJSON(roomData, originalCharactor, function(callback) {
+    mapNameToJSON(roomData, originalCharactor, roomData.length, function(callback) {
       callback_mapping(callback);
     });
   }
@@ -413,12 +413,12 @@ function startGame(roomData, mode, bot, callback_mapping) {
 
     if (!originalCharactor) {
       originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
-      mapNameToJSON(roomData, originalCharactor, function(callback) {
+      mapNameToJSON(roomData, originalCharactor, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }else{
       originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
-      mapNameToJSON(roomData, originalCharactor, function(callback) {
+      mapNameToJSON(roomData, originalCharactor, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }
@@ -456,12 +456,12 @@ function startGame(roomData, mode, bot, callback_mapping) {
  
      if (!originalCharactor) {
       originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
-      mapNameToJSON(roomData, originalCharactor, function(callback) {
+      mapNameToJSON(roomData, originalCharactor, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }else{
       originalCharactor = JSON.parse(JSON.stringify(selectedCharacters));
-      mapNameToJSON(roomData, originalCharactor, function(callback) {
+      mapNameToJSON(roomData, originalCharactor, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }
@@ -483,12 +483,12 @@ function startGame(roomData, mode, bot, callback_mapping) {
   else if(roomData.length === 12){
     if (!originalCharactor12) {
       originalCharactor12 = JSON.parse(JSON.stringify(charactor12));
-      mapNameToJSON(roomData, charactor12, function(callback) {
+      mapNameToJSON(roomData, charactor12, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     } else {
       const charactor_origin = JSON.parse(JSON.stringify(originalCharactor12));
-      mapNameToJSON(roomData, charactor_origin, function(callback) {
+      mapNameToJSON(roomData, charactor_origin, roomData.length, function(callback) {
         callback_mapping(callback);
       });
     }
@@ -501,7 +501,7 @@ function startGame(roomData, mode, bot, callback_mapping) {
 
 
 //캐릭 배정 알고리즘
-function mapNameToJSON(roomData, charactor, callback){
+function mapNameToJSON(roomData, charactor, numParticipants, callback){
   const jsonKeys = Object.keys(charactor); // JSON 키 배열 추출
 
   // 배열을 랜덤하게 섞는 Fisher-Yates 알고리즘
@@ -517,12 +517,16 @@ function mapNameToJSON(roomData, charactor, callback){
     charactor[key].id = roomData[nameIndex].id;
     charactor[key].mode = roomData[nameIndex].mode;
     roomData.splice(nameIndex, 1);
+
+    //인원수에 맞게 귓 갯수 설정
+    charactor[key].whisper = numParticipants;
   }
   
   mapped_role = charactor;
   console.log(charactor);
   callback(charactor);
 }
+
 
 // 사신 활동 시작
 function sasin_start(bot){
@@ -2167,11 +2171,11 @@ function winLTeam(bot){
     LwinPhoto = __dirname + '/img/NWin.jpg'
   }
 
-  //이벤트 적용 ~23.11.30(예정)
-  if(mapped_role.L.id === 6419631188){
-    LwinPhoto = __dirname + '/img/LWin_6419631188.jpg'
-    KiraLosePhoto = __dirname + '/img/LWin_6419631188.jpg'
-  }
+  // //이벤트 적용 ~23.11.30(종료) - 피치 승리
+  // if(mapped_role.L.id === 6419631188){
+  //   LwinPhoto = __dirname + '/img/LWin_6419631188.jpg'
+  //   KiraLosePhoto = __dirname + '/img/LWin_6419631188.jpg'
+  // }
 
   mapped_role.Kira.deathreason = "체포";
   clearAllTimeout(bot);
@@ -2251,11 +2255,11 @@ function winKiraTeam(bot){
   //   LLosePhoto = __dirname + '/img/KiraWin_6125062530.jpg'
   // }
 
-  //이벤트 적용 ~23.11.30(예정)
-  if(mapped_role.N.id === 6457738141){
-    KiraWinPhoto = __dirname + '/img/NLose_6457738141.jpg'
-    LLosePhoto = __dirname + '/img/NLose_6457738141.jpg'
-  }
+  //이벤트 적용 ~23.11.30(종료) - 루드렛의 살고싶어
+  // if(mapped_role.N.id === 6457738141){
+  //   KiraWinPhoto = __dirname + '/img/NLose_6457738141.jpg'
+  //   LLosePhoto = __dirname + '/img/NLose_6457738141.jpg'
+  // }
   
   clearAllTimeout(bot);
   const combinedMessage = Object.values(mapped_role)
@@ -2460,15 +2464,22 @@ function whisper_result(sender, receiver, whisper_msg, bot, callback){
   let foundMatch = false;
   for(const key in mapped_role){
     if(sender.role === '멜로'){
-      const chocoletMelo_chance = Math.random();
-      if(mapped_role[key].name === receiver && chocoletMelo_chance >= 0.5){
+      //const chocoletMelo_chance = Math.random(); //오독오독 확률 삭제
+      if(mapped_role[key].name === receiver && mapped_role[key].role ==='니아'){
         bot.sendMessage(sender.id, `${receiver}에게 귓속말 전달에 성공했습니다\n남은횟수: ${sender.whisper-1}회`)
         bot.sendMessage(mapped_role[key].id, `[귓속말] ???(오독오독): ${whisper_msg}`)
         callback(true)
         foundMatch = true;
         break;
       }
-      else if(mapped_role[key].name === receiver && chocoletMelo_chance < 0.5){
+      else if(mapped_role[key].name === receiver && mapped_role[key].role === '할리드너'){
+        bot.sendMessage(sender.id, `${receiver}에게 귓속말 전달에 성공했습니다\n남은횟수: ${sender.whisper-1}회`)
+        bot.sendMessage(mapped_role[key].id, `[귓속말-멜로] ${sender.name}: ${whisper_msg}`)
+        callback(true)
+        foundMatch = true;
+        break;
+      }
+      else if(mapped_role[key].name === receiver){
         bot.sendMessage(sender.id, `${receiver}에게 귓속말 전달에 성공했습니다\n남은횟수: ${sender.whisper-1}회`)
         bot.sendMessage(mapped_role[key].id, `[귓속말] ???: ${whisper_msg}`)
         callback(true)

@@ -3,6 +3,10 @@ const { token, chatId } = require('../../config/telegram.json');
 // telegram Bot 선언
 const TelegramBot = require('node-telegram-bot-api');
 
+const fs = require('fs');
+const mysql = require('mysql');
+const config = require('./config'); // config.js 파일에서 MySQL 설정 가져오기
+
 //외부 JS
 const room = require('./room');
 const game = require('./game');
@@ -12,6 +16,19 @@ const sasinGame = require('./sasin_game');
 const bot = new TelegramBot(token, { polling: true });
 
 const masterId = 5771249800;
+
+// MySQL 연결 설정
+const connection = mysql.createConnection(config.mysql);
+
+// MySQL 연결
+connection.connect(err => {
+  if (err) {
+    console.error('MySQL 연결 오류:', err);
+    return;
+  }
+  console.log('MySQL에 연결되었습니다.');
+});
+
 function start() {  
    
    //'/cmd' 라는 명령어가 오면, 명령어 리스트를 전달한다.
@@ -53,6 +70,7 @@ function start() {
     const keyboard = {
       keyboard: [
         [{ text: '/참가' }, { text: '/나가기' }],
+        [{ text: '/참모현' }, { text: '/참유현' }],
         [{ text: '/유형' }, { text: '/모드' }],
         [{ text: '/현황' }, { text: '/시작' }]
       ],
@@ -205,44 +223,84 @@ function start() {
       bot.sendMessage(chatId, res);
     });
 
+    //참가유형현황
+    bot.onText(/\/참유현/, (msg, match) => {
+      // 'msg' : 텔레그램으로 부터 수신한 메세지
+      // 'match' : 정규식을 실행한 결과
+      const chatId = msg.chat.id;
+      const name = msg.from.first_name;
+      if (room.getGameStatus() === true){
+        bot.sendMessage(chatId, '이미 게임이 진행중입니다.');
+        return;
+      }
+      if (room.isRoomFull()) {
+        bot.sendMessage(chatId, '이미 최대 참여자 수에 도달했습니다.');
+        return;
+      }
+    
+      if (room.isUserAlreadyInRoom(chatId)) {
+        bot.sendMessage(chatId, '이미 참여하셨습니다.');
+        return;
+      }
+    
+      room.addUserInfoToRoom(chatId, name, bot); // 사용자 정보를 room 배열에 추가하는 함수 호출
+    
+      const response = `안녕하세요, ${name}님! \n당신의 ID는 ${chatId}입니다.`;
+    
+      bot.sendMessage(chatId, response);
+      
+      // 모드
+      if(chatId === room.getRoom()[0].id || chatId === masterId){
+      //if(chatId === room.getRoom()[0].id || chatId === masterId){  
+        room.changeGameMode(chatId, bot)
+      }
+      else{
+        bot.sendMessage(chatId, '게임유형 변경은 방장 또는 관리자만 사용할 수 있습니다.');
+      }
+      
+      // 현황
+      const res = room.getRoomStatus();
+      bot.sendMessage(chatId, res);
+    });
+
 
     //게임 명령어
 
     //게시판
-    bot.onText(/^\/게시판 (.+)/, (msg) => {
-      const chatId = msg.chat.id;
+    // bot.onText(/^\/게시판 (.+)/, (msg) => {
+    //   const chatId = msg.chat.id;
       
-      if(room.getGameStatus() === false){
-        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
-      }
-      else{
+    //   if(room.getGameStatus() === false){
+    //     bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+    //   }
+    //   else{
         
-      }
-    });
+    //   }
+    // });
 
-    //메모 [역할] [메모내용]
-    bot.onText(/^\/메모 (.+)/, (msg, match) => {
-      const chatId = msg.chat.id;
-      const input = match[1];
-      const values = input.split(' ');
+    // //메모 [역할] [메모내용]
+    // bot.onText(/^\/메모 (.+)/, (msg, match) => {
+    //   const chatId = msg.chat.id;
+    //   const input = match[1];
+    //   const values = input.split(' ');
 
-      const target = values[0];
-      const reason_id = values.slice(1).join(' ');
+    //   const target = values[0];
+    //   const reason_id = values.slice(1).join(' ');
       
-      if(room.getGameStatus() === false){
-        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
-      }
-      else if(reason_id.length>=6){
-        bot.sendMessage(chatId, '게시판에 등록할 내용이 너무 깁니다.');
-      }
-      else{
-        if (values.length >= 2) {
+    //   if(room.getGameStatus() === false){
+    //     bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+    //   }
+    //   else if(reason_id.length>=6){
+    //     bot.sendMessage(chatId, '게시판에 등록할 내용이 너무 깁니다.');
+    //   }
+    //   else{
+    //     if (values.length >= 2) {
           
-        } else {
-          bot.sendMessage(chatId, '역할과 메모내용을 잘 구분해주세요');
-        }
-      }
-    });
+    //     } else {
+    //       bot.sendMessage(chatId, '역할과 메모내용을 잘 구분해주세요');
+    //     }
+    //   }
+    // });
     //제거
 
     //귓 [상대] [메세지]
@@ -785,113 +843,113 @@ function start() {
     });
     /////////////////////////////////////////  사신전 ///////////////////////////////////////////////////////
     //사신노트 + 역할 + 이름 - 모든 사신
-    bot.onText(/^\/사신노트 (.+)/, (msg, match) => {
-      const chatId = msg.chat.id;
-      const input = match[1];
-      const values = input.split(' ');
-      let deathreason = '심장마비';
+    // bot.onText(/^\/사신노트 (.+)/, (msg, match) => {
+    //   const chatId = msg.chat.id;
+    //   const input = match[1];
+    //   const values = input.split(' ');
+    //   let deathreason = '심장마비';
       
-      if(room.getGameStatus() === false){
-        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
-      }
-      else{
-        if (values.length >= 2) {
-          const role = values[0];
-          const capturedPerson = values[1];
-          if (values.length > 2) {
-            deathreason = values.slice(2).join(' '); // 사용자가 입력한 값으로 업데이트됩니다.
-            if(deathreason == '생존'){
-              deathreason = '심장마비';
-              sasinGame.sasinNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
-                if(deathNotes === true){ 
-                  room.resetRoom();
-                }
-              });
-            }
-            else{
-              sasinGame.sasinNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
-                if(deathNotes === true){ 
-                  room.resetRoom();
-                }
-              });
-            }
-          }
-          else{
-            sasinGame.sasinNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
-              if(deathNotes === true){ 
-                room.resetRoom();
-              }
-            });
-          }    
-        } else {
-          bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
-        }
-      }
-    });
+    //   if(room.getGameStatus() === false){
+    //     bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+    //   }
+    //   else{
+    //     if (values.length >= 2) {
+    //       const role = values[0];
+    //       const capturedPerson = values[1];
+    //       if (values.length > 2) {
+    //         deathreason = values.slice(2).join(' '); // 사용자가 입력한 값으로 업데이트됩니다.
+    //         if(deathreason == '생존'){
+    //           deathreason = '심장마비';
+    //           sasinGame.sasinNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
+    //             if(deathNotes === true){ 
+    //               room.resetRoom();
+    //             }
+    //           });
+    //         }
+    //         else{
+    //           sasinGame.sasinNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
+    //             if(deathNotes === true){ 
+    //               room.resetRoom();
+    //             }
+    //           });
+    //         }
+    //       }
+    //       else{
+    //         sasinGame.sasinNote(chatId, role, capturedPerson, deathreason, bot, function(deathNotes){
+    //           if(deathNotes === true){ 
+    //             room.resetRoom();
+    //           }
+    //         });
+    //       }    
+    //     } else {
+    //       bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
+    //     }
+    //   }
+    // });
 
-    //방송 - 사신대왕, 킨다라
-    bot.onText(/^\/사신방송 (.+)/, (msg, match) => {
-      const chatId = msg.chat.id;
-      const broadMsg = `[사신 방송] : ` + match[1];
-      if(room.getGameStatus() === false){
-        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
-      }
-      else{
-        sasinGame.broadcast(chatId, broadMsg, bot)  
-      }
-    });
+    // //방송 - 사신대왕, 킨다라
+    // bot.onText(/^\/사신방송 (.+)/, (msg, match) => {
+    //   const chatId = msg.chat.id;
+    //   const broadMsg = `[사신 방송] : ` + match[1];
+    //   if(room.getGameStatus() === false){
+    //     bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+    //   }
+    //   else{
+    //     sasinGame.broadcast(chatId, broadMsg, bot)  
+    //   }
+    // });
     
-    //사신정보 - 누, 아라모니아
-    bot.onText(/^\/사신정보 (.+)/, (msg, match) => {
-      const chatId = msg.chat.id;
-      const input = match[1];
-      const values = input.split(' ');
+    // //사신정보 - 누, 아라모니아
+    // bot.onText(/^\/사신정보 (.+)/, (msg, match) => {
+    //   const chatId = msg.chat.id;
+    //   const input = match[1];
+    //   const values = input.split(' ');
       
-      if(room.getGameStatus() === false){
-        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
-      }
-      else{
-        if (values.length >= 2) {
-          const role = values[0];
-          const infoPerson = values[1];
-          sasinGame.getInfo(chatId, role, infoPerson, bot)
-        } else {
-          bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
-        }
-      }
-    });
+    //   if(room.getGameStatus() === false){
+    //     bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+    //   }
+    //   else{
+    //     if (values.length >= 2) {
+    //       const role = values[0];
+    //       const infoPerson = values[1];
+    //       sasinGame.getInfo(chatId, role, infoPerson, bot)
+    //     } else {
+    //       bot.sendMessage(chatId, '역할과 이름을 잘 구분해주세요');
+    //     }
+    //   }
+    // });
 
-    //음식먹기  - 류크, 미드라, 칼리카차
-    bot.onText(/^\/음식먹기 (.+)/, (msg) => {
-      const chatId = msg.chat.id;
-      if(room.getGameStatus() === false){
-        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
-      }
-      else{
-        sasinGame.eatFood(chatId, bot)  
-      }
-    });
-    //금단의사랑  - 렘, 제라스
-    bot.onText(/^\/금단의사랑 (.+)/, (msg) => {
-      const chatId = msg.chat.id;
-      if(room.getGameStatus() === false){
-        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
-      }
-      else{
-        sasinGame.forbiddenLove(chatId, bot)  
-      }
-    });
+    // //음식먹기  - 류크, 미드라, 칼리카차
+    // bot.onText(/^\/음식먹기 (.+)/, (msg) => {
+    //   const chatId = msg.chat.id;
+    //   if(room.getGameStatus() === false){
+    //     bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+    //   }
+    //   else{
+    //     sasinGame.eatFood(chatId, bot)  
+    //   }
+    // });
+    // //금단의사랑  - 렘, 제라스
+    // bot.onText(/^\/금단의사랑 (.+)/, (msg) => {
+    //   const chatId = msg.chat.id;
+    //   if(room.getGameStatus() === false){
+    //     bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+    //   }
+    //   else{
+    //     sasinGame.forbiddenLove(chatId, bot)  
+    //   }
+    // });
 
-    //스킬확인  -  모든 사신, 쿨타임확인, 스킬사용 가능여부
-    bot.onText(/^\/스킬확인 (.+)/, (msg) => {
-      const chatId = msg.chat.id;
-      if(room.getGameStatus() === false){
-        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
-      }
-      else{
-        sasinGame.skillcheck(chatId, bot)  
-      }
-    });
+    // //스킬확인  -  모든 사신, 쿨타임확인, 스킬사용 가능여부
+    // bot.onText(/^\/스킬확인 (.+)/, (msg) => {
+    //   const chatId = msg.chat.id;
+    //   if(room.getGameStatus() === false){
+    //     bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+    //   }
+    //   else{
+    //     sasinGame.skillcheck(chatId, bot)  
+    //   }
+    // });
       
 
     //기타 명령어
