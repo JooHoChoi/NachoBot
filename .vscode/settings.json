@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/ef9187b5-81d6-41dd-9013-6369e50605f9/resourceGroups/NachoMafia_group/providers/Microsoft.Web/sites/NachoMafia",
+    "appService.deploySubpath": "."
+}
