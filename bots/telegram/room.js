@@ -1,5 +1,6 @@
 // room.js
 const game = require('./game')
+const sasinGame = require('./sasin_game')
 
 let room = [];
 const maxParticipants = 12; // 최대 참여자 수
@@ -38,12 +39,12 @@ function startGame(bot) {
   const roomPart = room.map((participant) => participant.name);
   if(gameStarted===false){
     gameStarted = true;
-    game.startGame(room, mode, bot, function(callback_mapping){
-      //일반 또는 사신모드
-      if(mode=='일반' || mode=='사신'){
+    if (mode === '사신전'){
+      sasinGame.startSasinGame(room, mode, bot, function(callback_mapping){
         const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
         const startMsg = `
-        **데스노트 게임을 시작합니다!!**
+        **사신계에 혼돈이 찾아왔습니다.**
+        모두를 죽이고 최후의 생존자가 되세요
   [게임 유형]
   ${mode} 모드
   
@@ -55,7 +56,7 @@ function startGame(bot) {
           for(const key in callback_mapping){
             const participant = callback_mapping[key];
             const roleImg = __dirname + participant.img
-            const roleMsg = `당신의 역할은 ${participant.role} 입니다.\n
+            const roleMsg = `당신의 역할은 서열 ${participant.rank}위 ${participant.role} 입니다.\n
   [**보유 스킬**]
   ${participant.explain}`;
             if(participant.mode==='이미지'){
@@ -85,46 +86,96 @@ function startGame(bot) {
               }, 2000)
             }
           }
-      }
-      //바보 모드
-      else{
-        //const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
-        const startMsg = `
-        **데스노트 게임을 시작합니다!!**
-  [게임 유형]
-  ${mode} 모드
-  
-  [참여 플레이어의 이름]
-  ${roomPart}
-  
-  [게임 역할${roomPart.length}인]
-  바보모드에서는 공개되지 않습니다`;
-          for(const key in callback_mapping){
-            const participant = callback_mapping[key];
-            const roleMsg = `바보모드에서는 당신의 역할을 알려주지 않습니다`;
-            if(participant.mode==='이미지'){
-              bot.sendPhoto(participant.id, startPhoto, { caption: startMsg })
-              .then(() => {
-                //console.log('사진 전송 완료');
-              })
-              .catch((error) => {
-                console.error('사진 전송 실패:', error);
+      });
+    } else {
+      game.startGame(room, mode, bot, function(callback_mapping){
+        //일반 또는 사신모드
+        if(mode=='일반' || mode=='사신'){
+          const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
+          const startMsg = `
+          **데스노트 게임을 시작합니다!!**
+    [게임 유형]
+    ${mode} 모드
+    
+    [참여 플레이어의 이름]
+    ${roomPart}
+    
+    [게임 역할${roomPart.length}인]
+    ${participantRole}`;
+            for(const key in callback_mapping){
+              const participant = callback_mapping[key];
+              const roleImg = __dirname + participant.img
+              const roleMsg = `당신의 역할은 ${participant.role} 입니다.\n
+    [**보유 스킬**]
+    ${participant.explain}`;
+              if(participant.mode==='이미지'){
+                bot.sendPhoto(participant.id, startPhoto, { caption: startMsg })
+                .then(() => {
+                  //console.log('사진 전송 완료');
+                })
+                .catch((error) => {
+                  console.error('사진 전송 실패:', error);
+                  bot.sendMessage(participant.id, startMsg)
+                });
+                setTimeout(()=>{
+                  bot.sendPhoto(participant.id, roleImg, { caption: roleMsg })
+                  .then(() => {
+                    //console.log('사진 전송 완료');
+                  })
+                  .catch((error) => {
+                    console.error('사진 전송 실패:', error);
+                    bot.sendMessage(participant.id, roleMsg)
+                  });
+                }, 2000)
+              }
+              else if(participant.mode==='텍스트'){
                 bot.sendMessage(participant.id, startMsg)
-              });
-              setTimeout(()=>{
-                bot.sendMessage(participant.id, roleMsg)
-              }, 2000)
+                setTimeout(()=>{
+                  bot.sendMessage(participant.id, roleMsg)
+                }, 2000)
+              }
             }
-            else if(participant.mode==='텍스트'){
-              bot.sendMessage(participant.id, startMsg)
-              setTimeout(()=>{
-                bot.sendMessage(participant.id, roleMsg)
-              }, 2000)
+        }
+        //바보 모드
+        else{
+          //const participantRole = Object.values(callback_mapping).map(callback_mapping => callback_mapping.role);
+          const startMsg = `
+          **데스노트 게임을 시작합니다!!**
+    [게임 유형]
+    ${mode} 모드
+    
+    [참여 플레이어의 이름]
+    ${roomPart}
+    
+    [게임 역할${roomPart.length}인]
+    바보모드에서는 공개되지 않습니다`;
+            for(const key in callback_mapping){
+              const participant = callback_mapping[key];
+              const roleMsg = `바보모드에서는 당신의 역할을 알려주지 않습니다`;
+              if(participant.mode==='이미지'){
+                bot.sendPhoto(participant.id, startPhoto, { caption: startMsg })
+                .then(() => {
+                  //console.log('사진 전송 완료');
+                })
+                .catch((error) => {
+                  console.error('사진 전송 실패:', error);
+                  bot.sendMessage(participant.id, startMsg)
+                });
+                setTimeout(()=>{
+                  bot.sendMessage(participant.id, roleMsg)
+                }, 2000)
+              }
+              else if(participant.mode==='텍스트'){
+                bot.sendMessage(participant.id, startMsg)
+                setTimeout(()=>{
+                  bot.sendMessage(participant.id, roleMsg)
+                }, 2000)
+              }
             }
-          }
-      }
-    });  
-  }
+        }
+      });  
+    } // else
+  } // gameStarted
   else{
     const message = `이미 게임이 시작된 상태입니다`
   }
@@ -143,6 +194,9 @@ function getRoomStatus() {
     }
     else if(mode=='바보'){
       return `게임 유형: 바보\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
+    }
+    else if(mode=='사신전'){
+      return `게임 유형: 사신전\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
     }
     else{
       return `게임 유형: 일반\n현재 참여자: ${participantNames}\n참여자 수: ${participantCount}/${maxParticipants}`;
@@ -184,6 +238,10 @@ function changeGameMode(chatId, bot){
     else if(mode === '사신'){
       mode = '바보';
       bot.sendMessage(chatId, `게임 유형이 바보 유형으로 변경되었습니다.`);
+    }
+    else if(mode === '바보'){
+      mode = '사신전';
+      bot.sendMessage(chatId, `게임 유형이 사신전 유형으로 변경되었습니다.`);
     }
     else {
       mode = '일반';
