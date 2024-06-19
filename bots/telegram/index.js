@@ -17,7 +17,7 @@ const bot = new TelegramBot(token, { polling: true });
 
 const masterId = 5771249800;
 
-// MySQL 연결 설정
+// MySQL 연결 설정 
 const connection = mysql.createConnection(config.mysql);
 
 // MySQL 연결
