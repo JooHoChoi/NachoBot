@@ -24,7 +24,7 @@ const connection = mysql.createConnection(config.mysql);
 connection.connect(err => {
   if (err) {
     console.error('MySQL 연결 오류:', err);
-    return;
+    return; 
   }
   console.log('MySQL에 연결되었습니다.');
   bot.sendMessage(masterId, 'MySQL에 연결되었습니다.');
