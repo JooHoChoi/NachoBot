@@ -27,6 +27,7 @@ connection.connect(err => {
     return;
   }
   console.log('MySQL에 연결되었습니다.');
+  bot.sendMessage(masterId, 'MySQL에 연결되었습니다.');
 });
 
 function start() {  
