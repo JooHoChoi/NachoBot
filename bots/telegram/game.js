@@ -2536,6 +2536,35 @@ function note_result(sender, receiver, note_msg, bot, callback){
   }
 }
 
+
+function notice_board(){
+  // const combinedMessage = Object.values(mapped_role)
+  // .map(person => {
+  //   let message;
+  //   message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+
+  //   if (person.deathreason === '생존') {
+  //     message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+  //   }
+  //   else if(person.deathreason === '체포'){
+  //     message = `${person.role}: ${person.name} - 결과: ${person.deathreason}`;
+  //   } 
+  //   else {
+  //     message = `${person.role}: ${person.name} - 결과: ${person.deathreason}(으)로 사망`;
+  //   }
+  //   return message;
+  // })
+  // .join('\n');
+}
+
+function memo_board(){
+
+}
+
+function remove_board(){
+
+}
+
 //(공용) 명함교환
 function namecard_exchange(chatId, receiver, msg, bot){
   let foundMatch = false;
@@ -2623,5 +2652,8 @@ module.exports = {
   note_result,
   sasin_start,
   sasinNote,
-  clearAllTimeout
+  clearAllTimeout,
+  notice_board,
+  memo_board,
+  remove_board
 };

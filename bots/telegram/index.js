@@ -198,15 +198,51 @@ function start() {
       
       // 모드
       room.changeTextMode(chatId, bot)
+      
       // 현황
-      setTimeout(function() {
-        res = room.getRoomStatus();
-        bot.sendMessage(chatId, res);
-      }, 1000); // 1초 후 현황 확인
+      const res = room.getRoomStatus();
+      bot.sendMessage(chatId, res);
     });
 
 
     //게임 명령어
+
+    //게시판
+    bot.onText(/^\/게시판 (.+)/, (msg) => {
+      const chatId = msg.chat.id;
+      
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else{
+        
+      }
+    });
+
+    //메모 [역할] [메모내용]
+    bot.onText(/^\/메모 (.+)/, (msg, match) => {
+      const chatId = msg.chat.id;
+      const input = match[1];
+      const values = input.split(' ');
+
+      const target = values[0];
+      const reason_id = values.slice(1).join(' ');
+      
+      if(room.getGameStatus() === false){
+        bot.sendMessage(chatId, '게임중에만 사용할 수 있습니다.');
+      }
+      else if(reason_id.length>=6){
+        bot.sendMessage(chatId, '게시판에 등록할 내용이 너무 깁니다.');
+      }
+      else{
+        if (values.length >= 2) {
+          
+        } else {
+          bot.sendMessage(chatId, '역할과 메모내용을 잘 구분해주세요');
+        }
+      }
+    });
+    //제거
 
     //귓 [상대] [메세지]
     bot.onText(/^\/귓 (.+)/, (msg, match) => {
