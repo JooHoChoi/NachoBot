@@ -30,7 +30,7 @@ connection.connect(err => {
   bot.sendMessage(masterId, 'MySQL에 연결되었습니다.');
 }); 
 
-function start() {  
+function start() {   
    
    //'/cmd' 라는 명령어가 오면, 명령어 리스트를 전달한다.
    bot.onText(/\/cmd/, (msg, match) => {
