@@ -20,16 +20,6 @@ const masterId = 5771249800;
 // MySQL 연결 설정 
 const connection = mysql.createConnection(config.mysql);
 
-// MySQL 연결
-connection.connect(err => {
-  if (err) {
-    console.error('MySQL 연결 오류:', err);
-    return; 
-  }
-  console.log('MySQL에 연결되었습니다.');
-  bot.sendMessage(masterId, 'MySQL에 연결되었습니다.');
-}); 
-
 function start() {   
    
    //'/cmd' 라는 명령어가 오면, 명령어 리스트를 전달한다.
@@ -1014,6 +1004,30 @@ function start() {
         console.error('사진 전송 실패:', error);
       });
     });
+
+    // MySQL 연결
+    bot.onText(/\/디비연결/, (msg, match) => {
+      const chatId = msg.chat.id;
+
+      connection.connect(err => {
+        if (err) {
+          bot.sendMessage(chatId, "MySQL 연결 오류")
+          return; 
+        }
+        bot.sendMessage(chatId, 'MySQL에 연결되었습니다.');
+      });
+    });
+    // /디비해제 명령어 처리
+    bot.onText(/\/디비해제/, (msg, match) => {
+      const chatId = msg.chat.id;
+      connection.end(err => {
+        if (err) {
+          bot.sendMessage(chatId, "MySQL 연결 해제 오류: " + err.message);
+          return;
+        }
+        bot.sendMessage(chatId, 'MySQL 연결이 해제되었습니다.');
+      });
+    });      
 }
 
 module.exports = { 
