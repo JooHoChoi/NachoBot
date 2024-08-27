@@ -19,9 +19,28 @@ const masterId = 5771249800;
 
 //서버ip 찾는 모듈
 const os = require('os');
+function getServerIP() {
+  const interfaces = os.networkInterfaces();
+  let ipAddress = 'Not connected';
+
+  for (const iface in interfaces) {
+      for (const alias of interfaces[iface]) {
+          if (alias.family === 'IPv4' && !alias.internal) {
+              ipAddress = alias.address;
+              break;
+          }
+      }
+  }
+  return ipAddress;
+}
+
+// 서버 IP 가져오기
+const serverIP = getServerIP();
+console.log('Server IP Address:', serverIP);
 
 // MySQL 연결 설정 
 const connection = mysql.createConnection(config.mysql);
+
 
 function start() {   
    
@@ -1007,26 +1026,6 @@ function start() {
         console.error('사진 전송 실패:', error);
       });
     });
-
-    //서버 ip 찾기
-    function getServerIP() {
-      const interfaces = os.networkInterfaces();
-      let ipAddress = 'Not connected';
-  
-      for (const iface in interfaces) {
-          for (const alias of interfaces[iface]) {
-              if (alias.family === 'IPv4' && !alias.internal) {
-                  ipAddress = alias.address;
-                  break;
-              }
-          }
-      }
-      return ipAddress;
-    }
-  
-    // 서버 IP 가져오기
-    const serverIP = getServerIP();
-    console.log('Server IP Address:', serverIP);
     
     // 예시: 텔레그램 봇에 서버 IP 주소 전송
     bot.onText(/\/서버주소/, (msg) => {
