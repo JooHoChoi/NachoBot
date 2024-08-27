@@ -34,6 +34,7 @@ function getServerIP() {
   return ipAddress;
 }
 
+
 // 서버 IP 가져오기
 const serverIP = getServerIP();
 console.log('Server IP Address:', serverIP);
